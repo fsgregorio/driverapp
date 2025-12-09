@@ -45,6 +45,16 @@ npm run dev
 
 4. Abra [http://localhost:3000](http://localhost:3000) no navegador
 
+### Configuração de SEO
+
+Para otimizar o SEO em produção, crie um arquivo `.env` na raiz do projeto:
+
+```bash
+REACT_APP_SITE_URL=https://seu-dominio.com.br
+```
+
+Isso garante que as URLs canônicas e meta tags Open Graph usem o domínio correto.
+
 ## 🏗️ Estrutura do Projeto
 
 ```
@@ -68,10 +78,14 @@ src/
 │   │   ├── Precos.jsx         # Informações sobre comissão
 │   │   ├── CTAFinal.jsx       # Call-to-action final
 │   │   └── FAQ.jsx            # Perguntas frequentes para instrutores
+│   ├── SEO.jsx                 # Componente de SEO (meta tags dinâmicas)
 │   ├── Navbar.jsx              # Barra de navegação (comum)
 │   ├── Footer.jsx              # Rodapé (comum)
 │   ├── PopupSelector.jsx       # Modal de seleção de perfil (comum)
 │   └── Hero.jsx                # Hero da página inicial (comum)
+├── public/
+│   ├── robots.txt              # Instruções para crawlers
+│   └── sitemap.xml             # Mapa do site para SEO
 ├── App.jsx                     # Componente principal com rotas
 ├── index.js                    # Entry point
 └── index.css                   # Estilos globais e Tailwind
@@ -82,6 +96,22 @@ src/
 - `/` - Página inicial com modal de seleção de perfil
 - `/aluno` - Landing page completa para alunos
 - `/instrutor` - Landing page completa para instrutores
+
+## 🔍 SEO
+
+O projeto está otimizado para SEO com:
+
+- **Meta Tags Dinâmicas**: Cada página tem títulos e descrições únicos usando `react-helmet-async`
+- **Open Graph Tags**: Otimizado para compartilhamento em redes sociais (Facebook, LinkedIn)
+- **Twitter Cards**: Cards otimizados para Twitter
+- **Structured Data (JSON-LD)**: Dados estruturados para melhor indexação:
+  - Homepage: Schema.org WebSite
+  - Aluno: Schema.org Service
+  - Instrutor: Schema.org JobPosting
+- **Sitemap.xml**: Mapa do site para facilitar indexação
+- **Robots.txt**: Instruções para crawlers de busca
+- **URLs Canônicas**: Prevenção de conteúdo duplicado
+- **Atributos Semânticos**: Imagens com alt text descritivo e atributos width/height
 
 ## 📱 Landing Page Aluno (`/aluno`)
 
@@ -158,12 +188,14 @@ src/
 
 - **React 18** - Biblioteca JavaScript para interfaces
 - **React Router DOM 6** - Roteamento de páginas
+- **React Helmet Async** - Gerenciamento de meta tags e SEO
 - **TailwindCSS 3** - Framework CSS utilitário
 - **React Scripts** - Ferramentas de build e desenvolvimento
 
 ## 📝 Componentes Principais
 
 ### Componentes Comuns
+- `SEO` - Componente para gerenciar meta tags e structured data
 - `Navbar` - Navegação compartilhada entre páginas
 - `Footer` - Rodapé com links e informações
 - `PopupSelector` - Modal de seleção de perfil

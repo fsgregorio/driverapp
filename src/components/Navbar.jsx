@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScrollToSection }) => {
+const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScrollToSection, hideFAQ = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -77,12 +77,14 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
                 >
                   Começar
                 </button>
-                <button
-                  onClick={() => scrollToSection('faq-section')}
-                  className="text-gray-700 hover:text-primary transition-colors font-medium"
-                >
-                  FAQ
-                </button>
+                {!hideFAQ && (
+                  <button
+                    onClick={() => scrollToSection('faq-section')}
+                    className="text-gray-700 hover:text-primary transition-colors font-medium"
+                  >
+                    FAQ
+                  </button>
+                )}
               </>
             )}
             {currentProfile === 'instructor' && (
@@ -117,12 +119,14 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
                 >
                   Começar
                 </button>
-                <button
-                  onClick={() => scrollToSection('faq-section')}
-                  className="text-gray-700 hover:text-primary transition-colors font-medium"
-                >
-                  FAQ
-                </button>
+                {!hideFAQ && (
+                  <button
+                    onClick={() => scrollToSection('faq-section')}
+                    className="text-gray-700 hover:text-primary transition-colors font-medium"
+                  >
+                    FAQ
+                  </button>
+                )}
               </>
             )}
             {!currentProfile && (
@@ -138,12 +142,6 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
                   className="text-gray-700 hover:text-primary transition-colors font-medium"
                 >
                   Para Instrutores
-                </button>
-                <button
-                  onClick={() => scrollToSection('faq-section')}
-                  className="text-gray-700 hover:text-primary transition-colors font-medium"
-                >
-                  FAQ
                 </button>
               </>
             )}
@@ -205,12 +203,14 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
                 >
                   Começar
                 </button>
-                <button
-                  onClick={() => scrollToSection('faq-section')}
-                  className="block w-full text-left text-gray-700 hover:text-primary transition-colors font-medium py-2"
-                >
-                  FAQ
-                </button>
+                {!hideFAQ && (
+                  <button
+                    onClick={() => scrollToSection('faq-section')}
+                    className="block w-full text-left text-gray-700 hover:text-primary transition-colors font-medium py-2"
+                  >
+                    FAQ
+                  </button>
+                )}
               </>
             )}
             {currentProfile === 'instructor' && (
@@ -245,12 +245,14 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
                 >
                   Começar
                 </button>
-                <button
-                  onClick={() => scrollToSection('faq-section')}
-                  className="block w-full text-left text-gray-700 hover:text-primary transition-colors font-medium py-2"
-                >
-                  FAQ
-                </button>
+                {!hideFAQ && (
+                  <button
+                    onClick={() => scrollToSection('faq-section')}
+                    className="block w-full text-left text-gray-700 hover:text-primary transition-colors font-medium py-2"
+                  >
+                    FAQ
+                  </button>
+                )}
               </>
             )}
             {!currentProfile && (
@@ -272,12 +274,6 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
                   className="block w-full text-left text-gray-700 hover:text-primary transition-colors font-medium py-2"
                 >
                   Para Instrutores
-                </button>
-                <button
-                  onClick={() => scrollToSection('faq-section')}
-                  className="block w-full text-left text-gray-700 hover:text-primary transition-colors font-medium py-2"
-                >
-                  FAQ
                 </button>
               </>
             )}

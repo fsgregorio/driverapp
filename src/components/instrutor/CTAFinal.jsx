@@ -1,6 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const CTAFinalInstrutor = () => {
+  const navigate = useNavigate();
+
   return (
     <section id="cta-final-section" className="py-20 md:py-32 bg-gradient-to-br from-primary to-blue-600">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -11,7 +14,10 @@ const CTAFinalInstrutor = () => {
           Cadastre-se como instrutor e transforme sua experiência em uma fonte de renda estável. Controle total sobre sua agenda e seus ganhos.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button className="bg-white text-primary font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+          <button 
+            onClick={() => navigate('/waitlist')}
+            className="bg-white text-primary font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+          >
             Cadastrar como Instrutor
           </button>
           <button

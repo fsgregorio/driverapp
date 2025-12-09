@@ -1,6 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const HeroInstrutor = () => {
+  const navigate = useNavigate();
+
   return (
     <section id="hero-section" className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-accent via-white to-accent overflow-hidden pt-16">
       {/* Background Illustration */}
@@ -28,18 +31,7 @@ const HeroInstrutor = () => {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start animate-fadeIn delay-400">
               <button
-                onClick={() => {
-                  const element = document.getElementById('instructor-section');
-                  if (element) {
-                    const offset = 80;
-                    const elementPosition = element.getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - offset;
-                    window.scrollTo({
-                      top: offsetPosition,
-                      behavior: 'smooth'
-                    });
-                  }
-                }}
+                onClick={() => navigate('/waitlist')}
                 className="bg-primary hover:bg-blue-600 text-white font-semibold py-4 px-8 rounded-xl text-lg md:text-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
               >
                 Cadastrar como Instrutor
@@ -52,8 +44,11 @@ const HeroInstrutor = () => {
             <div className="relative z-10">
               <img 
                 src="/imgs/instrutor.png" 
-                alt="Instrutor profissional" 
+                alt="Instrutor de direção certificado oferecendo aulas práticas na plataforma DriverApp" 
                 className="w-full h-auto rounded-2xl shadow-2xl object-cover"
+                loading="eager"
+                width="600"
+                height="400"
               />
             </div>
             {/* Decorative elements */}

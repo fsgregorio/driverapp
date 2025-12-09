@@ -1,21 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Modal from './Modal';
+import TermosDeUso from './TermosDeUso';
+import PoliticaPrivacidade from './PoliticaPrivacidade';
 
 const Footer = ({ onSwitchProfile }) => {
   const navigate = useNavigate();
-
-  const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      const offset = 80;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-    }
-  };
+  const [showTermos, setShowTermos] = useState(false);
+  const [showPolitica, setShowPolitica] = useState(false);
 
   return (
     <footer className="bg-secondary text-white py-12 md:py-16">
@@ -33,14 +25,6 @@ const Footer = ({ onSwitchProfile }) => {
           <div>
             <h3 className="font-bold text-lg mb-4">Links</h3>
             <ul className="space-y-2 text-gray-400 text-sm">
-              <li>
-                <button
-                  onClick={() => scrollToSection('faq-section')}
-                  className="hover:text-white transition-colors text-left"
-                >
-                  Como Funciona
-                </button>
-              </li>
               <li>
                 <button
                   onClick={() => navigate('/aluno')}
@@ -65,14 +49,20 @@ const Footer = ({ onSwitchProfile }) => {
             <h3 className="font-bold text-lg mb-4">Legal</h3>
             <ul className="space-y-2 text-gray-400 text-sm">
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <button
+                  onClick={() => setShowTermos(true)}
+                  className="hover:text-white transition-colors text-left"
+                >
                   Termos de Uso
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <button
+                  onClick={() => setShowPolitica(true)}
+                  className="hover:text-white transition-colors text-left"
+                >
                   Política de Privacidade
-                </a>
+                </button>
               </li>
             </ul>
           </div>
@@ -98,7 +88,7 @@ const Footer = ({ onSwitchProfile }) => {
         {/* Switch Profile Button */}
         <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row items-center justify-between">
           <p className="text-gray-400 text-sm mb-4 md:mb-0">
-            © 2024 DriverApp. Todos os direitos reservados.
+            © 2025 DriverApp. Todos os direitos reservados.
           </p>
           <button
             onClick={onSwitchProfile}
@@ -108,6 +98,23 @@ const Footer = ({ onSwitchProfile }) => {
           </button>
         </div>
       </div>
+
+      {/* Modals */}
+      <Modal
+        isOpen={showTermos}
+        onClose={() => setShowTermos(false)}
+        title="Termos de Uso"
+      >
+        <TermosDeUso />
+      </Modal>
+
+      <Modal
+        isOpen={showPolitica}
+        onClose={() => setShowPolitica(false)}
+        title="Política de Privacidade"
+      >
+        <PoliticaPrivacidade />
+      </Modal>
     </footer>
   );
 };

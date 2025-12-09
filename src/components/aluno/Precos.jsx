@@ -1,6 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Precos = () => {
+  const navigate = useNavigate();
+
   return (
     <section id="precos-section" className="py-20 md:py-32 bg-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -103,7 +106,10 @@ const Precos = () => {
         </div>
 
         <div className="text-center">
-          <button className="bg-primary hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+          <button 
+            onClick={() => navigate('/waitlist')}
+            className="bg-primary hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+          >
             Ver Instrutores e Preços
           </button>
         </div>

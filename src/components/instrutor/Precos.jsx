@@ -1,6 +1,7 @@
 import React from 'react';
 
 const PrecosInstrutor = () => {
+
   return (
     <section id="precos-section" className="py-20 md:py-32 bg-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -88,12 +89,6 @@ const PrecosInstrutor = () => {
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="text-center">
-          <button className="bg-primary hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-            Ver Detalhes de Comissão
-          </button>
         </div>
       </div>
     </section>

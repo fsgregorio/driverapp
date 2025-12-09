@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://driverapp.com.br/sitemap.xml
+
+# Disallow admin and private routes if any
+# Disallow: /admin/
+# Disallow: /private/
+

@@ -1,9 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import SEO from '../components/SEO';
 import PopupSelector from '../components/PopupSelector';
 import Hero from '../components/Hero';
 
 const Home = () => {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "DriverApp",
+    "description": "A forma moderna de aprender e ensinar direção. Conectamos alunos e instrutores certificados para aulas práticas seguras, rápidas e sem burocracia.",
+    "url": "https://driverapp.com.br",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://driverapp.com.br/search?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  };
+
   const [showPopup, setShowPopup] = useState(true);
   const navigate = useNavigate();
 
@@ -34,6 +48,13 @@ const Home = () => {
 
   return (
     <div className="Home">
+      <SEO
+        title="DriverApp - A forma moderna de aprender e ensinar direção"
+        description="Conectamos alunos e instrutores certificados para aulas práticas seguras, rápidas e sem burocracia. Plataforma gratuita para aulas de direção."
+        keywords="aulas de direção, instrutor de direção, aulas práticas, aprender a dirigir, instrutor certificado, aulas de direção habilitados"
+        canonicalUrl="/"
+        structuredData={structuredData}
+      />
       <PopupSelector isOpen={showPopup} onSelectProfile={handleSelectProfile} />
       <Hero onGetStarted={handleGetStarted} />
     </div>
