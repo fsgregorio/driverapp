@@ -15,7 +15,10 @@ const CTAFinal = () => {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button 
-            onClick={() => navigate('/waitlist')}
+            onClick={() => {
+              navigate('/waitlist');
+              // Scroll será feito automaticamente pela página Waitlist ao carregar
+            }}
             className="bg-white text-primary font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
           >
             Encontrar Instrutor

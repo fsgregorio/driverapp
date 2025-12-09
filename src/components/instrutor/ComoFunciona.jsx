@@ -85,7 +85,10 @@ const ComoFuncionaInstrutor = () => {
 
         <div className="text-center mt-12">
           <button 
-            onClick={() => navigate('/waitlist')}
+            onClick={() => {
+              navigate('/waitlist');
+              // Scroll será feito automaticamente pela página Waitlist ao carregar
+            }}
             className="bg-primary hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
           >
             Cadastrar como Instrutor

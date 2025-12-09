@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SEO from '../components/SEO';
 import Navbar from '../components/Navbar';
@@ -6,6 +6,11 @@ import Footer from '../components/Footer';
 
 const Waitlist = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Scroll para o topo quando a página carregar
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
   const [email, setEmail] = useState('');
   const [whatsapp, setWhatsapp] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
