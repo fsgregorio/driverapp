@@ -74,3 +74,41 @@ html {
   animation-delay: 0.4s;
 }
 
+/* Custom Range Slider */
+input[type="range"].slider {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="range"].slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #2463EB;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+input[type="range"].slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #2463EB;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Dropdown options styling */
+select option {
+  color: #2463EB;
+  background-color: white;
+}
+
+select option:hover {
+  background-color: #F5F7FE;
+}
+

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-const Modal = ({ isOpen, onClose, title, children }) => {
+const Modal = ({ isOpen, onClose, title, children, hideFooter = false }) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -44,19 +44,24 @@ const Modal = ({ isOpen, onClose, title, children }) => {
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto flex-1 p-6 md:p-8">
+        <div 
+          className="overflow-y-auto flex-1 p-6 md:p-8"
+          onClick={(e) => e.stopPropagation()}
+        >
           {children}
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-gray-200 flex justify-end">
-          <button
-            onClick={onClose}
-            className="bg-primary hover:bg-blue-600 text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105"
-          >
-            Fechar
-          </button>
-        </div>
+        {!hideFooter && (
+          <div className="p-6 border-t border-gray-200 flex justify-end">
+            <button
+              onClick={onClose}
+              className="bg-primary hover:bg-blue-600 text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105"
+            >
+              Fechar
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

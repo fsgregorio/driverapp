@@ -10,7 +10,7 @@ const PoliticaPrivacidade = () => {
       <section className="mb-8">
         <h3 className="text-xl font-bold text-secondary mb-4">1. Introdução</h3>
         <p className="text-gray-700 mb-4">
-          A DriverApp está comprometida em proteger a privacidade e os dados pessoais de nossos usuários. Esta Política de Privacidade descreve como coletamos, usamos, armazenamos e protegemos suas informações pessoais quando você usa nossa plataforma.
+          A DriveToPass está comprometida em proteger a privacidade e os dados pessoais de nossos usuários. Esta Política de Privacidade descreve como coletamos, usamos, armazenamos e protegemos suas informações pessoais quando você usa nossa plataforma.
         </p>
       </section>
 

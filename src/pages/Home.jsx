@@ -5,18 +5,49 @@ import PopupSelector from '../components/PopupSelector';
 import Hero from '../components/Hero';
 
 const Home = () => {
-  const structuredData = {
+  const siteUrl = process.env.REACT_APP_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://drivetopass.com.br');
+  
+  // WebSite Schema
+  const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "DriverApp",
+    "name": "DriveToPass",
     "description": "A forma moderna de aprender e ensinar direção. Conectamos alunos e instrutores certificados para aulas práticas seguras, rápidas e sem burocracia.",
-    "url": "https://driverapp.com.br",
+    "url": siteUrl,
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://driverapp.com.br/search?q={search_term_string}",
+      "target": `${siteUrl}/search?q={search_term_string}`,
       "query-input": "required name=search_term_string"
+    },
+    "inLanguage": "pt-BR"
+  };
+
+  // Organization Schema
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "DriveToPass",
+    "url": siteUrl,
+    "logo": `${siteUrl}/imgs/logo/drivetopass.png`,
+    "description": "Plataforma que conecta alunos e instrutores certificados para aulas práticas de direção seguras, rápidas e sem burocracia.",
+    "foundingDate": "2024",
+    "areaServed": {
+      "@type": "Country",
+      "name": "Brasil"
+    },
+    "sameAs": [
+      "https://www.facebook.com/drivetopass",
+      "https://www.instagram.com/drivetopass",
+      "https://twitter.com/drivetopass"
+    ],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer service",
+      "availableLanguage": "Portuguese"
     }
   };
+
+  const structuredData = [websiteSchema, organizationSchema];
 
   const [showPopup, setShowPopup] = useState(true);
   const navigate = useNavigate();
@@ -49,7 +80,7 @@ const Home = () => {
   return (
     <div className="Home">
       <SEO
-        title="DriverApp - A forma moderna de aprender e ensinar direção"
+        title="DriveToPass - A forma moderna de aprender e ensinar direção"
         description="Conectamos alunos e instrutores certificados para aulas práticas seguras, rápidas e sem burocracia. Plataforma gratuita para aulas de direção."
         keywords="aulas de direção, instrutor de direção, aulas práticas, aprender a dirigir, instrutor certificado, aulas de direção habilitados"
         canonicalUrl="/"

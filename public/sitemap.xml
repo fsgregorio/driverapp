@@ -1,31 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   
   <!-- Homepage -->
   <url>
-    <loc>https://driverapp.com.br/</loc>
-    <lastmod>2024-12-09</lastmod>
+    <loc>https://drivetopass.com.br/</loc>
+    <lastmod>2024-12-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://drivetopass.com.br/imgs/logo/drivetopass.png</image:loc>
+      <image:title>DriveToPass Logo</image:title>
+    </image:image>
   </url>
   
   <!-- Landing Page Aluno -->
   <url>
-    <loc>https://driverapp.com.br/aluno</loc>
-    <lastmod>2024-12-09</lastmod>
+    <loc>https://drivetopass.com.br/aluno</loc>
+    <lastmod>2024-12-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://drivetopass.com.br/imgs/student.png</image:loc>
+      <image:title>Aulas Práticas de Direção para Habilitados</image:title>
+    </image:image>
   </url>
   
   <!-- Landing Page Instrutor -->
   <url>
-    <loc>https://driverapp.com.br/instrutor</loc>
-    <lastmod>2024-12-09</lastmod>
+    <loc>https://drivetopass.com.br/instrutor</loc>
+    <lastmod>2024-12-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://drivetopass.com.br/imgs/instrutor.png</image:loc>
+      <image:title>Seja Instrutor de Direção</image:title>
+    </image:image>
   </url>
   
 </urlset>

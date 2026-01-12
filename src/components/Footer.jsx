@@ -15,7 +15,10 @@ const Footer = ({ onSwitchProfile }) => {
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           {/* About */}
           <div>
-            <h3 className="font-bold text-lg mb-4">Sobre</h3>
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">
+              <span className="text-[#5B8DEF]">Drive</span>
+              <span className="text-white">ToPass</span>
+            </h2>
             <p className="text-gray-400 text-sm">
               Conectamos alunos e instrutores certificados para aulas práticas seguras e sem burocracia.
             </p>
@@ -88,14 +91,22 @@ const Footer = ({ onSwitchProfile }) => {
         {/* Switch Profile Button */}
         <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row items-center justify-between">
           <p className="text-gray-400 text-sm mb-4 md:mb-0">
-            © 2025 DriverApp. Todos os direitos reservados.
+            © 2025 DriveToPass. Todos os direitos reservados.
           </p>
-          <button
-            onClick={onSwitchProfile}
-            className="bg-primary hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 transform hover:scale-105"
-          >
-            Trocar Perfil
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={() => navigate('/dashboard/aluno')}
+              className="bg-white hover:bg-gray-100 text-secondary font-semibold py-2 px-6 rounded-lg transition-all duration-300 transform hover:scale-105"
+            >
+              Login
+            </button>
+            <button
+              onClick={onSwitchProfile}
+              className="bg-primary hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 transform hover:scale-105"
+            >
+              Trocar Perfil
+            </button>
+          </div>
         </div>
       </div>
 

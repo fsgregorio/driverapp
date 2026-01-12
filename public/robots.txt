@@ -1,10 +1,27 @@
+# Robots.txt for DriveToPass
+# https://drivetopass.com.br
+
 User-agent: *
 Allow: /
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+
+# Crawl-delay
+Crawl-delay: 1
 
 # Sitemap
-Sitemap: https://driverapp.com.br/sitemap.xml
+Sitemap: https://drivetopass.com.br/sitemap.xml
 
-# Disallow admin and private routes if any
-# Disallow: /admin/
-# Disallow: /private/
+# Specific bots
+User-agent: Googlebot
+Allow: /
+Disallow: /dashboard/
+Disallow: /api/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /dashboard/
+Disallow: /api/
 

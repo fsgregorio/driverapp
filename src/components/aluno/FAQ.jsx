@@ -35,26 +35,29 @@ const FAQ = () => {
   };
 
   return (
-    <section id="faq-section" className="py-20 md:py-32 bg-white">
+    <section id="faq-section" className="py-20 md:py-32 bg-white" aria-labelledby="faq-heading">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-secondary mb-4">
+        <header className="text-center mb-16">
+          <h2 id="faq-heading" className="text-4xl md:text-5xl font-bold text-secondary mb-4">
             Perguntas Frequentes
           </h2>
           <p className="text-xl text-gray-600">
             Tire suas dúvidas sobre nossa plataforma
           </p>
-        </div>
+        </header>
 
-        <div className="space-y-4">
+        <div className="space-y-4" role="list">
           {faqs.map((faq, index) => (
-            <div
+            <article
               key={index}
               className="bg-accent rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-lg"
+              role="listitem"
             >
               <button
                 onClick={() => toggleFAQ(index)}
                 className="w-full px-6 py-5 text-left flex items-center justify-between focus:outline-none"
+                aria-expanded={openIndex === index}
+                aria-controls={`faq-answer-${index}`}
               >
                 <span className="font-semibold text-lg text-secondary pr-4">
                   {faq.question}
@@ -71,15 +74,17 @@ const FAQ = () => {
                 </svg>
               </button>
               <div
+                id={`faq-answer-${index}`}
                 className={`overflow-hidden transition-all duration-300 ${
                   openIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                 }`}
+                aria-hidden={openIndex !== index}
               >
                 <div className="px-6 pb-5 text-gray-600">
                   {faq.answer}
                 </div>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       </div>

@@ -8,9 +8,13 @@ const SEO = ({
   ogImage,
   ogType = 'website',
   canonicalUrl,
-  structuredData
+  structuredData,
+  articleAuthor,
+  articlePublishedTime,
+  articleModifiedTime,
+  noindex = false
 }) => {
-  const siteUrl = process.env.REACT_APP_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://driverapp.com.br');
+  const siteUrl = process.env.REACT_APP_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://drivetopass.com.br');
   const fullUrl = canonicalUrl ? `${siteUrl}${canonicalUrl}` : siteUrl;
   const imageUrl = ogImage ? `${siteUrl}${ogImage}` : `${siteUrl}/imgs/student.png`;
 
@@ -29,27 +33,54 @@ const SEO = ({
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={imageUrl} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content={title} />
       <meta property="og:locale" content="pt_BR" />
-      <meta property="og:site_name" content="DriverApp" />
+      <meta property="og:site_name" content="DriveToPass" />
+      {articleAuthor && <meta property="article:author" content={articleAuthor} />}
+      {articlePublishedTime && <meta property="article:published_time" content={articlePublishedTime} />}
+      {articleModifiedTime && <meta property="article:modified_time" content={articleModifiedTime} />}
 
       {/* Twitter */}
-      <meta property="twitter:card" content="summary_large_image" />
-      <meta property="twitter:url" content={fullUrl} />
-      <meta property="twitter:title" content={title} />
-      <meta property="twitter:description" content={description} />
-      <meta property="twitter:image" content={imageUrl} />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:url" content={fullUrl} />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={imageUrl} />
+      <meta name="twitter:image:alt" content={title} />
+      <meta name="twitter:site" content="@drivetopass" />
+      <meta name="twitter:creator" content="@drivetopass" />
 
       {/* Additional SEO */}
-      <meta name="robots" content="index, follow" />
-      <meta name="author" content="DriverApp" />
-      <meta name="language" content="Portuguese" />
+      <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
+      <meta name="author" content="DriveToPass" />
+      <meta name="language" content="pt-BR" />
       <meta name="revisit-after" content="7 days" />
+      <meta name="rating" content="general" />
+      <meta name="distribution" content="global" />
+      <meta name="geo.region" content="BR" />
+      <meta name="geo.placename" content="Brasil" />
+      
+      {/* Mobile Optimization */}
+      <meta name="mobile-web-app-capable" content="yes" />
+      <meta name="apple-mobile-web-app-capable" content="yes" />
+      <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+      <meta name="apple-mobile-web-app-title" content="DriveToPass" />
 
       {/* Structured Data */}
       {structuredData && (
-        <script type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </script>
+        Array.isArray(structuredData) ? (
+          structuredData.map((data, index) => (
+            <script key={index} type="application/ld+json">
+              {JSON.stringify(data)}
+            </script>
+          ))
+        ) : (
+          <script type="application/ld+json">
+            {JSON.stringify(structuredData)}
+          </script>
+        )
       )}
     </Helmet>
   );

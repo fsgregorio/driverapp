@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { trackButtonClick, trackNavigation, trackingEvents } from '../utils/trackingUtils';
 
 const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScrollToSection, hideFAQ = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   const scrollToSection = (sectionId) => {
+    const page = currentProfile === 'student' ? 'landing_aluno' : currentProfile === 'instructor' ? 'landing_instrutor' : 'home';
+    trackButtonClick(
+      currentProfile === 'student' ? trackingEvents.LANDING_ALUNO_NAV_SECTION : trackingEvents.LANDING_INSTRUTOR_NAV_SECTION,
+      sectionId,
+      { page, section: 'navbar', target_section: sectionId }
+    );
+    
     if (externalScrollToSection) {
       externalScrollToSection(sectionId);
     } else {
@@ -24,6 +32,10 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
   };
 
   const handleLogoClick = () => {
+    trackNavigation(trackingEvents.NAV_HOME_CLICK, currentProfile === 'student' ? '/aluno' : currentProfile === 'instructor' ? '/instrutor' : '/', {
+      current_profile: currentProfile
+    });
+    
     if (currentProfile === 'student') {
       navigate('/aluno');
     } else if (currentProfile === 'instructor') {
@@ -34,13 +46,48 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleLoginClick = () => {
+    const eventName = currentProfile === 'student' 
+      ? trackingEvents.LANDING_ALUNO_LOGIN 
+      : currentProfile === 'instructor' 
+      ? trackingEvents.LANDING_INSTRUTOR_LOGIN 
+      : trackingEvents.LANDING_ALUNO_LOGIN;
+    
+    trackButtonClick(eventName, 'Login', {
+      page: currentProfile === 'student' ? 'landing_aluno' : currentProfile === 'instructor' ? 'landing_instrutor' : 'home',
+      section: 'navbar'
+    });
+    
+    if (currentProfile === 'student') {
+      navigate('/dashboard/aluno');
+    } else if (currentProfile === 'instructor') {
+      navigate('/dashboard/instrutor');
+    } else {
+      navigate('/dashboard/aluno');
+    }
+  };
+
+  const handleSwitchProfileClick = () => {
+    trackButtonClick(trackingEvents.NAV_PROFILE_SWITCH, 'Trocar Perfil', {
+      current_profile: currentProfile,
+      page: currentProfile === 'student' ? 'landing_aluno' : currentProfile === 'instructor' ? 'landing_instrutor' : 'home'
+    });
+    if (onSwitchProfile) {
+      onSwitchProfile();
+    }
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-40 bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0 cursor-pointer" onClick={handleLogoClick}>
-            <span className="text-2xl font-bold text-primary">DriverApp</span>
+            <img 
+              src="/imgs/logo/drivetopass.png" 
+              alt="DriveToPass" 
+              className="h-28 md:h-32 w-auto"
+            />
           </div>
 
           {/* Desktop Menu */}
@@ -145,12 +192,20 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
                 </button>
               </>
             )}
-            <button
-              onClick={onSwitchProfile}
-              className="bg-primary hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300"
-            >
-              Trocar Perfil
-            </button>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={handleLoginClick}
+                className="bg-white hover:bg-gray-100 text-secondary border-2 border-gray-300 font-semibold py-2 px-4 rounded-lg transition-all duration-300"
+              >
+                Login
+              </button>
+              <button
+                onClick={handleSwitchProfileClick}
+                className="bg-primary hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300"
+              >
+                Trocar Perfil
+              </button>
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
@@ -277,12 +332,26 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
                 </button>
               </>
             )}
-            <button
-              onClick={onSwitchProfile}
-              className="block w-full bg-primary hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 text-center"
-            >
-              Trocar Perfil
-            </button>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => {
+                  handleLoginClick();
+                  setIsMenuOpen(false);
+                }}
+                className="block w-full bg-white hover:bg-gray-100 text-secondary border-2 border-gray-300 font-semibold py-2 px-4 rounded-lg transition-all duration-300 text-center"
+              >
+                Login
+              </button>
+              <button
+                onClick={() => {
+                  handleSwitchProfileClick();
+                  setIsMenuOpen(false);
+                }}
+                className="block w-full bg-primary hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 text-center"
+              >
+                Trocar Perfil
+              </button>
+            </div>
           </div>
         )}
       </div>
