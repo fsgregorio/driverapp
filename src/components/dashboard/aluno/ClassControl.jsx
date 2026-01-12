@@ -301,50 +301,54 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
   return (
     <div className="space-y-6">
       {/* Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-2 overflow-x-auto">
+      <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-2 overflow-x-auto scrollbar-hide">
         <button
           onClick={() => setActiveTab('agendadas')}
-          className={`pb-4 px-4 font-semibold transition-colors whitespace-nowrap ${
+          className={`pb-3 sm:pb-4 px-2 sm:px-4 font-semibold transition-colors whitespace-nowrap text-sm sm:text-base ${
             activeTab === 'agendadas'
               ? 'text-primary border-b-2 border-primary'
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Agendadas ({agendadas.length})
+          <span className="hidden sm:inline">Agendadas</span>
+          <span className="sm:hidden">Agend.</span> ({agendadas.length})
         </button>
         <button
           onClick={() => setActiveTab('pendentes_aceite')}
-          className={`pb-4 px-4 font-semibold transition-colors whitespace-nowrap ${
+          className={`pb-3 sm:pb-4 px-2 sm:px-4 font-semibold transition-colors whitespace-nowrap text-sm sm:text-base ${
             activeTab === 'pendentes_aceite'
               ? 'text-primary border-b-2 border-primary'
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Pendentes de Aceite ({pendentesAceite.length})
+          <span className="hidden sm:inline">Pendentes de Aceite</span>
+          <span className="sm:hidden">Aceite</span> ({pendentesAceite.length})
         </button>
         <button
           onClick={() => setActiveTab('pendentes_pagamento')}
-          className={`pb-4 px-4 font-semibold transition-colors whitespace-nowrap ${
+          className={`pb-3 sm:pb-4 px-2 sm:px-4 font-semibold transition-colors whitespace-nowrap text-sm sm:text-base ${
             activeTab === 'pendentes_pagamento'
               ? 'text-primary border-b-2 border-primary'
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Pendentes de Pagamento ({pendentesPagamento.length})
+          <span className="hidden sm:inline">Pendentes de Pagamento</span>
+          <span className="sm:hidden">Pagamento</span> ({pendentesPagamento.length})
         </button>
         <button
           onClick={() => setActiveTab('pendentes_avaliacao')}
-          className={`pb-4 px-4 font-semibold transition-colors whitespace-nowrap ${
+          className={`pb-3 sm:pb-4 px-2 sm:px-4 font-semibold transition-colors whitespace-nowrap text-sm sm:text-base ${
             activeTab === 'pendentes_avaliacao'
               ? 'text-primary border-b-2 border-primary'
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Pendentes de Avaliação ({pendentesAvaliacao.length})
+          <span className="hidden sm:inline">Pendentes de Avaliação</span>
+          <span className="sm:hidden">Avaliação</span> ({pendentesAvaliacao.length})
         </button>
         <button
           onClick={() => setActiveTab('historico')}
-          className={`pb-4 px-4 font-semibold transition-colors whitespace-nowrap ${
+          className={`pb-3 sm:pb-4 px-2 sm:px-4 font-semibold transition-colors whitespace-nowrap text-sm sm:text-base ${
             activeTab === 'historico'
               ? 'text-primary border-b-2 border-primary'
               : 'text-gray-500 hover:text-gray-700'

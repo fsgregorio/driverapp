@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { trackButtonClick, trackNavigation, trackingEvents } from '../../../utils/trackingUtils';
@@ -6,6 +6,7 @@ import { trackButtonClick, trackNavigation, trackingEvents } from '../../../util
 const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass }) => {
   const navigate = useNavigate();
   const { user, logout, userType } = useAuth();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
     const eventName = userType === 'student' 
@@ -34,6 +35,7 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
       previous_section: activeSection
     });
     
+    setIsMenuOpen(false); // Fechar menu mobile ao mudar de seção
     if (onSectionChange) {
       onSectionChange(sectionId);
     }
@@ -86,12 +88,12 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
             <img 
               src="/imgs/logo/drivetopass.png" 
               alt="DriveToPass" 
-              className="h-28 md:h-32 w-auto"
+              className="h-12 sm:h-16 md:h-20 lg:h-24 w-auto"
             />
           </div>
 
           {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-6 relative">
+          <div className="hidden lg:flex items-center space-x-4 xl:space-x-6 relative">
             {sections.map((section) => (
               <button
                 key={section.id}
@@ -107,8 +109,8 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
             ))}
           </div>
 
-          {/* User Menu */}
-          <div className="flex items-center space-x-4">
+          {/* User Menu - Desktop */}
+          <div className="hidden lg:flex items-center space-x-4">
             {/* Botão Agendar Nova Aula - apenas para estudantes */}
             {userType === 'student' && (
               <button
@@ -118,18 +120,9 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
                 + Agendar Nova Aula
               </button>
             )}
-            <div className="flex items-center space-x-3">
-              {user?.photo && (
-                <img
-                  src={user.photo}
-                  alt={user.name}
-                  className="w-8 h-8 rounded-full"
-                />
-              )}
-              <span className="hidden md:block text-sm font-medium text-gray-700">
-                {user?.name}
-              </span>
-            </div>
+            <span className="hidden xl:block text-sm font-medium text-gray-700">
+              {user?.name}
+            </span>
             <button
               onClick={handleLogout}
               className="text-gray-600 hover:text-primary transition-colors text-sm font-medium"
@@ -140,16 +133,68 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden text-gray-700"
-            onClick={() => {
-              // Toggle mobile menu if needed
-            }}
+            className="lg:hidden text-gray-700 ml-2"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Toggle menu"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              {isMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
             </svg>
           </button>
         </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="lg:hidden py-4 border-t border-gray-200 mt-2">
+            {/* Navigation Links Mobile */}
+            <div className="space-y-2 mb-4">
+              {sections.map((section) => (
+                <button
+                  key={section.id}
+                  onClick={() => handleSectionChange(section.id)}
+                  className={`w-full text-left px-4 py-2 rounded-lg font-medium transition-colors ${
+                    activeSection === section.id
+                      ? 'bg-primary text-white'
+                      : 'text-gray-700 hover:text-primary hover:bg-gray-50'
+                  }`}
+                >
+                  {section.label}
+                </button>
+              ))}
+            </div>
+
+            {/* User Actions Mobile */}
+            <div className="border-t border-gray-200 pt-4 space-y-2">
+              {userType === 'student' && (
+                <button
+                  onClick={() => {
+                    handleScheduleNewClassClick();
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full bg-primary hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 text-center"
+                >
+                  + Agendar Nova Aula
+                </button>
+              )}
+              <div className="px-4 py-2 text-sm text-gray-700">
+                {user?.name}
+              </div>
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setIsMenuOpen(false);
+                }}
+                className="w-full text-left px-4 py-2 text-gray-600 hover:text-primary transition-colors text-sm font-medium"
+              >
+                Sair
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );

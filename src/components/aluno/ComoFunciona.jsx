@@ -16,7 +16,7 @@ const ComoFunciona = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
           {/* Step 1 */}
           <div className="bg-white rounded-3xl p-6 md:p-8 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
             <div className="bg-primary rounded-full w-14 h-14 md:w-16 md:h-16 flex items-center justify-center mb-6 mx-auto">
@@ -89,7 +89,7 @@ const ComoFunciona = () => {
               navigate('/waitlist');
               // Scroll será feito automaticamente pela página Waitlist ao carregar
             }}
-            className="bg-primary hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+            className="bg-primary hover:bg-blue-600 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-xl text-base sm:text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl w-full sm:w-auto"
           >
             Encontre um Instrutor Agora
           </button>

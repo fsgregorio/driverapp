@@ -12,7 +12,7 @@ const Footer = ({ onSwitchProfile }) => {
   return (
     <footer className="bg-secondary text-white py-12 md:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8">
           {/* About */}
           <div>
             <h2 className="text-2xl md:text-3xl font-bold mb-4">
@@ -93,16 +93,16 @@ const Footer = ({ onSwitchProfile }) => {
           <p className="text-gray-400 text-sm mb-4 md:mb-0">
             © 2025 DriveToPass. Todos os direitos reservados.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <button
               onClick={() => navigate('/login?type=student')}
-              className="bg-white hover:bg-gray-100 text-secondary font-semibold py-2 px-6 rounded-lg transition-all duration-300 transform hover:scale-105"
+              className="bg-white hover:bg-gray-100 text-secondary font-semibold py-2.5 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
             >
               Login
             </button>
             <button
               onClick={onSwitchProfile}
-              className="bg-primary hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 transform hover:scale-105"
+              className="bg-primary hover:bg-blue-600 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
             >
               Trocar Perfil
             </button>

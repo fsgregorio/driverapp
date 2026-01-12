@@ -90,12 +90,12 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
             <img 
               src="/imgs/logo/drivetopass.png" 
               alt="DriveToPass" 
-              className="h-28 md:h-32 w-auto"
+              className="h-12 sm:h-16 md:h-20 lg:h-24 w-auto"
             />
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden lg:flex items-center space-x-4 xl:space-x-6">
             {currentProfile === 'student' && (
               <>
                 <button
@@ -229,7 +229,7 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 space-y-3">
+          <div className="lg:hidden py-4 space-y-3 border-t border-gray-200 mt-2">
             {currentProfile === 'student' && (
               <>
                 <button

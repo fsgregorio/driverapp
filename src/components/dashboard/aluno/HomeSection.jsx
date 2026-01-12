@@ -79,14 +79,14 @@ const HomeSection = ({ classes, onNavigateToSection }) => {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Bem-vindo de volta!</h1>
-        <p className="text-gray-600">Acompanhe suas aulas e indicadores</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Bem-vindo de volta!</h1>
+        <p className="text-sm sm:text-base text-gray-600">Acompanhe suas aulas e indicadores</p>
       </div>
 
       {/* Cards Principais */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Aulas</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">Aulas</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <PendingClassesCard
             title="Aulas Agendadas"
             count={agendadas.length}
@@ -136,8 +136,8 @@ const HomeSection = ({ classes, onNavigateToSection }) => {
 
       {/* Indicadores */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Indicadores</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">Indicadores</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <IndicatorsListCard
             title="Aulas Concluídas"
             total={indicators.completedClasses}

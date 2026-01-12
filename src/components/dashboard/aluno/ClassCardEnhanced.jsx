@@ -207,12 +207,12 @@ const ClassCardEnhanced = ({
       )}
 
       {/* Botões de Ação */}
-      <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200">
+      <div className="flex flex-col sm:flex-row flex-wrap gap-2 pt-4 border-t border-gray-200">
         {/* Botão Pagar - aparece quando status é pendente_pagamento */}
         {classData.status === 'pendente_pagamento' && onPay && (
           <button
             onClick={() => onPay(classData.id)}
-            className="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            className="w-full sm:flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
           >
             Pagar Agora
           </button>
@@ -222,7 +222,7 @@ const ClassCardEnhanced = ({
         {classData.status === 'pendente_avaliacao' && onEvaluate && (
           <button
             onClick={() => onEvaluate(classData.id)}
-            className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            className="w-full sm:flex-1 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
           >
             Avaliar Aula
           </button>
@@ -232,7 +232,7 @@ const ClassCardEnhanced = ({
         {classData.status === 'pendente_aceite' && onCancel && (
           <button
             onClick={() => onCancel(classData.id)}
-            className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            className="w-full sm:flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
           >
             Cancelar
           </button>
@@ -244,7 +244,7 @@ const ClassCardEnhanced = ({
             {onCancel && (
               <button
                 onClick={() => onCancel(classData.id)}
-                className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                className="w-full sm:flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
               >
                 Cancelar
               </button>
@@ -252,7 +252,7 @@ const ClassCardEnhanced = ({
             {onReschedule && (
               <button
                 onClick={() => onReschedule(classData.id)}
-                className="flex-1 bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                className="w-full sm:flex-1 bg-primary hover:bg-blue-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
               >
                 Reagendar
               </button>
@@ -264,7 +264,7 @@ const ClassCardEnhanced = ({
         {classData.status === 'pendente_pagamento' && onCancel && (
           <button
             onClick={() => onCancel(classData.id)}
-            className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            className="w-full sm:flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
           >
             Cancelar
           </button>

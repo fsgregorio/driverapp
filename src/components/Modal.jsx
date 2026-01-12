@@ -26,10 +26,10 @@ const Modal = ({ isOpen, onClose, title, children, hideFooter = false }) => {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm animate-fadeIn p-4"
       onClick={handleBackdropClick}
     >
-      <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] shadow-2xl animate-slideUp flex flex-col">
+      <div className="bg-white rounded-2xl sm:rounded-3xl max-w-4xl w-full max-h-[90vh] shadow-2xl animate-slideUp flex flex-col mx-4 sm:mx-0">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-2xl md:text-3xl font-bold text-secondary">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-secondary pr-2">
             {title}
           </h2>
           <button
@@ -45,7 +45,7 @@ const Modal = ({ isOpen, onClose, title, children, hideFooter = false }) => {
 
         {/* Content */}
         <div 
-          className="overflow-y-auto flex-1 p-6 md:p-8"
+          className="overflow-y-auto flex-1 p-4 sm:p-6 md:p-8"
           onClick={(e) => e.stopPropagation()}
         >
           {children}
@@ -53,10 +53,10 @@ const Modal = ({ isOpen, onClose, title, children, hideFooter = false }) => {
 
         {/* Footer */}
         {!hideFooter && (
-          <div className="p-6 border-t border-gray-200 flex justify-end">
+          <div className="p-4 sm:p-6 border-t border-gray-200 flex justify-end">
             <button
               onClick={onClose}
-              className="bg-primary hover:bg-blue-600 text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105"
+              className="bg-primary hover:bg-blue-600 text-white font-semibold py-2 sm:py-3 px-6 sm:px-8 rounded-xl transition-all duration-300 transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
             >
               Fechar
             </button>

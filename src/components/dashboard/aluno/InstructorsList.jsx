@@ -96,10 +96,10 @@ const InstructorsList = ({ onScheduleClass }) => {
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             Faixa de Preço
           </label>
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setFilterPrice(filterPrice === 'low' ? '' : 'low')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base ${
                 filterPrice === 'low'
                   ? 'bg-primary text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -109,7 +109,7 @@ const InstructorsList = ({ onScheduleClass }) => {
             </button>
             <button
               onClick={() => setFilterPrice(filterPrice === 'medium' ? '' : 'medium')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base ${
                 filterPrice === 'medium'
                   ? 'bg-primary text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -119,7 +119,7 @@ const InstructorsList = ({ onScheduleClass }) => {
             </button>
             <button
               onClick={() => setFilterPrice(filterPrice === 'high' ? '' : 'high')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base ${
                 filterPrice === 'high'
                   ? 'bg-primary text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -220,16 +220,16 @@ const InstructorsList = ({ onScheduleClass }) => {
               </p>
 
               {/* Price and Action */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-4 border-t border-gray-200">
                 <div>
-                  <span className="text-2xl font-bold text-primary">
+                  <span className="text-xl sm:text-2xl font-bold text-primary">
                     R$ {instructor.pricePerClass}
                   </span>
                   <span className="text-sm text-gray-500">/aula</span>
                 </div>
                 <button
                   onClick={() => handleSchedule(instructor)}
-                  className="bg-primary hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+                  className="w-full sm:w-auto bg-primary hover:bg-blue-600 text-white font-semibold py-2 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base"
                 >
                   Agendar
                 </button>

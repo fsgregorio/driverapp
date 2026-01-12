@@ -51,24 +51,24 @@ const DashboardInstrutor = () => {
         onSectionChange={setActiveSection}
       />
 
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {activeSection === 'classes' && (
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-6">Controle de Aulas</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Controle de Aulas</h1>
             <ClassControl />
           </div>
         )}
 
         {activeSection === 'indicators' && (
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-6">Indicadores</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Indicadores</h1>
             <IndicatorsDashboard />
           </div>
         )}
 
         {activeSection === 'finances' && (
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-6">Finanças</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Finanças</h1>
             <Finances />
           </div>
         )}

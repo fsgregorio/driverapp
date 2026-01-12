@@ -424,18 +424,18 @@ const InstructorSearch = ({ onScheduleClass }) => {
       </div>
 
       {/* Resultados e Ordenação */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-gray-600">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+        <div className="text-gray-600 text-sm sm:text-base">
           <strong>{filteredInstructors.length}</strong> instrutor(es) encontrado(s)
         </div>
-        <div className="flex items-center gap-2">
-          <label className="text-xs font-medium text-gray-600">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
+          <label className="text-xs font-medium text-gray-600 whitespace-nowrap">
             Ordenar por:
           </label>
           <select
             value={filters.sortBy}
             onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-colors bg-white text-gray-700 hover:text-primary"
+            className="w-full sm:w-auto px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-colors bg-white text-gray-700 hover:text-primary"
           >
             <option value="relevancia">Relevância</option>
             <option value="avaliacao">Avaliação</option>
@@ -554,16 +554,16 @@ const InstructorSearch = ({ onScheduleClass }) => {
               </p>
 
               {/* Price and Action */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-4 border-t border-gray-200">
                 <div>
-                  <span className="text-2xl font-bold text-primary">
+                  <span className="text-xl sm:text-2xl font-bold text-primary">
                     R$ {instructor.pricePerClass}
                   </span>
                   <span className="text-sm text-gray-500">/aula</span>
                 </div>
                 <button
                   onClick={() => handleSchedule(instructor)}
-                  className="bg-primary hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+                  className="w-full sm:w-auto bg-primary hover:bg-blue-600 text-white font-semibold py-2 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base"
                 >
                   Agendar
                 </button>

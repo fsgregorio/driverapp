@@ -162,7 +162,7 @@ const DashboardAluno = () => {
 
         {activeSection === 'classes' && (
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-6">Aulas</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Aulas</h1>
             <ClassControl 
               instructors={mockInstructors} 
               initialTab={initialTab}
@@ -174,7 +174,7 @@ const DashboardAluno = () => {
 
         {activeSection === 'instructors' && (
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-6">Instrutores</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Instrutores</h1>
             <InstructorControl 
               onScheduleClass={handleScheduleFromInstructor}
               initialTab={initialInstructorTab}
@@ -184,7 +184,7 @@ const DashboardAluno = () => {
 
         {activeSection === 'settings' && (
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-6">Configurações</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Configurações</h1>
             <SettingsSection />
           </div>
         )}

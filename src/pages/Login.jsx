@@ -79,7 +79,7 @@ const Login = () => {
               <img 
                 src="/imgs/logo/drivetopass.png" 
                 alt="DriveToPass" 
-                className="h-28 md:h-32 w-auto"
+                className="h-12 sm:h-16 md:h-20 lg:h-24 w-auto"
               />
             </div>
           </div>
