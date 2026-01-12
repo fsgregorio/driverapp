@@ -57,6 +57,10 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
       page: currentProfile === 'student' ? 'landing_aluno' : currentProfile === 'instructor' ? 'landing_instrutor' : 'home',
       section: 'navbar'
     });
+
+    // Redirecionar para página de login com o tipo apropriado
+    const userType = currentProfile === 'instructor' ? 'instructor' : 'student';
+    navigate(`/login?type=${userType}`);
     
     if (currentProfile === 'student') {
       navigate('/dashboard/aluno');

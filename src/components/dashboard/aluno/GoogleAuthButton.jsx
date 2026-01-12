@@ -2,9 +2,18 @@ import React, { useState } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { trackEvent, trackingEvents } from '../../../utils/trackingUtils';
 
-const GoogleAuthButton = ({ onSuccess, userType = 'student' }) => {
-  const { loginWithGoogle } = useAuth();
+const GoogleAuthButton = ({ onSuccess, onProfileIncomplete, userType = 'student' }) => {
+  const { loginWithGoogle, user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+
+  // Função auxiliar para verificar se o perfil está completo
+  const checkProfileComplete = (userData) => {
+    if (!userData) return false;
+    const hasFullName = userData.name && userData.name.trim().split(' ').length >= 2;
+    const hasPhone = userData.phone && userData.phone.length >= 10;
+    const hasPhoto = userData.photo && userData.photo !== '/imgs/users/image.png';
+    return hasFullName && hasPhone && hasPhoto;
+  };
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
@@ -19,16 +28,24 @@ const GoogleAuthButton = ({ onSuccess, userType = 'student' }) => {
     try {
       // Mockup: simula login com Google
       // TODO: Substituir por integração real com Firebase/Supabase
-      await loginWithGoogle(userType);
+      const loggedInUser = await loginWithGoogle(userType);
+      
+      // Verificar se o perfil está completo
+      const profileComplete = checkProfileComplete(loggedInUser);
       
       // Tracking de sucesso
       trackEvent(trackingEvents.AUTH_LOGIN_SUCCESS, {
         method: 'google',
         user_type: userType,
-        page: userType === 'student' ? 'dashboard_aluno' : 'dashboard_instrutor'
+        page: userType === 'student' ? 'dashboard_aluno' : 'dashboard_instrutor',
+        profile_complete: profileComplete
       });
       
-      if (onSuccess) {
+      if (!profileComplete && onProfileIncomplete) {
+        // Se o perfil não estiver completo, chamar callback para mostrar modal
+        onProfileIncomplete();
+      } else if (onSuccess) {
+        // Se o perfil estiver completo, prosseguir normalmente
         onSuccess();
       }
     } catch (error) {

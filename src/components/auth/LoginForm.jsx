@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../../context/AuthContext';
-import { trackEvent, trackingEvents } from '../../../utils/trackingUtils';
+import { useAuth } from '../../context/AuthContext';
+import { trackEvent, trackingEvents } from '../../utils/trackingUtils';
 
-const RegisterForm = ({ onSuccess }) => {
-  const { register } = useAuth();
+const LoginForm = ({ onSuccess, userType = 'student' }) => {
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
-    confirmPassword: ''
+    password: ''
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -19,7 +18,6 @@ const RegisterForm = ({ onSuccess }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    // Limpar erro do campo quando usuário começar a digitar
     if (errors[name]) {
       setErrors({ ...errors, [name]: '' });
     }
@@ -36,12 +34,6 @@ const RegisterForm = ({ onSuccess }) => {
 
     if (!formData.password) {
       newErrors.password = 'Senha é obrigatória';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Senha deve ter pelo menos 6 caracteres';
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Senhas não coincidem';
     }
 
     setErrors(newErrors);
@@ -57,35 +49,29 @@ const RegisterForm = ({ onSuccess }) => {
 
     setIsSubmitting(true);
 
-    // Tracking do início do registro
-    trackEvent(trackingEvents.AUTH_REGISTER_FORM, {
-      user_type: 'student',
-      page: 'dashboard_aluno',
+    // Tracking do início do login
+    trackEvent(trackingEvents.AUTH_LOGIN_FORM, {
+      user_type: userType,
+      page: userType === 'student' ? 'login_aluno' : 'login_instrutor',
       section: 'auth',
-      has_email: !!formData.email,
-      has_phone: !!formData.phone
+      has_email: !!formData.email
     });
 
     try {
-      // TODO: Substituir por chamada de API real
-      // Criar conta apenas com email e senha - perfil será completado depois
-      await register({
-        email: formData.email,
-        password: formData.password
-      }, 'student');
+      await login(formData.email, formData.password, userType);
 
       // Tracking de sucesso
-      trackEvent(trackingEvents.AUTH_REGISTER_SUCCESS, {
+      trackEvent(trackingEvents.AUTH_LOGIN_SUCCESS, {
         method: 'form',
-        user_type: 'student',
-        page: 'dashboard_aluno'
+        user_type: userType,
+        page: userType === 'student' ? 'login_aluno' : 'login_instrutor'
       });
 
       if (onSuccess) {
         onSuccess();
       }
     } catch (error) {
-      setErrors({ submit: 'Erro ao cadastrar. Tente novamente.' });
+      setErrors({ submit: 'E-mail ou senha incorretos. Tente novamente.' });
     } finally {
       setIsSubmitting(false);
     }
@@ -125,27 +111,10 @@ const RegisterForm = ({ onSuccess }) => {
           className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all ${
             errors.password ? 'border-red-300' : 'border-gray-200'
           }`}
-          placeholder="Mínimo 6 caracteres"
+          placeholder="Digite sua senha"
+          autoComplete="current-password"
         />
         {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
-      </div>
-
-      <div>
-        <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
-          Confirmar Senha <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="password"
-          id="confirmPassword"
-          name="confirmPassword"
-          value={formData.confirmPassword}
-          onChange={handleChange}
-          className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all ${
-            errors.confirmPassword ? 'border-red-300' : 'border-gray-200'
-          }`}
-          placeholder="Confirme sua senha"
-        />
-        {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
       </div>
 
       {errors.submit && (
@@ -165,14 +134,14 @@ const RegisterForm = ({ onSuccess }) => {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            Cadastrando...
+            Entrando...
           </span>
         ) : (
-          'Criar Conta'
+          'Entrar'
         )}
       </button>
     </form>
   );
 };
 
-export default RegisterForm;
+export default LoginForm;

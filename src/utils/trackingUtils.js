@@ -70,9 +70,13 @@ export const trackingEvents = {
   
   // Autenticação
   AUTH_LOGIN_GOOGLE: 'auth_login_google',
+  AUTH_LOGIN_FORM: 'auth_login_form',
   AUTH_REGISTER_FORM: 'auth_register_form',
   AUTH_LOGIN_SUCCESS: 'auth_login_success',
   AUTH_REGISTER_SUCCESS: 'auth_register_success',
+  AUTH_FORGOT_PASSWORD: 'auth_forgot_password',
+  AUTH_COMPLETE_PROFILE: 'auth_complete_profile',
+  AUTH_COMPLETE_PROFILE_SUCCESS: 'auth_complete_profile_success',
   
   // Navegação geral
   NAV_HOME_CLICK: 'nav_home_click',

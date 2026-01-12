@@ -95,7 +95,7 @@ const Footer = ({ onSwitchProfile }) => {
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
             <button
-              onClick={() => navigate('/dashboard/aluno')}
+              onClick={() => navigate('/login?type=student')}
               className="bg-white hover:bg-gray-100 text-secondary font-semibold py-2 px-6 rounded-lg transition-all duration-300 transform hover:scale-105"
             >
               Login

@@ -6,6 +6,9 @@ import Home from './pages/Home';
 import LandingAluno from './pages/LandingAluno';
 import LandingInstrutor from './pages/LandingInstrutor';
 import Waitlist from './pages/Waitlist';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
 import DashboardAluno from './pages/DashboardAluno';
 import DashboardInstrutor from './pages/DashboardInstrutor';
 
@@ -20,6 +23,9 @@ function App() {
               <Route path="/aluno" element={<LandingAluno />} />
               <Route path="/instrutor" element={<LandingInstrutor />} />
               <Route path="/waitlist" element={<Waitlist />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/dashboard/aluno" element={<DashboardAluno />} />
               <Route path="/dashboard/instrutor" element={<DashboardInstrutor />} />
               <Route path="*" element={<Navigate to="/" replace />} />
