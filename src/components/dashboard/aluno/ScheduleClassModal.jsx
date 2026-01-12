@@ -226,32 +226,32 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
             }
           }}
         >
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-start gap-4 mb-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-4 sm:p-6 mx-4 sm:mx-0" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start gap-3 sm:gap-4 mb-4">
               <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                 </div>
               </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Aviso Importante</h3>
-                <p className="text-gray-700 mb-4">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">Aviso Importante</h3>
+                <p className="text-sm sm:text-base text-gray-700 mb-3 sm:mb-4">
                   A aula será <strong className="text-yellow-600">cancelada automaticamente</strong> se não for aceita pelo instrutor ou paga até <strong className="text-yellow-600">24 horas antes</strong> do horário marcado (ou do último horário selecionado, caso tenha múltiplas opções).
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-xs sm:text-sm text-gray-600">
                   Certifique-se de que o instrutor aceitará a aula ou que você pagará dentro do prazo para evitar o cancelamento automático.
                 </p>
               </div>
             </div>
-            <div className="flex gap-3 pt-4 border-t border-gray-200" onClick={(e) => e.stopPropagation()}>
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200" onClick={(e) => e.stopPropagation()}>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleCancelWarning();
                 }}
-                className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
+                className="w-full sm:flex-1 px-4 sm:px-6 py-2.5 sm:py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors text-sm sm:text-base"
               >
                 Voltar
               </button>
@@ -260,7 +260,7 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
                   e.stopPropagation();
                   handleConfirmWithWarning();
                 }}
-                className="flex-1 px-6 py-3 bg-primary hover:bg-blue-600 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105"
+                className="w-full sm:flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-primary hover:bg-blue-600 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 text-sm sm:text-base"
               >
                 Entendi, Confirmar Agendamento
               </button>
@@ -275,20 +275,20 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
         title="Agendar Aula"
         hideFooter={true}
       >
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Informações do Instrutor */}
-        <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-          <div className="flex items-start gap-4">
+        <div className="bg-gray-50 rounded-xl p-4 sm:p-6 border border-gray-200">
+          <div className="flex items-start gap-3 sm:gap-4">
             <img
               src={instructor.photo}
               alt={instructor.name}
-              className="w-20 h-20 rounded-full object-cover"
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover flex-shrink-0"
             />
-            <div className="flex-1">
-              <h3 className="text-2xl font-bold text-gray-900 mb-1">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1 truncate">
                 {instructor.name}
               </h3>
-              <p className="text-sm text-gray-600 mb-2">
+              <p className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-1">
                 {instructor.location?.neighborhood && instructor.location?.city && instructor.location?.state
                   ? `${instructor.location.neighborhood} - ${instructor.location.city}/${instructor.location.state}`
                   : instructor.location?.city && instructor.location?.state
@@ -299,7 +299,7 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
               {/* Badge Premium e Tipos de Aula */}
               <div className="mb-3">
                 {instructor.premium && (
-                  <span className="inline-flex items-center px-3 py-1 bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-900 text-xs font-bold rounded-full mb-2">
+                  <span className="inline-flex items-center px-2 sm:px-3 py-1 bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-900 text-xs font-bold rounded-full mb-2">
                     <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
@@ -307,11 +307,11 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
                   </span>
                 )}
                 {instructor.classTypes && instructor.classTypes.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2">
                     {instructor.classTypes.map((type, idx) => (
                       <span
                         key={idx}
-                        className="px-3 py-1 bg-accent text-primary text-xs font-semibold rounded-lg"
+                        className="px-2 sm:px-3 py-1 bg-accent text-primary text-xs font-semibold rounded-lg"
                       >
                         {type}
                       </span>
@@ -321,38 +321,37 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
               </div>
 
               {/* Rating */}
-              <div className="flex items-center mb-2">
-                <span className="text-sm text-gray-600 mr-2">
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <span className="text-xs sm:text-sm text-gray-600">
                   {instructor.totalClasses || 0} aulas dadas
                 </span>
                 <div className="flex text-yellow-400">
                   {[...Array(5)].map((_, i) => (
                     <svg
                       key={i}
-                      className={`w-5 h-5 ${i < Math.floor(instructor.rating) ? 'fill-current' : 'text-gray-300'}`}
+                      className={`w-4 h-4 sm:w-5 sm:h-5 ${i < Math.floor(instructor.rating) ? 'fill-current' : 'text-gray-300'}`}
                       viewBox="0 0 20 20"
                     >
                       <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
                     </svg>
                   ))}
                 </div>
-                <span className="ml-2 text-sm text-gray-600">
+                <span className="text-xs sm:text-sm text-gray-600">
                   {instructor.rating} ({instructor.totalReviews} avaliações)
                 </span>
               </div>
 
-
               {/* Preço */}
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-primary">
+              <div className="flex items-baseline gap-2 mb-2">
+                <span className="text-2xl sm:text-3xl font-bold text-primary">
                   R$ {instructor.pricePerClass}
                 </span>
-                <span className="text-gray-500">/aula</span>
+                <span className="text-sm sm:text-base text-gray-500">/aula</span>
               </div>
 
               {/* Descrição */}
               {instructor.description && (
-                <p className="text-sm text-gray-600 mt-3">
+                <p className="text-xs sm:text-sm text-gray-600 mt-2 line-clamp-2">
                   {instructor.description}
                 </p>
               )}
@@ -362,15 +361,15 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
 
         {/* Seleção de Tipo de Aula */}
         <div>
-          <label className="block text-lg font-semibold text-gray-900 mb-3">
+          <label className="block text-base sm:text-lg font-semibold text-gray-900 mb-3">
             Tipo de Aula *
           </label>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
             {availableClassTypes.map(type => (
               <button
                 key={type}
                 onClick={() => handleClassTypeToggle(type)}
-                className={`px-4 py-3 rounded-xl border-2 font-medium transition-all ${
+                className={`px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border-2 font-medium transition-all text-sm sm:text-base ${
                   classTypes.includes(type)
                     ? 'border-primary bg-primary text-white'
                     : 'border-gray-200 bg-white text-gray-700 hover:border-primary hover:bg-accent'
@@ -384,16 +383,16 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
 
         {/* Seleção de Datas e Horários */}
         <div>
-          <label className="block text-lg font-semibold text-gray-900 mb-3">
+          <label className="block text-base sm:text-lg font-semibold text-gray-900 mb-3">
             Selecione Dias e Horários *
           </label>
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="text-xs sm:text-sm text-gray-600 mb-4">
             Você pode selecionar múltiplos dias e horários. O instrutor escolherá os que tiver disponibilidade.
-            <br />
+            <br className="hidden sm:block" />
             <span className="font-semibold text-primary">Importante:</span> Apenas horários com <strong>mínimo de 24 horas de antecedência</strong> estão disponíveis para agendamento.
           </p>
 
-          <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+          <div className="space-y-3 sm:space-y-4 max-h-96 overflow-y-auto pr-1 sm:pr-2">
             {dateOptions.map(date => {
               const isSelected = selectedDates.includes(date);
               const timesForDate = selectedTimes[date] || [];
@@ -404,7 +403,7 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
               return (
                 <div
                   key={date}
-                  className={`border-2 rounded-xl p-4 transition-all ${
+                  className={`border-2 rounded-xl p-3 sm:p-4 transition-all ${
                     isSelected
                       ? 'border-primary bg-accent'
                       : hasAvailability
@@ -415,33 +414,33 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
                   {/* Data */}
                   <button
                     onClick={() => handleDateToggle(date)}
-                    className="w-full flex items-center justify-between mb-3"
+                    className="w-full flex items-center justify-between mb-2 sm:mb-3"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                      <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
                         isSelected
                           ? 'border-primary bg-primary'
                           : 'border-gray-300'
                       }`}>
                         {isSelected && (
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
                         )}
                       </div>
-                      <span className={`text-lg font-semibold ${
+                      <span className={`text-sm sm:text-lg font-semibold truncate ${
                         isSelected ? 'text-primary' : hasAvailability ? 'text-gray-700' : 'text-gray-400'
                       }`}>
                         {formatDateDisplay(date)}
                         {!hasAvailability && (
-                          <span className="ml-2 text-xs font-normal text-gray-400">
+                          <span className="ml-1 sm:ml-2 text-xs font-normal text-gray-400">
                             (Sem disponibilidade)
                           </span>
                         )}
                       </span>
                     </div>
                     <svg
-                      className={`w-5 h-5 transition-transform ${
+                      className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform flex-shrink-0 ml-2 ${
                         isSelected ? 'rotate-180 text-primary' : 'text-gray-400'
                       }`}
                       fill="none"
@@ -460,8 +459,8 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
                     
                     if (availableTimesForDate.length === 0) {
                       return (
-                        <div className="mt-3 pl-8">
-                          <p className="text-sm text-gray-500 italic">
+                        <div className="mt-2 sm:mt-3 pl-6 sm:pl-8">
+                          <p className="text-xs sm:text-sm text-gray-500 italic">
                             {hasTimesButNot24h 
                               ? 'Nenhum horário disponível com antecedência mínima de 24 horas para esta data'
                               : 'Nenhum horário disponível para esta data'}
@@ -471,14 +470,14 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
                     }
                     
                     return (
-                      <div className="grid grid-cols-3 md:grid-cols-4 gap-2 mt-3 pl-8">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-2 sm:mt-3 pl-6 sm:pl-8">
                         {availableTimesForDate.map(time => {
                           const isTimeSelected = timesForDate.includes(time);
                           return (
                             <button
                               key={time}
                               onClick={() => handleTimeToggle(date, time)}
-                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                              className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                                 isTimeSelected
                                   ? 'bg-primary text-white'
                                   : 'bg-white text-gray-700 border border-gray-200 hover:border-primary hover:bg-accent'
@@ -499,19 +498,19 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
 
         {/* Busca em Casa */}
         {instructor.homeService && (
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-            <label className="flex items-center gap-3 cursor-pointer">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4">
+            <label className="flex items-start gap-2 sm:gap-3 cursor-pointer">
               <input
                 type="checkbox"
                 checked={homeService}
                 onChange={(e) => setHomeService(e.target.checked)}
-                className="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary"
+                className="w-4 h-4 sm:w-5 sm:h-5 text-primary border-gray-300 rounded focus:ring-primary mt-0.5 flex-shrink-0"
               />
-              <div>
-                <span className="font-semibold text-gray-900">
+              <div className="min-w-0 flex-1">
+                <span className="font-semibold text-sm sm:text-base text-gray-900 block">
                   Busca em casa
                 </span>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-xs sm:text-sm text-gray-600 mt-1">
                   O instrutor buscará você no endereço informado
                 </p>
               </div>
@@ -520,14 +519,14 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
         )}
 
         {/* Aviso de Cancelamento Automático */}
-        <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-4">
-          <div className="flex items-start gap-3">
-            <svg className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-3 sm:p-4">
+          <div className="flex items-start gap-2 sm:gap-3">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
-            <div className="flex-1">
-              <h4 className="font-semibold text-yellow-900 mb-1">Aviso Importante</h4>
-              <p className="text-sm text-yellow-800">
+            <div className="flex-1 min-w-0">
+              <h4 className="font-semibold text-sm sm:text-base text-yellow-900 mb-1">Aviso Importante</h4>
+              <p className="text-xs sm:text-sm text-yellow-800">
                 A aula será <strong>cancelada automaticamente</strong> se não for aceita pelo instrutor ou paga até <strong>24 horas antes</strong> do horário marcado (ou do último horário selecionado, caso tenha múltiplas opções).
               </p>
             </div>
@@ -536,25 +535,25 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
 
         {/* Resumo */}
         {selectedDates.length > 0 && classTypes.length > 0 && (
-          <div className="bg-primary/10 border border-primary/20 rounded-xl p-4">
-            <h4 className="font-semibold text-gray-900 mb-2">Resumo do Agendamento:</h4>
-            <ul className="text-sm text-gray-700 space-y-1">
+          <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 sm:p-4">
+            <h4 className="font-semibold text-sm sm:text-base text-gray-900 mb-2">Resumo do Agendamento:</h4>
+            <ul className="text-xs sm:text-sm text-gray-700 space-y-1">
               <li>• {selectedDates.length} dia(s) selecionado(s)</li>
               <li>• {Object.values(selectedTimes).flat().length} horário(s) selecionado(s)</li>
-              <li>• Tipo(s): {classTypes.join(', ')}</li>
+              <li>• Tipo(s): <span className="break-words">{classTypes.join(', ')}</span></li>
               {homeService && <li>• Busca em casa: Sim</li>}
             </ul>
           </div>
         )}
 
         {/* Botões de Ação */}
-        <div className="flex gap-4 pt-4" onClick={(e) => e.stopPropagation()}>
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={(e) => {
               e.stopPropagation();
               onClose();
             }}
-            className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
+            className="w-full sm:flex-1 px-4 sm:px-6 py-2.5 sm:py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors text-sm sm:text-base"
           >
             Cancelar
           </button>
@@ -563,7 +562,7 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
               e.stopPropagation();
               handleConfirm();
             }}
-            className="flex-1 px-6 py-3 bg-primary hover:bg-blue-600 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105"
+            className="w-full sm:flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-primary hover:bg-blue-600 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 text-sm sm:text-base"
           >
             Confirmar Agendamento
           </button>

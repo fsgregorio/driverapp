@@ -87,11 +87,10 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0 cursor-pointer" onClick={handleLogoClick}>
-            <img 
-              src="/imgs/logo/drivetopass.png" 
-              alt="DriveToPass" 
-              className="h-12 sm:h-16 md:h-20 lg:h-24 w-auto"
-            />
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
+              <span className="text-primary">DriveTo</span>
+              <span className="text-secondary">Pass</span>
+            </h1>
           </div>
 
           {/* Desktop Menu */}

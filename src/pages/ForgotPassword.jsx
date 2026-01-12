@@ -86,11 +86,10 @@ const ForgotPassword = () => {
               className="flex-shrink-0 cursor-pointer"
               onClick={() => navigate('/')}
             >
-              <img 
-                src="/imgs/logo/drivetopass.png" 
-                alt="DriveToPass" 
-                className="h-28 md:h-32 w-auto"
-              />
+              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
+                <span className="text-primary">DriveTo</span>
+                <span className="text-secondary">Pass</span>
+              </h1>
             </div>
           </div>
         </div>

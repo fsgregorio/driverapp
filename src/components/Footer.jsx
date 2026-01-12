@@ -16,8 +16,8 @@ const Footer = ({ onSwitchProfile }) => {
           {/* About */}
           <div>
             <h2 className="text-2xl md:text-3xl font-bold mb-4">
-              <span className="text-[#5B8DEF]">Drive</span>
-              <span className="text-white">ToPass</span>
+              <span className="text-primary">DriveTo</span>
+              <span className="text-secondary">Pass</span>
             </h2>
             <p className="text-gray-400 text-sm">
               Conectamos alunos e instrutores certificados para aulas práticas seguras e sem burocracia.

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { trackButtonClick, trackNavigation, trackingEvents } from '../../../utils/trackingUtils';
@@ -7,6 +7,18 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
   const navigate = useNavigate();
   const { user, logout, userType } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Bloquear scroll do body quando menu mobile estiver aberto
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMenuOpen]);
 
   const handleLogout = () => {
     const eventName = userType === 'student' 
@@ -77,86 +89,41 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
       ];
 
   return (
-    <nav className="bg-white shadow-md border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <div 
-            className="flex-shrink-0 cursor-pointer"
-            onClick={handleLogoClick}
-          >
-            <img 
-              src="/imgs/logo/drivetopass.png" 
-              alt="DriveToPass" 
-              className="h-12 sm:h-16 md:h-20 lg:h-24 w-auto"
-            />
-          </div>
-
-          {/* Navigation Links */}
-          <div className="hidden lg:flex items-center space-x-4 xl:space-x-6 relative">
-            {sections.map((section) => (
-              <button
-                key={section.id}
-                onClick={() => handleSectionChange(section.id)}
-                className={`px-3 py-2 rounded-lg font-medium transition-colors ${
-                  activeSection === section.id
-                    ? 'bg-primary text-white'
-                    : 'text-gray-700 hover:text-primary hover:bg-gray-50'
-                }`}
+    <>
+      <nav className="bg-white shadow-md border-b border-gray-200 relative z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative flex items-center justify-between h-20 sm:h-24 md:h-28">
+            {/* Lado Esquerdo - Logo (Desktop) */}
+            <div className="hidden lg:flex items-center flex-shrink-0">
+              <div 
+                className="cursor-pointer"
+                onClick={handleLogoClick}
               >
-                {section.label}
-              </button>
-            ))}
-          </div>
+                <h1 className="text-2xl font-bold">
+                  <span className="text-primary">DriveTo</span>
+                  <span className="text-secondary">Pass</span>
+                </h1>
+              </div>
+            </div>
 
-          {/* User Menu - Desktop */}
-          <div className="hidden lg:flex items-center space-x-4">
-            {/* Botão Agendar Nova Aula - apenas para estudantes */}
-            {userType === 'student' && (
-              <button
-                onClick={handleScheduleNewClassClick}
-                className="bg-primary hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
-              >
-                + Agendar Nova Aula
-              </button>
-            )}
-            <span className="hidden xl:block text-sm font-medium text-gray-700">
-              {user?.name}
-            </span>
-            <button
-              onClick={handleLogout}
-              className="text-gray-600 hover:text-primary transition-colors text-sm font-medium"
+            {/* Logo - Centralizado (Mobile) */}
+            <div 
+              className="lg:hidden absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10"
+              onClick={handleLogoClick}
             >
-              Sair
-            </button>
-          </div>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
+                <span className="text-primary">DriveTo</span>
+                <span className="text-secondary">Pass</span>
+              </h1>
+            </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="lg:hidden text-gray-700 ml-2"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {isMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
-        </div>
-
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-gray-200 mt-2">
-            {/* Navigation Links Mobile */}
-            <div className="space-y-2 mb-4">
+            {/* Navigation Links (Desktop) */}
+            <div className="hidden lg:flex items-center space-x-4 xl:space-x-6 flex-1 ml-8">
               {sections.map((section) => (
                 <button
                   key={section.id}
                   onClick={() => handleSectionChange(section.id)}
-                  className={`w-full text-left px-4 py-2 rounded-lg font-medium transition-colors ${
+                  className={`px-3 py-2 rounded-lg font-medium transition-colors ${
                     activeSection === section.id
                       ? 'bg-primary text-white'
                       : 'text-gray-700 hover:text-primary hover:bg-gray-50'
@@ -167,36 +134,133 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
               ))}
             </div>
 
-            {/* User Actions Mobile */}
-            <div className="border-t border-gray-200 pt-4 space-y-2">
+            {/* Lado Direito - User Menu (Desktop) ou Mobile Menu Button */}
+            <div className="flex items-center lg:flex-shrink-0 justify-end">
+              {/* Desktop Menu */}
+              <div className="hidden lg:flex items-center space-x-4">
+                {/* Botão Agendar Nova Aula - apenas para estudantes */}
+                {userType === 'student' && (
+                  <button
+                    onClick={handleScheduleNewClassClick}
+                    className="bg-primary hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
+                  >
+                    + Agendar Nova Aula
+                  </button>
+                )}
+                <span className="hidden xl:block text-sm font-medium text-gray-700">
+                  {user?.name}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="text-gray-600 hover:text-primary transition-colors text-sm font-medium"
+                >
+                  Sair
+                </button>
+              </div>
+
+              {/* Mobile Menu Button */}
+              <button
+                className="lg:hidden text-gray-700 z-20 relative"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                aria-label="Toggle menu"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {isMenuOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  )}
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Mobile Menu Overlay */}
+      {isMenuOpen && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-50 lg:hidden"
+            onClick={() => setIsMenuOpen(false)}
+          />
+          
+          {/* Mobile Menu Sidebar */}
+          <div className="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-white shadow-2xl z-50 lg:hidden transform transition-transform duration-300 ease-in-out overflow-y-auto">
+            <div className="p-6">
+              {/* Header com Logo e Botão Fechar */}
+              <div className="flex items-center justify-between mb-8">
+                <div 
+                  className="cursor-pointer"
+                  onClick={handleLogoClick}
+                >
+                  <h1 className="text-2xl font-bold">
+                    <span className="text-primary">DriveTo</span>
+                    <span className="text-secondary">Pass</span>
+                  </h1>
+                </div>
+                <button
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-gray-700 hover:text-primary p-2"
+                  aria-label="Fechar menu"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Botão Agendar Nova Aula - apenas para estudantes */}
               {userType === 'student' && (
                 <button
                   onClick={() => {
                     handleScheduleNewClassClick();
                     setIsMenuOpen(false);
                   }}
-                  className="w-full bg-primary hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 text-center"
+                  className="w-full bg-primary hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 text-center mb-6"
                 >
                   + Agendar Nova Aula
                 </button>
               )}
-              <div className="px-4 py-2 text-sm text-gray-700">
-                {user?.name}
+
+              {/* Navigation Links Mobile */}
+              <div className="space-y-2 mb-6">
+                {sections.map((section) => (
+                  <button
+                    key={section.id}
+                    onClick={() => handleSectionChange(section.id)}
+                    className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-colors ${
+                      activeSection === section.id
+                        ? 'bg-primary text-white'
+                        : 'text-gray-700 hover:text-primary hover:bg-gray-50'
+                    }`}
+                  >
+                    {section.label}
+                  </button>
+                ))}
               </div>
-              <button
-                onClick={() => {
-                  handleLogout();
-                  setIsMenuOpen(false);
-                }}
-                className="w-full text-left px-4 py-2 text-gray-600 hover:text-primary transition-colors text-sm font-medium"
-              >
-                Sair
-              </button>
+
+              {/* User Info e Logout */}
+              <div className="border-t border-gray-200 pt-6">
+                <div className="px-4 py-3 text-sm text-gray-700 mb-4">
+                  {user?.name}
+                </div>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-3 text-gray-600 hover:text-primary transition-colors text-sm font-medium rounded-lg hover:bg-gray-50"
+                >
+                  Sair
+                </button>
+              </div>
             </div>
           </div>
-        )}
-      </div>
-    </nav>
+        </>
+      )}
+    </>
   );
 };
 
