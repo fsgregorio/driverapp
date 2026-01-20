@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '../../Modal';
-import { getAvailableTimes, hasAvailableTimes } from '../../../utils/availabilityUtils';
+import { getAvailableTimes } from '../../../utils/availabilityUtils';
 import { trackEvent, trackingEvents } from '../../../utils/trackingUtils';
 import { useAuth } from '../../../context/AuthContext';
 import { studentsAPI } from '../../../services/api';

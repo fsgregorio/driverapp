@@ -1,8 +1,6 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 
 const PendingClassesCard = ({ title, count, icon, color, onClick, onViewAll, subtitle }) => {
-  const navigate = useNavigate();
 
   const handleClick = () => {
     if (onClick) {

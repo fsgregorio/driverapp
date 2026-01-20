@@ -40,13 +40,10 @@ const DashboardAluno = () => {
     const loadClasses = async () => {
       if (isAuthenticated && !loading) {
         try {
-          setClassesLoading(true);
           const loadedClasses = await studentsAPI.getClasses();
           setClasses(loadedClasses);
         } catch (error) {
           console.error('Error loading classes:', error);
-        } finally {
-          setClassesLoading(false);
         }
       }
     };

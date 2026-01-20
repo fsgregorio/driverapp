@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
+import React, { createContext, useState, useContext, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '../services/supabase';
 
 const AuthContext = createContext();
@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Load user profile from database
-  const loadUserProfile = async (supabaseUser) => {
+  const loadUserProfile = useCallback(async (supabaseUser) => {
     // Prevent multiple simultaneous calls
     if (loadingProfileRef.current) {
       return;
@@ -121,7 +121,7 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
       }
     }
-  };
+  }, []);
 
   // Initialize auth state
   useEffect(() => {
@@ -199,7 +199,7 @@ export const AuthProvider = ({ children }) => {
       mountedRef.current = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [loadUserProfile]);
 
   const login = async (email, password, type) => {
     console.log('AuthContext.login called', { email, type });

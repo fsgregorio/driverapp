@@ -856,8 +856,10 @@ export const instructorsAPI = {
   },
 };
 
-export default {
+const api = {
   auth: authAPI,
   students: studentsAPI,
   instructors: instructorsAPI,
 };
+
+export default api;
