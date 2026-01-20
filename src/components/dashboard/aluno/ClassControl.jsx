@@ -251,6 +251,7 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
     // Aqui poderia mostrar uma mensagem de sucesso
   };
 
+  // eslint-disable-next-line no-unused-vars
   const confirmPayment = (classId, paymentMethod) => {
     // Encontrar a aula que está sendo paga para obter informações completas
     const classToPay = classes.find(c => c.id === classId);
@@ -313,6 +314,7 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
   // Função para simular aceite do instrutor (mudar de pendente_aceite para pendente_pagamento)
   // Esta função será chamada quando o instrutor aceitar a aula no dashboard do instrutor
   // Por enquanto, vamos criar uma função que pode ser chamada manualmente para testes
+  // eslint-disable-next-line no-unused-vars
   const handleInstructorAccept = (classId, selectedDate, selectedTime) => {
     const updatedClasses = classes.map(c => {
       if (c.id === classId && c.status === 'pendente_aceite') {

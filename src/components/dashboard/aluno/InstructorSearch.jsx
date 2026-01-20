@@ -221,6 +221,8 @@ const InstructorSearch = ({ onScheduleClass }) => {
             case '180+':
               if (price < 180) return false;
               break;
+            default:
+              break;
           }
         }
 
@@ -282,7 +284,7 @@ const InstructorSearch = ({ onScheduleClass }) => {
         section: 'instructor_search'
       });
     }
-  }, [filters]);
+  }, [filters, filteredInstructors.length]);
 
   const handleToggleFavorite = (instructorId, e) => {
     e.stopPropagation();

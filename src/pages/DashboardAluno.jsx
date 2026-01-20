@@ -13,10 +13,9 @@ import SEO from '../components/SEO';
 
 const DashboardAluno = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, userType, loading, user } = useAuth();
+  const { isAuthenticated, userType, loading } = useAuth();
   const [activeSection, setActiveSection] = useState('home');
   const [classes, setClasses] = useState([]);
-  const [classesLoading, setClassesLoading] = useState(true);
   const [initialTab, setInitialTab] = useState('agendadas');
   const [initialInstructorTab, setInitialInstructorTab] = useState('search');
   const [showComingSoonModal, setShowComingSoonModal] = useState(false);

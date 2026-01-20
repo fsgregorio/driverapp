@@ -75,12 +75,12 @@ const Footer = ({ onSwitchProfile }) => {
             <h3 className="font-bold text-lg mb-4">Contato</h3>
             <ul className="space-y-2 text-gray-400 text-sm">
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a href="https://wa.me/5511999999999" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
                   WhatsApp
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a href="mailto:contato@drivetopass.com.br" className="hover:text-white transition-colors">
                   Email
                 </a>
               </li>
