@@ -82,6 +82,19 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
   const pendentesPagamento = getPendingPaymentClasses(classes);
   const pendentesAvaliacao = getPendingEvaluationClasses(classes);
   const historico = getHistoryClasses(classes);
+  
+  // Log de debug para verificar quantidade de aulas
+  useEffect(() => {
+    console.log('📊 ClassControl - Quantidade de aulas:', {
+      total: classes.length,
+      agendadas: agendadas.length,
+      pendentes_aceite: pendentesAceite.length,
+      pendentes_pagamento: pendentesPagamento.length,
+      pendentes_avaliacao: pendentesAvaliacao.length,
+      historico: historico.length,
+      todas_as_aulas: classes.map(c => ({ id: c.id, status: c.status, date: c.date }))
+    });
+  }, [classes, agendadas.length, pendentesAceite.length, pendentesPagamento.length, pendentesAvaliacao.length, historico.length]);
 
   // Função para obter as aulas filtradas baseado na tab ativa
   const getFilteredClasses = () => {

@@ -40,23 +40,26 @@ const LoginForm = ({ onSuccess, userType = 'student' }) => {
     }
 
     setErrors(newErrors);
-    const isValid = Object.keys(newErrors).length === 0;
-    console.log('Validation result:', { isValid, errors: newErrors });
-    return isValid;
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted', { email: formData.email, password: formData.password ? '***' : '' });
+    console.log('Form submitted');
     
-    const isValid = validate();
-    if (!isValid) {
-      console.log('Validation failed');
+    if (!validate()) {
       return;
     }
 
     setIsSubmitting(true);
-    setErrors({}); // Clear previous errors
+    setErrors({});
+
+    // Timeout de segurança - reseta isSubmitting após 15 segundos
+    const safetyTimeout = setTimeout(() => {
+      console.error('Login timeout - taking too long');
+      setIsSubmitting(false);
+      setErrors({ submit: 'O login está demorando muito. Tente novamente.' });
+    }, 15000);
 
     // Tracking do início do login
     try {
@@ -71,9 +74,12 @@ const LoginForm = ({ onSuccess, userType = 'student' }) => {
     }
 
     try {
-      console.log('Calling login function...');
-      await login(formData.email, formData.password, userType);
-      console.log('Login successful');
+      console.log('[LoginForm] Calling login function...');
+      const result = await login(formData.email, formData.password, userType);
+      console.log('[LoginForm] Login successful, result:', result);
+      
+      clearTimeout(safetyTimeout);
+      console.log('[LoginForm] Safety timeout cleared');
 
       // Tracking de sucesso
       try {
@@ -86,36 +92,36 @@ const LoginForm = ({ onSuccess, userType = 'student' }) => {
         console.warn('Tracking error:', trackError);
       }
 
-      // Chamar onSuccess primeiro para atualizar o estado na página de login
+      // Chamar onSuccess para atualizar estado na página de login
       if (onSuccess) {
+        console.log('[LoginForm] Calling onSuccess callback');
         onSuccess();
       }
 
-      // Redirecionar diretamente após login bem-sucedido
-      // O login() já atualizou o estado no contexto, então podemos redirecionar
+      // Redirecionar imediatamente - não esperar pelo loadUserProfile
       const dashboardPath = userType === 'student' ? '/dashboard/aluno' : '/dashboard/instrutor';
-      console.log('Login successful, redirecting to:', dashboardPath);
+      console.log('[LoginForm] About to redirect to:', dashboardPath);
       
-      // Aguardar um pouco para garantir que o onAuthStateChange foi processado
-      // e que o estado foi atualizado no contexto
-      setTimeout(() => {
-        console.log('Navigating to dashboard now...');
-        navigate(dashboardPath, { replace: true });
-      }, 800);
+      // Resetar isSubmitting antes de navegar
+      setIsSubmitting(false);
+      console.log('[LoginForm] isSubmitting reset to false');
+      
+      console.log('[LoginForm] Calling navigate...');
+      navigate(dashboardPath, { replace: true });
+      console.log('[LoginForm] Navigate called, should redirect now');
+      
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Login error caught:', error);
+      clearTimeout(safetyTimeout);
       
-      // Ignore abort errors (common in React Strict Mode)
+      // Ignore abort errors
       if (error.name === 'AbortError' || error.message?.includes('aborted') || error.message?.includes('cancelada')) {
-        // Don't show error for aborted requests, just reset submitting state
         setIsSubmitting(false);
         return;
       }
       
-      // Show user-friendly error message
       const errorMessage = error.message || 'E-mail ou senha incorretos. Tente novamente.';
       setErrors({ submit: errorMessage });
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -137,6 +143,7 @@ const LoginForm = ({ onSuccess, userType = 'student' }) => {
           }`}
           placeholder="seu@email.com"
           autoComplete="email"
+          disabled={isSubmitting}
         />
         {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
       </div>
@@ -156,6 +163,7 @@ const LoginForm = ({ onSuccess, userType = 'student' }) => {
           }`}
           placeholder="Digite sua senha"
           autoComplete="current-password"
+          disabled={isSubmitting}
         />
         <label className="flex items-center mt-2 cursor-pointer">
           <input
@@ -178,10 +186,6 @@ const LoginForm = ({ onSuccess, userType = 'student' }) => {
       <button
         type="submit"
         disabled={isSubmitting}
-        onClick={(e) => {
-          console.log('Button clicked', { isSubmitting, formData });
-          // Let the form handle the submit
-        }}
         className="w-full bg-primary hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
       >
         {isSubmitting ? (

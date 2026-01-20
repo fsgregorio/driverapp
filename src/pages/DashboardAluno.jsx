@@ -23,14 +23,18 @@ const DashboardAluno = () => {
   const [pendingInstructor, setPendingInstructor] = useState(null);
 
   useEffect(() => {
+    // Evitar redirecionamentos infinitos - só redirecionar se realmente não estiver autenticado
     if (!loading && !isAuthenticated) {
-      navigate('/login?type=student');
+      console.log('User not authenticated, redirecting to login');
+      navigate('/login?type=student', { replace: true });
     }
   }, [loading, isAuthenticated, navigate]);
 
   useEffect(() => {
-    if (!loading && isAuthenticated && userType !== 'student') {
-      navigate('/dashboard/instrutor');
+    // Evitar redirecionamentos infinitos - só redirecionar se realmente for instrutor
+    if (!loading && isAuthenticated && userType && userType !== 'student') {
+      console.log('User is instructor, redirecting to instructor dashboard');
+      navigate('/dashboard/instrutor', { replace: true });
     }
   }, [loading, isAuthenticated, userType, navigate]);
 
@@ -39,7 +43,17 @@ const DashboardAluno = () => {
     const loadClasses = async () => {
       if (isAuthenticated && !loading) {
         try {
+          console.log('🔄 Recarregando aulas no DashboardAluno...');
           const loadedClasses = await studentsAPI.getClasses();
+          console.log(`✅ Aulas carregadas no DashboardAluno: ${loadedClasses.length}`);
+          console.log('📋 Aulas por status:', {
+            agendadas: loadedClasses.filter(c => c.status === 'agendada' || c.status === 'confirmada').length,
+            pendentes_aceite: loadedClasses.filter(c => c.status === 'pendente_aceite').length,
+            pendentes_pagamento: loadedClasses.filter(c => c.status === 'pendente_pagamento').length,
+            concluidas: loadedClasses.filter(c => c.status === 'concluida').length,
+            canceladas: loadedClasses.filter(c => c.status === 'cancelada').length,
+            total: loadedClasses.length
+          });
           setClasses(loadedClasses);
         } catch (error) {
           console.error('Error loading classes:', error);
@@ -47,6 +61,18 @@ const DashboardAluno = () => {
       }
     };
     loadClasses();
+    
+    // Recarregar quando a página ganha foco (para atualizar dados)
+    const handleFocus = () => {
+      console.log('👁️ Página ganhou foco, recarregando aulas...');
+      loadClasses();
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
   }, [isAuthenticated, loading]);
 
   // Removido: não mostrar modal automaticamente no dashboard

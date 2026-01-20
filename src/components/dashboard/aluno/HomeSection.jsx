@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PendingClassesCard from './PendingClassesCard';
 import IndicatorsListCard from './IndicatorsListCard';
 import { 
@@ -20,6 +20,19 @@ const HomeSection = ({ classes, onNavigateToSection }) => {
   const upcomingClasses = indicators.upcomingClasses;
   const completedByType = indicators.completedByType;
   const favoriteInstructors = indicators.favoriteInstructors;
+  
+  // Log de debug para verificar quantidade de aulas no HomeSection
+  useEffect(() => {
+    console.log('📊 HomeSection - Quantidade de aulas:', {
+      total_recebidas: classes.length,
+      agendadas: agendadas.length,
+      pendingAcceptance: pendingAcceptance.length,
+      pendingPayment: pendingPayment.length,
+      pendingEvaluation: pendingEvaluation.length,
+      completedClasses: indicators.completedClasses,
+      todas_as_aulas: classes.map(c => ({ id: c.id, status: c.status, date: c.date }))
+    });
+  }, [classes, agendadas.length, pendingAcceptance.length, pendingPayment.length, pendingEvaluation.length, indicators.completedClasses]);
 
   const handleViewAgendadas = () => {
     if (onNavigateToSection) {

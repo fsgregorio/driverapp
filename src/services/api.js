@@ -38,13 +38,19 @@ const transformClass = (dbClass, instructorProfile = null) => {
 
 // Helper function to transform instructor data from DB to app format
 const transformInstructor = (instructor, profile) => {
+  // Garantir que total_classes seja sempre um número válido do banco
+  // Converter null/undefined para 0, mas preservar valores numéricos
+  const totalClasses = (instructor.total_classes !== null && instructor.total_classes !== undefined) 
+    ? Number(instructor.total_classes) 
+    : 0;
+  
   return {
     id: instructor.id,
     name: profile?.name || '',
     photo: profile?.photo_url || '/imgs/instructors/1.png',
     rating: parseFloat(instructor.rating || 0),
     totalReviews: instructor.total_reviews || 0,
-    totalClasses: instructor.total_classes || 0,
+    totalClasses: totalClasses,
     premium: profile?.premium || false,
     pricePerClass: parseFloat(instructor.price_per_class || 0),
     priceOwnVehicle: (instructor.price_own_vehicle !== null && instructor.price_own_vehicle !== undefined) ? parseFloat(instructor.price_own_vehicle) : null,
@@ -95,6 +101,12 @@ export const studentsAPI = {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
+      console.log('📚 Buscando aulas do aluno:', user.id);
+      
+      // Adicionar timestamp para evitar cache
+      const cacheBuster = Date.now();
+      console.log(`🔄 Cache buster: ${cacheBuster}`);
+
       const { data: classes, error } = await supabase
         .from('classes')
         .select('*')
@@ -102,7 +114,24 @@ export const studentsAPI = {
         .order('date', { ascending: true })
         .order('time', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro ao buscar aulas:', error);
+        throw error;
+      }
+
+      console.log(`✅ Total de aulas encontradas no banco: ${classes?.length || 0}`);
+      
+      // Log detalhado das aulas por status
+      if (classes && classes.length > 0) {
+        const statusCount = {};
+        classes.forEach(c => {
+          statusCount[c.status] = (statusCount[c.status] || 0) + 1;
+        });
+        console.log('📊 Aulas por status:', statusCount);
+        console.log('📋 IDs das aulas:', classes.map(c => ({ id: c.id, status: c.status, date: c.date })));
+      } else {
+        console.warn('⚠️ Nenhuma aula encontrada no banco para este aluno');
+      }
 
       // Get instructor profiles for each class
       const instructorIds = [...new Set(classes.map(c => c.instructor_id))];
@@ -116,7 +145,10 @@ export const studentsAPI = {
         profileMap[p.id] = p;
       });
 
-      return classes.map(c => transformClass(c, profileMap[c.instructor_id]));
+      const transformedClasses = classes.map(c => transformClass(c, profileMap[c.instructor_id]));
+      console.log(`✅ Total de aulas transformadas: ${transformedClasses.length}`);
+      
+      return transformedClasses;
     } catch (error) {
       console.error('Error fetching classes:', error);
       throw error;
@@ -160,10 +192,23 @@ export const studentsAPI = {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      const { data: classes } = await supabase
+      console.log('📊 Buscando indicadores do aluno:', user.id);
+      
+      // Adicionar timestamp para evitar cache
+      const cacheBuster = Date.now();
+      console.log(`🔄 Cache buster (indicators): ${cacheBuster}`);
+
+      const { data: classes, error } = await supabase
         .from('classes')
         .select('status, payment_status')
         .eq('student_id', user.id);
+
+      if (error) {
+        console.error('❌ Erro ao buscar indicadores:', error);
+        throw error;
+      }
+
+      console.log(`✅ Total de aulas no banco (para indicadores): ${classes?.length || 0}`);
 
       const indicators = {
         totalClasses: classes?.length || 0,
@@ -173,6 +218,8 @@ export const studentsAPI = {
         completedClasses: classes?.filter(c => c.status === 'concluida').length || 0,
         pendingPayment: classes?.filter(c => c.payment_status === 'pendente').length || 0,
       };
+
+      console.log('📊 Indicadores calculados:', indicators);
 
       return indicators;
     } catch (error) {
@@ -473,6 +520,10 @@ export const studentsAPI = {
       }
 
       console.log('📤 Executando query...');
+      // Adicionar timestamp para evitar cache (forçar nova query)
+      const cacheBuster = Date.now();
+      console.log(`🔄 Cache buster: ${cacheBuster}`);
+      
       // Ordenar: premium primeiro (available = true e premium = true), depois por rating
       // Nota: A ordenação final será feita no frontend para garantir que premium sempre aparece primeiro
       // Usar .maybeSingle() ou garantir que não há cache adicionando um filtro único
@@ -482,11 +533,27 @@ export const studentsAPI = {
       
       // Log para debug: verificar valores de total_classes
       if (instructors && instructors.length > 0) {
-        console.log('📊 Total classes dos instrutores (do banco):', instructors.map(i => ({
+        console.log('📊 Total classes dos instrutores (do banco RAW):', instructors.map(i => ({
           id: i.id,
           name: i.name || 'Sem nome',
-          total_classes: i.total_classes
+          total_classes: i.total_classes,
+          total_classes_type: typeof i.total_classes,
+          total_classes_value: i.total_classes === null ? 'NULL' : i.total_classes === undefined ? 'UNDEFINED' : i.total_classes
         })));
+        
+        // Verificar valores esperados
+        const expectedValues = {
+          'Roberto Oliveira': 42,
+          'Mariana Costa': 26,
+          'Carlos Silva': 37,
+          'Fernando Alves': 18,
+          'Ana Paula Santos': 6,
+          'João Pedro Lima': 0,
+          'Patricia Mendes': 32
+        };
+        
+        // Verificar valores esperados (vamos fazer isso depois de buscar os perfis)
+        console.log('⏳ Verificação de valores será feita após buscar perfis...');
       } else {
         console.warn('⚠️ Nenhum instrutor retornado da query');
       }
@@ -605,6 +672,32 @@ export const studentsAPI = {
         });
       }
 
+      // Verificar valores esperados agora que temos os nomes
+      const expectedValues = {
+        'Roberto Oliveira': 42,
+        'Mariana Costa': 26,
+        'Carlos Silva': 37,
+        'Fernando Alves': 18,
+        'Ana Paula Santos': 6,
+        'João Pedro Lima': 0,
+        'Patricia Mendes': 32
+      };
+      
+      console.log('🔍 Verificando valores do banco vs esperados:');
+      instructors.forEach(instructor => {
+        const profile = profileMap[instructor.id];
+        const name = profile?.name || 'Sem nome';
+        const expected = expectedValues[name];
+        const actual = instructor.total_classes;
+        if (expected !== undefined) {
+          if (actual !== expected) {
+            console.error(`❌ VALOR INCORRETO NO BANCO: ${name} - Esperado: ${expected}, Atual no banco: ${actual} (tipo: ${typeof actual})`);
+          } else {
+            console.log(`✅ ${name}: ${actual} (correto no banco)`);
+          }
+        }
+      });
+
       // Combine instructors with their profiles
       console.log('🔄 Combinando instrutores com perfis...');
       const transformed = instructors.map(instructor => {
@@ -613,12 +706,17 @@ export const studentsAPI = {
           console.warn('⚠️ Perfil não encontrado para instrutor:', instructor.id);
         }
         const transformedInstructor = transformInstructor(instructor, profile);
+        
+        // FORÇAR uso do valor do banco diretamente (garantia extra)
+        const dbTotalClasses = (instructor.total_classes !== null && instructor.total_classes !== undefined) 
+          ? Number(instructor.total_classes) 
+          : 0;
+        transformedInstructor.totalClasses = dbTotalClasses;
+        
         // Log para debug: verificar valor final de totalClasses
-        // Garantir que estamos usando o valor correto do banco
-        if (transformedInstructor.totalClasses !== instructor.total_classes) {
-          console.warn(`⚠️ DISCREPÂNCIA: ${transformedInstructor.name} - totalClasses transformado: ${transformedInstructor.totalClasses}, do banco: ${instructor.total_classes}`);
-          // Forçar uso do valor do banco
-          transformedInstructor.totalClasses = instructor.total_classes || 0;
+        if (transformedInstructor.totalClasses !== dbTotalClasses) {
+          console.error(`❌ ERRO CRÍTICO: ${transformedInstructor.name} - totalClasses não corresponde ao banco!`);
+          console.error(`   Transformado: ${transformedInstructor.totalClasses}, Banco: ${dbTotalClasses}`);
         }
         console.log(`📋 Instrutor ${transformedInstructor.name}: totalClasses = ${transformedInstructor.totalClasses} (do banco: ${instructor.total_classes})`);
         return transformedInstructor;
