@@ -1,3 +1,13 @@
+/**
+ * GoogleAuthButton Component
+ * 
+ * TEMPORARIAMENTE DESABILITADO PARA MVP
+ * Este componente está funcional mas não está sendo renderizado nas páginas de Login e Register.
+ * Para reativar:
+ * 1. Mudar ENABLE_GOOGLE_AUTH para true em Login.jsx e Register.jsx
+ * 2. Descomentar os imports e código relacionado
+ * 3. Configurar o Google OAuth no Supabase (ver docs/CONFIGURAR_GOOGLE_OAUTH.md)
+ */
 import React, { useState } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { trackEvent, trackingEvents } from '../../../utils/trackingUtils';
@@ -50,7 +60,25 @@ const GoogleAuthButton = ({ onSuccess, onProfileIncomplete, userType = 'student'
       }
     } catch (error) {
       console.error('Erro ao fazer login com Google:', error);
-      alert('Erro ao fazer login com Google. Tente novamente.');
+      
+      // Mensagem de erro mais específica
+      let errorMessage = 'Erro ao fazer login com Google. Tente novamente.';
+      
+      if (error.code === 'PROVIDER_NOT_ENABLED' || error.message?.includes('not enabled')) {
+        errorMessage = 'O login com Google não está configurado. Por favor, entre em contato com o suporte ou use email e senha.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      alert(errorMessage);
+      
+      // Tracking de erro
+      trackEvent(trackingEvents.AUTH_LOGIN_ERROR, {
+        method: 'google',
+        user_type: userType,
+        error_code: error.code || 'unknown',
+        error_message: error.message || 'unknown'
+      });
     } finally {
       setIsLoading(false);
     }

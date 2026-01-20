@@ -3,10 +3,15 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import RegisterFormAluno from '../components/dashboard/aluno/RegisterForm';
 import RegisterFormInstrutor from '../components/dashboard/instrutor/RegisterForm';
-import GoogleAuthButton from '../components/dashboard/aluno/GoogleAuthButton';
 import CompleteProfileModal from '../components/auth/CompleteProfileModal';
 import SEO from '../components/SEO';
 import Footer from '../components/Footer';
+
+// Flag para controlar se o login com Google está habilitado (MVP: false)
+// Para reativar: mudar para true e descomentar o import e código abaixo
+const ENABLE_GOOGLE_AUTH = false;
+// Temporariamente desabilitado para MVP - reativar no futuro
+// import GoogleAuthButton from '../components/dashboard/aluno/GoogleAuthButton';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -90,22 +95,26 @@ const Register = () => {
               </p>
             </div>
 
-            <div className="space-y-4 mb-6">
-              <GoogleAuthButton 
-                onSuccess={handleAuthSuccess} 
-                onProfileIncomplete={() => setShowCompleteProfile(true)}
-                userType={type} 
-              />
-              
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">ou</span>
-                </div>
+            {/* Temporariamente desabilitado para MVP - reativar no futuro */}
+            {/* Para reativar: mudar ENABLE_GOOGLE_AUTH para true e descomentar o código abaixo */}
+            {ENABLE_GOOGLE_AUTH && (
+              <div className="space-y-4 mb-6">
+                {/* <GoogleAuthButton 
+                  onSuccess={handleAuthSuccess} 
+                  onProfileIncomplete={() => setShowCompleteProfile(true)}
+                  userType={type} 
+                />
+                
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-gray-500">ou</span>
+                  </div>
+                </div> */}
               </div>
-            </div>
+            )}
 
             {type === 'student' ? (
               <RegisterFormAluno onSuccess={handleAuthSuccess} />

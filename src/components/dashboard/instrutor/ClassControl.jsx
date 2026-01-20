@@ -1,41 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ClassCard from '../common/ClassCard';
-import { mockInstructorClasses } from '../../../utils/mockData';
+import { instructorsAPI } from '../../../services/api';
 
 const ClassControl = () => {
-  const [classes, setClasses] = useState(mockInstructorClasses);
+  const [classes, setClasses] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('pendentes'); // pendentes, proximas, historico
   const [viewMode, setViewMode] = useState('list'); // list, calendar
 
-  const pendentes = classes.filter(c => c.status === 'pendente');
-  const proximas = classes.filter(c => c.status === 'confirmada');
-  const historico = classes.filter(c => c.status === 'concluída' || c.status === 'cancelada');
+  // Load classes from API
+  useEffect(() => {
+    const loadClasses = async () => {
+      try {
+        setLoading(true);
+        const loadedClasses = await instructorsAPI.getClasses();
+        setClasses(loadedClasses);
+      } catch (error) {
+        console.error('Error loading classes:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadClasses();
+  }, []);
 
-  const handleConfirm = (classId) => {
-    // TODO: Substituir por chamada de API real
-    setClasses(classes.map(c => 
-      c.id === classId ? { ...c, status: 'confirmada' } : c
-    ));
-    alert('Aula confirmada com sucesso!');
-  };
+  const pendentes = classes.filter(c => c.status === 'pendente_aceite');
+  const proximas = classes.filter(c => c.status === 'confirmada' || c.status === 'agendada');
+  const historico = classes.filter(c => c.status === 'concluida' || c.status === 'cancelada');
 
-  const handleReject = (classId) => {
-    // TODO: Substituir por chamada de API real
-    if (window.confirm('Tem certeza que deseja rejeitar esta aula?')) {
+  const handleConfirm = async (classId) => {
+    try {
+      await instructorsAPI.confirmClass(classId);
       setClasses(classes.map(c => 
-        c.id === classId ? { ...c, status: 'cancelada' } : c
+        c.id === classId ? { ...c, status: 'confirmada' } : c
       ));
-      alert('Aula rejeitada.');
+      alert('Aula confirmada com sucesso!');
+    } catch (error) {
+      console.error('Error confirming class:', error);
+      alert('Erro ao confirmar aula. Por favor, tente novamente.');
     }
   };
 
-  const handleCancel = (classId) => {
-    // TODO: Substituir por chamada de API real
+  const handleReject = async (classId) => {
+    if (window.confirm('Tem certeza que deseja rejeitar esta aula?')) {
+      try {
+        await instructorsAPI.rejectClass(classId);
+        setClasses(classes.map(c => 
+          c.id === classId ? { ...c, status: 'cancelada' } : c
+        ));
+        alert('Aula rejeitada.');
+      } catch (error) {
+        console.error('Error rejecting class:', error);
+        alert('Erro ao rejeitar aula. Por favor, tente novamente.');
+      }
+    }
+  };
+
+  const handleCancel = async (classId) => {
     if (window.confirm('Tem certeza que deseja cancelar esta aula?')) {
-      setClasses(classes.map(c => 
-        c.id === classId ? { ...c, status: 'cancelada' } : c
-      ));
-      alert('Aula cancelada.');
+      try {
+        // Use rejectClass as it updates status to 'cancelada'
+        await instructorsAPI.rejectClass(classId);
+        setClasses(classes.map(c => 
+          c.id === classId ? { ...c, status: 'cancelada' } : c
+        ));
+        alert('Aula cancelada.');
+      } catch (error) {
+        console.error('Error canceling class:', error);
+        alert('Erro ao cancelar aula. Por favor, tente novamente.');
+      }
     }
   };
 
@@ -114,19 +147,24 @@ const ClassControl = () => {
       {/* List View */}
       {viewMode === 'list' && (
         <div className="grid gap-6">
-          {activeTab === 'pendentes' && pendentes.length === 0 && (
+          {loading && (
+            <div className="text-center py-12 bg-gray-50 rounded-xl">
+              <p className="text-gray-600 text-lg">Carregando aulas...</p>
+            </div>
+          )}
+          {!loading && activeTab === 'pendentes' && pendentes.length === 0 && (
             <div className="text-center py-12 bg-gray-50 rounded-xl">
               <p className="text-gray-600 text-lg">Nenhuma aula pendente</p>
             </div>
           )}
 
-          {activeTab === 'proximas' && proximas.length === 0 && (
+          {!loading && activeTab === 'proximas' && proximas.length === 0 && (
             <div className="text-center py-12 bg-gray-50 rounded-xl">
               <p className="text-gray-600 text-lg">Nenhuma aula agendada</p>
             </div>
           )}
 
-          {activeTab === 'historico' && historico.length === 0 && (
+          {!loading && activeTab === 'historico' && historico.length === 0 && (
             <div className="text-center py-12 bg-gray-50 rounded-xl">
               <p className="text-gray-600 text-lg">Nenhuma aula no histórico</p>
             </div>

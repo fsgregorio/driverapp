@@ -1,38 +1,70 @@
 /**
  * Sistema de tracking de eventos para análise de comportamento do usuário
- * 
- * Para MVP, os eventos são logados no console. No futuro, pode ser integrado
- * com Google Analytics, Mixpanel, ou outro serviço de analytics.
+ * Integrado com Supabase para armazenamento persistente
  */
+
+import { supabase } from '../services/supabase';
 
 // Configuração de tracking
 const TRACKING_ENABLED = process.env.NODE_ENV === 'production' || process.env.REACT_APP_ENABLE_TRACKING === 'true';
+
+// Generate or get session ID
+const getSessionId = () => {
+  let sessionId = sessionStorage.getItem('tracking_session_id');
+  if (!sessionId) {
+    sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    sessionStorage.setItem('tracking_session_id', sessionId);
+  }
+  return sessionId;
+};
 
 /**
  * Registra um evento de tracking
  * @param {string} eventName - Nome do evento (ex: 'button_click', 'page_view')
  * @param {Object} properties - Propriedades adicionais do evento
  */
-export const trackEvent = (eventName, properties = {}) => {
-  if (!TRACKING_ENABLED) {
-    // Em desenvolvimento, loga no console para debug
+export const trackEvent = async (eventName, properties = {}) => {
+  // Always log to console in development
+  if (process.env.NODE_ENV === 'development') {
     console.log('[Tracking]', eventName, properties);
-    return;
   }
 
-  // Aqui você pode integrar com Google Analytics, Mixpanel, etc.
-  // Exemplo para Google Analytics 4:
-  // if (window.gtag) {
-  //   window.gtag('event', eventName, properties);
-  // }
+  // Get current user if available
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  // Extract user type from properties or determine from context
+  const userType = properties.user_type || (user ? null : null); // Will be set by components
+  
+  // Extract page from properties or use current location
+  const page = properties.page || (typeof window !== 'undefined' ? window.location.pathname : null);
 
-  // Exemplo para Mixpanel:
-  // if (window.mixpanel) {
-  //   window.mixpanel.track(eventName, properties);
-  // }
+  // Prepare event data
+  const eventData = {
+    user_id: user?.id || null,
+    event_name: eventName,
+    properties: properties,
+    timestamp: new Date().toISOString(),
+    user_type: userType,
+    page: page,
+    session_id: getSessionId(),
+  };
 
-  // Por enquanto, apenas loga no console
-  console.log('[Tracking]', eventName, properties);
+  // Save to Supabase (non-blocking)
+  if (TRACKING_ENABLED || process.env.NODE_ENV === 'development') {
+    supabase
+      .from('events')
+      .insert([eventData])
+      .then(({ error }) => {
+        if (error && process.env.NODE_ENV === 'development') {
+          console.warn('[Tracking] Error saving event:', error);
+        }
+      })
+      .catch((error) => {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[Tracking] Error saving event:', error);
+        }
+      });
+  }
 };
 
 /**
@@ -61,6 +93,14 @@ export const trackingEvents = {
   DASHBOARD_ALUNO_INSTRUCTOR_SEARCH: 'dashboard_aluno_instructor_search',
   DASHBOARD_ALUNO_INSTRUCTOR_VIEW: 'dashboard_aluno_instructor_view',
   DASHBOARD_ALUNO_LOGOUT: 'dashboard_aluno_logout',
+  
+  // Pagamento - Eventos críticos para MVP
+  PAYMENT_INITIATED: 'payment_initiated',
+  PAYMENT_COMPLETED: 'payment_completed',
+  PAYMENT_FAILED: 'payment_failed',
+  
+  // Cupom - Evento crítico para MVP
+  COUPON_REQUESTED: 'coupon_requested',
   
   // Dashboard - Instrutor
   DASHBOARD_INSTRUTOR_SECTION_CHANGE: 'dashboard_instrutor_section_change',

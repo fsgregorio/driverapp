@@ -14,6 +14,9 @@ const AccountSettings = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [passwordError, setPasswordError] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
@@ -99,13 +102,22 @@ const AccountSettings = () => {
               Senha Atual <span className="text-red-500">*</span>
             </label>
             <input
-              type="password"
+              type={showCurrentPassword ? "text" : "password"}
               name="currentPassword"
               value={passwordForm.currentPassword}
               onChange={handlePasswordChange}
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none"
               required
             />
+            <label className="flex items-center mt-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showCurrentPassword}
+                onChange={(e) => setShowCurrentPassword(e.target.checked)}
+                className="w-4 h-4 text-primary rounded focus:ring-primary cursor-pointer"
+              />
+              <span className="ml-2 text-sm text-gray-600">Mostrar senha</span>
+            </label>
           </div>
 
           <div>
@@ -113,13 +125,22 @@ const AccountSettings = () => {
               Nova Senha <span className="text-red-500">*</span>
             </label>
             <input
-              type="password"
+              type={showNewPassword ? "text" : "password"}
               name="newPassword"
               value={passwordForm.newPassword}
               onChange={handlePasswordChange}
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none"
               required
             />
+            <label className="flex items-center mt-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showNewPassword}
+                onChange={(e) => setShowNewPassword(e.target.checked)}
+                className="w-4 h-4 text-primary rounded focus:ring-primary cursor-pointer"
+              />
+              <span className="ml-2 text-sm text-gray-600">Mostrar senha</span>
+            </label>
           </div>
 
           <div>
@@ -127,13 +148,22 @@ const AccountSettings = () => {
               Confirmar Nova Senha <span className="text-red-500">*</span>
             </label>
             <input
-              type="password"
+              type={showConfirmPassword ? "text" : "password"}
               name="confirmPassword"
               value={passwordForm.confirmPassword}
               onChange={handlePasswordChange}
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none"
               required
             />
+            <label className="flex items-center mt-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showConfirmPassword}
+                onChange={(e) => setShowConfirmPassword(e.target.checked)}
+                className="w-4 h-4 text-primary rounded focus:ring-primary cursor-pointer"
+              />
+              <span className="ml-2 text-sm text-gray-600">Mostrar senha</span>
+            </label>
           </div>
 
           {passwordError && (

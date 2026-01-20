@@ -6,17 +6,22 @@ import HomeSection from '../components/dashboard/aluno/HomeSection';
 import ClassControl from '../components/dashboard/aluno/ClassControl';
 import InstructorControl from '../components/dashboard/aluno/InstructorControl';
 import SettingsSection from '../components/dashboard/aluno/SettingsSection';
-import { mockInstructors, mockStudentClasses } from '../utils/mockData';
+import ComingSoonModal from '../components/dashboard/aluno/ComingSoonModal';
+import { studentsAPI } from '../services/api';
 import { autoCancelExpiredClasses } from '../utils/classUtils';
 import SEO from '../components/SEO';
 
 const DashboardAluno = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, userType, loading } = useAuth();
+  const { isAuthenticated, userType, loading, user } = useAuth();
   const [activeSection, setActiveSection] = useState('home');
-  const [classes, setClasses] = useState(mockStudentClasses);
+  const [classes, setClasses] = useState([]);
+  const [classesLoading, setClassesLoading] = useState(true);
   const [initialTab, setInitialTab] = useState('agendadas');
   const [initialInstructorTab, setInitialInstructorTab] = useState('search');
+  const [showComingSoonModal, setShowComingSoonModal] = useState(false);
+  const [pendingScheduleData, setPendingScheduleData] = useState(null);
+  const [pendingInstructor, setPendingInstructor] = useState(null);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -29,6 +34,24 @@ const DashboardAluno = () => {
       navigate('/dashboard/instrutor');
     }
   }, [loading, isAuthenticated, userType, navigate]);
+
+  // Load classes from API
+  useEffect(() => {
+    const loadClasses = async () => {
+      if (isAuthenticated && !loading) {
+        try {
+          setClassesLoading(true);
+          const loadedClasses = await studentsAPI.getClasses();
+          setClasses(loadedClasses);
+        } catch (error) {
+          console.error('Error loading classes:', error);
+        } finally {
+          setClassesLoading(false);
+        }
+      }
+    };
+    loadClasses();
+  }, [isAuthenticated, loading]);
 
   // Removido: não mostrar modal automaticamente no dashboard
   // O modal só deve aparecer após login com Google na primeira vez
@@ -69,43 +92,28 @@ const DashboardAluno = () => {
     return () => clearInterval(interval);
   }, [isAuthenticated, loading]);
 
-  const handleScheduleFromInstructor = (scheduleData) => {
-    // Criar nova aula pendente de aceite
-    const newClass = {
-      id: Date.now(),
-      instructorId: scheduleData.instructorId,
-      instructorName: scheduleData.instructor.name,
-      instructorPhoto: scheduleData.instructor.photo,
-      date: scheduleData.dates[0]?.date || null, // Data principal (primeira selecionada)
-      time: scheduleData.dates[0]?.times[0] || null, // Horário principal (primeiro selecionado)
-      duration: 60,
-      status: 'pendente_aceite',
-      price: scheduleData.instructor.pricePerClass,
-      type: scheduleData.classTypes,
-      car: scheduleData.instructor.vehicle || 'Não informado',
-      location: {
-        fullAddress: scheduleData.instructor.location?.fullAddress || 'João Pessoa - PB',
-        state: scheduleData.instructor.location?.state || 'PB',
-        city: scheduleData.instructor.location?.city || 'João Pessoa',
-        neighborhood: scheduleData.instructor.location?.neighborhood || '',
-        address: scheduleData.instructor.location?.fullAddress || 'João Pessoa - PB'
-      },
-      pickupType: scheduleData.homeService ? 'busca_casa' : 'vai_local',
-      paymentStatus: 'pendente',
-      createdAt: new Date().toISOString(),
-      // Armazenar todas as opções de horários/dias selecionados
-      availableOptions: scheduleData.dates.map(dateOption => ({
-        date: dateOption.date,
-        times: dateOption.times
-      }))
-    };
-
-    // Adicionar a nova aula ao estado
-    setClasses(prevClasses => [...prevClasses, newClass]);
-    
-    // Navegar para a seção de aulas e mostrar pendentes de aceite
-    setActiveSection('classes');
-    setInitialTab('pendentes_aceite');
+  const handleScheduleFromInstructor = async (scheduleData) => {
+    try {
+      // Reload classes to get the newly scheduled ones
+      const loadedClasses = await studentsAPI.getClasses();
+      setClasses(loadedClasses);
+      
+      // Armazenar dados para mostrar no modal "em breve"
+      setPendingScheduleData(scheduleData);
+      setPendingInstructor(scheduleData.instructor);
+      
+      // Navegar para a seção de aulas e mostrar agendadas
+      setActiveSection('classes');
+      setInitialTab('agendadas');
+      
+      // Mostrar modal "em breve" após um pequeno delay
+      setTimeout(() => {
+        setShowComingSoonModal(true);
+      }, 300);
+    } catch (error) {
+      console.error('Error scheduling class:', error);
+      alert('Erro ao agendar aula. Por favor, tente novamente.');
+    }
   };
 
   const handleSectionChange = (section) => {
@@ -164,7 +172,7 @@ const DashboardAluno = () => {
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Aulas</h1>
             <ClassControl 
-              instructors={mockInstructors} 
+              instructors={[]} 
               initialTab={initialTab}
               classes={classes}
               onClassesChange={setClasses}
@@ -189,6 +197,18 @@ const DashboardAluno = () => {
           </div>
         )}
       </main>
+      
+      {/* Modal "Em Breve" */}
+      <ComingSoonModal
+        isOpen={showComingSoonModal}
+        onClose={() => {
+          setShowComingSoonModal(false);
+          setPendingScheduleData(null);
+          setPendingInstructor(null);
+        }}
+        scheduleData={pendingScheduleData}
+        instructor={pendingInstructor}
+      />
     </div>
   );
 };

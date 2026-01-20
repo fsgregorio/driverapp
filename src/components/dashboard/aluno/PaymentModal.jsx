@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getClassTypeLabel, normalizeClassTypes, getClassTypeBadgeColor } from '../../../utils/classUtils';
+import { trackEvent, trackingEvents } from '../../../utils/trackingUtils';
 
 const PaymentModal = ({ isOpen, onClose, classData, onConfirm }) => {
   const [paymentMethod, setPaymentMethod] = useState('credit_card');
@@ -8,10 +9,23 @@ const PaymentModal = ({ isOpen, onClose, classData, onConfirm }) => {
   const handlePayment = async () => {
     setIsProcessing(true);
     
+    // Tracking do início do pagamento - EVENTO CRÍTICO PARA MVP
+    trackEvent(trackingEvents.PAYMENT_INITIATED, {
+      user_type: 'student',
+      page: 'dashboard_aluno',
+      section: 'payment_modal',
+      class_id: classData?.id,
+      class_price: classData?.price,
+      payment_method: paymentMethod,
+      instructor_id: classData?.instructorId,
+      instructor_name: classData?.instructorName,
+    });
+    
     // Simular processamento de pagamento
     setTimeout(() => {
       setIsProcessing(false);
       if (onConfirm) {
+        // Tracking será feito no ClassControl quando o pagamento for confirmado
         onConfirm(classData.id, paymentMethod);
       }
       handleClose();

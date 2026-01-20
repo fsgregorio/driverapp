@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { trackEvent, trackingEvents } from '../../utils/trackingUtils';
 
 const LoginForm = ({ onSuccess, userType = 'student' }) => {
+  const navigate = useNavigate();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
@@ -10,6 +12,7 @@ const LoginForm = ({ onSuccess, userType = 'student' }) => {
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const validateEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -37,41 +40,81 @@ const LoginForm = ({ onSuccess, userType = 'student' }) => {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const isValid = Object.keys(newErrors).length === 0;
+    console.log('Validation result:', { isValid, errors: newErrors });
+    return isValid;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Form submitted', { email: formData.email, password: formData.password ? '***' : '' });
     
-    if (!validate()) {
+    const isValid = validate();
+    if (!isValid) {
+      console.log('Validation failed');
       return;
     }
 
     setIsSubmitting(true);
+    setErrors({}); // Clear previous errors
 
     // Tracking do início do login
-    trackEvent(trackingEvents.AUTH_LOGIN_FORM, {
-      user_type: userType,
-      page: userType === 'student' ? 'login_aluno' : 'login_instrutor',
-      section: 'auth',
-      has_email: !!formData.email
-    });
+    try {
+      trackEvent(trackingEvents.AUTH_LOGIN_FORM, {
+        user_type: userType,
+        page: userType === 'student' ? 'login_aluno' : 'login_instrutor',
+        section: 'auth',
+        has_email: !!formData.email
+      });
+    } catch (trackError) {
+      console.warn('Tracking error:', trackError);
+    }
 
     try {
+      console.log('Calling login function...');
       await login(formData.email, formData.password, userType);
+      console.log('Login successful');
 
       // Tracking de sucesso
-      trackEvent(trackingEvents.AUTH_LOGIN_SUCCESS, {
-        method: 'form',
-        user_type: userType,
-        page: userType === 'student' ? 'login_aluno' : 'login_instrutor'
-      });
+      try {
+        trackEvent(trackingEvents.AUTH_LOGIN_SUCCESS, {
+          method: 'form',
+          user_type: userType,
+          page: userType === 'student' ? 'login_aluno' : 'login_instrutor'
+        });
+      } catch (trackError) {
+        console.warn('Tracking error:', trackError);
+      }
 
+      // Chamar onSuccess primeiro para atualizar o estado na página de login
       if (onSuccess) {
         onSuccess();
       }
+
+      // Redirecionar diretamente após login bem-sucedido
+      // O login() já atualizou o estado no contexto, então podemos redirecionar
+      const dashboardPath = userType === 'student' ? '/dashboard/aluno' : '/dashboard/instrutor';
+      console.log('Login successful, redirecting to:', dashboardPath);
+      
+      // Aguardar um pouco para garantir que o onAuthStateChange foi processado
+      // e que o estado foi atualizado no contexto
+      setTimeout(() => {
+        console.log('Navigating to dashboard now...');
+        navigate(dashboardPath, { replace: true });
+      }, 800);
     } catch (error) {
-      setErrors({ submit: 'E-mail ou senha incorretos. Tente novamente.' });
+      console.error('Login error:', error);
+      
+      // Ignore abort errors (common in React Strict Mode)
+      if (error.name === 'AbortError' || error.message?.includes('aborted') || error.message?.includes('cancelada')) {
+        // Don't show error for aborted requests, just reset submitting state
+        setIsSubmitting(false);
+        return;
+      }
+      
+      // Show user-friendly error message
+      const errorMessage = error.message || 'E-mail ou senha incorretos. Tente novamente.';
+      setErrors({ submit: errorMessage });
     } finally {
       setIsSubmitting(false);
     }
@@ -103,7 +146,7 @@ const LoginForm = ({ onSuccess, userType = 'student' }) => {
           Senha <span className="text-red-500">*</span>
         </label>
         <input
-          type="password"
+          type={showPassword ? "text" : "password"}
           id="password"
           name="password"
           value={formData.password}
@@ -114,6 +157,15 @@ const LoginForm = ({ onSuccess, userType = 'student' }) => {
           placeholder="Digite sua senha"
           autoComplete="current-password"
         />
+        <label className="flex items-center mt-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={showPassword}
+            onChange={(e) => setShowPassword(e.target.checked)}
+            className="w-4 h-4 text-primary rounded focus:ring-primary cursor-pointer"
+          />
+          <span className="ml-2 text-sm text-gray-600">Mostrar senha</span>
+        </label>
         {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
       </div>
 
@@ -126,6 +178,10 @@ const LoginForm = ({ onSuccess, userType = 'student' }) => {
       <button
         type="submit"
         disabled={isSubmitting}
+        onClick={(e) => {
+          console.log('Button clicked', { isSubmitting, formData });
+          // Let the form handle the submit
+        }}
         className="w-full bg-primary hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
       >
         {isSubmitting ? (

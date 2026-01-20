@@ -47,13 +47,8 @@ export const getAgendadasClasses = (classes) => {
  */
 export const getPendingPaymentClasses = (classes) => {
   return classes.filter(cls => {
-    // Excluir aulas pendentes de aceite (elas têm paymentStatus pendente mas não devem aparecer aqui)
-    if (cls.status === 'pendente_aceite') {
-      return false;
-    }
-    // Incluir apenas aulas com status pendente_pagamento ou que tenham paymentStatus pendente (mas não sejam pendentes de aceite)
-    return cls.status === 'pendente_pagamento' || 
-           (cls.paymentStatus === 'pendente' && cls.status !== 'pendente_aceite');
+    // Incluir apenas aulas com status pendente_pagamento
+    return cls.status === 'pendente_pagamento';
   });
 };
 

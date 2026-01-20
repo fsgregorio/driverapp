@@ -20,18 +20,44 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
     };
   }, [isMenuOpen]);
 
-  const handleLogout = () => {
-    const eventName = userType === 'student' 
+  const handleLogout = async (e) => {
+    // Prevenir comportamento padrão se for um evento
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    // Fechar menu mobile se estiver aberto
+    setIsMenuOpen(false);
+    
+    // Salvar o tipo de usuário antes do logout (pois será limpo)
+    const currentUserType = userType;
+    
+    const eventName = currentUserType === 'student' 
       ? trackingEvents.DASHBOARD_ALUNO_LOGOUT 
       : trackingEvents.DASHBOARD_INSTRUTOR_LOGOUT;
     
     trackButtonClick(eventName, 'Sair', {
-      user_type: userType,
-      page: `dashboard_${userType}`
+      user_type: currentUserType,
+      page: `dashboard_${currentUserType}`
     });
     
-    logout();
-    navigate('/');
+    try {
+      // Fazer logout
+      await logout();
+      
+      // Aguardar um pouco para garantir que o estado foi atualizado
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Redirecionar para tela de login com o tipo de usuário
+      const loginType = currentUserType === 'student' ? 'student' : 'instructor';
+      navigate(`/login?type=${loginType}`, { replace: true });
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+      // Mesmo com erro, redireciona para a tela de login
+      const loginType = currentUserType === 'student' ? 'student' : 'instructor';
+      navigate(`/login?type=${loginType}`, { replace: true });
+    }
   };
 
   const handleSectionChange = (sectionId) => {
@@ -147,11 +173,22 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
                     + Agendar Nova Aula
                   </button>
                 )}
-                <span className="hidden xl:block text-sm font-medium text-gray-700">
-                  {user?.name}
-                </span>
+                {/* User Info com Foto e Nome */}
+                <div className="hidden xl:flex items-center space-x-3">
+                  <img
+                    src={user?.photo || '/imgs/users/image.png'}
+                    alt={user?.name || 'Usuário'}
+                    className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
+                    onError={(e) => {
+                      e.target.src = '/imgs/users/image.png';
+                    }}
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    {user?.name}
+                  </span>
+                </div>
                 <button
-                  onClick={handleLogout}
+                  onClick={(e) => handleLogout(e)}
                   className="text-gray-600 hover:text-primary transition-colors text-sm font-medium"
                 >
                   Sair
@@ -243,14 +280,21 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
 
               {/* User Info e Logout */}
               <div className="border-t border-gray-200 pt-6">
-                <div className="px-4 py-3 text-sm text-gray-700 mb-4">
-                  {user?.name}
+                <div className="flex items-center space-x-3 px-4 py-3 mb-4">
+                  <img
+                    src={user?.photo || '/imgs/users/image.png'}
+                    alt={user?.name || 'Usuário'}
+                    className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
+                    onError={(e) => {
+                      e.target.src = '/imgs/users/image.png';
+                    }}
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    {user?.name}
+                  </span>
                 </div>
                 <button
-                  onClick={() => {
-                    handleLogout();
-                    setIsMenuOpen(false);
-                  }}
+                  onClick={(e) => handleLogout(e)}
                   className="w-full text-left px-4 py-3 text-gray-600 hover:text-primary transition-colors text-sm font-medium rounded-lg hover:bg-gray-50"
                 >
                   Sair

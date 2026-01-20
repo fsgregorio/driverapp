@@ -10,6 +10,8 @@ const RegisterForm = ({ onSuccess }) => {
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const validateEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -99,7 +101,7 @@ const RegisterForm = ({ onSuccess }) => {
           Senha <span className="text-red-500">*</span>
         </label>
         <input
-          type="password"
+          type={showPassword ? "text" : "password"}
           id="password"
           name="password"
           value={formData.password}
@@ -109,6 +111,15 @@ const RegisterForm = ({ onSuccess }) => {
           }`}
           placeholder="Mínimo 6 caracteres"
         />
+        <label className="flex items-center mt-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={showPassword}
+            onChange={(e) => setShowPassword(e.target.checked)}
+            className="w-4 h-4 text-primary rounded focus:ring-primary cursor-pointer"
+          />
+          <span className="ml-2 text-sm text-gray-600">Mostrar senha</span>
+        </label>
         {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
       </div>
 
@@ -117,7 +128,7 @@ const RegisterForm = ({ onSuccess }) => {
           Confirmar Senha <span className="text-red-500">*</span>
         </label>
         <input
-          type="password"
+          type={showConfirmPassword ? "text" : "password"}
           id="confirmPassword"
           name="confirmPassword"
           value={formData.confirmPassword}
@@ -127,6 +138,15 @@ const RegisterForm = ({ onSuccess }) => {
           }`}
           placeholder="Confirme sua senha"
         />
+        <label className="flex items-center mt-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={showConfirmPassword}
+            onChange={(e) => setShowConfirmPassword(e.target.checked)}
+            className="w-4 h-4 text-primary rounded focus:ring-primary cursor-pointer"
+          />
+          <span className="ml-2 text-sm text-gray-600">Mostrar senha</span>
+        </label>
         {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
       </div>
 

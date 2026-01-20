@@ -129,12 +129,17 @@ select option:hover {
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-.line-clamp-2 {
+}.line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
+/* Prevent word breaking - keep words intact */
+.break-normal {
+  word-break: normal;
+  overflow-wrap: normal;
+  word-wrap: normal;
+  hyphens: none;
+}

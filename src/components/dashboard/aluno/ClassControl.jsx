@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import ClassCardEnhanced from './ClassCardEnhanced';
 import CancelRescheduleModal from './CancelRescheduleModal';
-import PaymentModal from './PaymentModal';
+import PaymentComingSoonModal from './PaymentComingSoonModal';
 import FavoriteInstructorModal from './FavoriteInstructorModal';
-import { mockStudentClasses } from '../../../utils/mockData';
+import EvaluationModal from './EvaluationModal';
+import { studentsAPI } from '../../../services/api';
+import { trackEvent, trackingEvents } from '../../../utils/trackingUtils';
 import { 
   getAgendadasClasses, 
   getPendingAcceptanceClasses, 
@@ -13,8 +15,30 @@ import {
 } from '../../../utils/classUtils';
 
 const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', classes: propClasses, onClassesChange }) => {
-  const [classes, setClasses] = useState(propClasses || mockStudentClasses);
+  const [classes, setClasses] = useState(propClasses || []);
+  const [loading, setLoading] = useState(!propClasses);
   const [activeTab, setActiveTab] = useState(initialTab); // agendadas, pendentes_aceite, pendentes_pagamento, pendentes_avaliacao, historico
+
+  // Load classes from API if not provided as prop
+  useEffect(() => {
+    const loadClasses = async () => {
+      if (!propClasses) {
+        try {
+          setLoading(true);
+          const loadedClasses = await studentsAPI.getClasses();
+          setClasses(loadedClasses);
+          if (onClassesChange) {
+            onClassesChange(loadedClasses);
+          }
+        } catch (error) {
+          console.error('Error loading classes:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    loadClasses();
+  }, [propClasses, onClassesChange]);
 
   // Sincronizar classes quando propClasses mudar
   useEffect(() => {
@@ -40,6 +64,7 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showFavoriteModal, setShowFavoriteModal] = useState(false);
+  const [showEvaluationModal, setShowEvaluationModal] = useState(false);
   const [selectedClass, setSelectedClass] = useState(null);
   const [selectedInstructor, setSelectedInstructor] = useState(null);
   const [favoriteInstructors, setFavoriteInstructors] = useState([]); // Lista de IDs de instrutores favoritos
@@ -97,18 +122,28 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
   const handlePay = (classId) => {
     const classToPay = classes.find(c => c.id === classId);
     if (classToPay) {
+      // Tracking do clique no botão Pagar do card - indica intenção de pagar
+      trackEvent(trackingEvents.PAYMENT_INITIATED, {
+        user_type: 'student',
+        page: 'dashboard_aluno',
+        section: 'class_card',
+        class_id: classId,
+        class_price: classToPay?.price,
+        instructor_id: classToPay?.instructorId,
+        instructor_name: classToPay?.instructorName,
+        source: 'class_card_button',
+      });
+      
       setSelectedClass(classToPay);
       setShowPaymentModal(true);
     }
   };
 
   const handleEvaluate = (classId) => {
-    // TODO: Implementar modal de avaliação
     const classToEvaluate = classes.find(c => c.id === classId);
     if (classToEvaluate) {
-      // Por enquanto apenas mostra um alert
-      alert(`Avaliar aula com ${classToEvaluate.instructorName}`);
-      // TODO: Abrir modal de avaliação quando implementado
+      setSelectedClass(classToEvaluate);
+      setShowEvaluationModal(true);
     }
   };
 
@@ -217,6 +252,23 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
   };
 
   const confirmPayment = (classId, paymentMethod) => {
+    // Encontrar a aula que está sendo paga para obter informações completas
+    const classToPay = classes.find(c => c.id === classId);
+    
+    // Tracking do pagamento completado - EVENTO CRÍTICO PARA MVP
+    trackEvent(trackingEvents.PAYMENT_COMPLETED, {
+      user_type: 'student',
+      page: 'dashboard_aluno',
+      section: 'class_control',
+      class_id: classId,
+      class_price: classToPay?.price,
+      payment_method: paymentMethod,
+      instructor_id: classToPay?.instructorId,
+      instructor_name: classToPay?.instructorName,
+      class_date: classToPay?.date,
+      class_time: classToPay?.time,
+    });
+    
     // TODO: Substituir por chamada de API real
     const updatedClasses = classes.map(c => 
       c.id === classId ? { 
@@ -229,6 +281,33 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
     setShowPaymentModal(false);
     setSelectedClass(null);
     // Aqui poderia mostrar uma mensagem de sucesso
+  };
+
+  const confirmEvaluation = async (classId, rating, review) => {
+    try {
+      // Chamar API para avaliar a aula
+      await studentsAPI.evaluateClass(classId, rating, review);
+      
+      // Atualizar a aula localmente - mudar status para concluída e adicionar avaliação
+      const updatedClasses = classes.map(c => 
+        c.id === classId ? { 
+          ...c, 
+          status: 'concluida',
+          rating: rating,
+          review: review || null
+        } : c
+      );
+      updateClasses(updatedClasses);
+      
+      setShowEvaluationModal(false);
+      setSelectedClass(null);
+      
+      // Mostrar mensagem de sucesso
+      // Você pode adicionar um toast/notificação aqui se tiver
+    } catch (error) {
+      console.error('Erro ao avaliar aula:', error);
+      throw error; // Re-throw para o modal tratar
+    }
   };
 
   // Função para simular aceite do instrutor (mudar de pendente_aceite para pendente_pagamento)
@@ -360,7 +439,12 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
 
       {/* Classes List */}
       <div className="grid gap-6">
-        {filteredClasses.length === 0 && (
+        {loading && (
+          <div className="text-center py-12 bg-gray-50 rounded-xl">
+            <p className="text-gray-600 text-lg">Carregando aulas...</p>
+          </div>
+        )}
+        {!loading && filteredClasses.length === 0 && (
           <div className="text-center py-12 bg-gray-50 rounded-xl">
             <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -555,15 +639,13 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
         onConfirm={confirmReschedule}
       />
 
-      {/* Modal de Pagamento */}
-      <PaymentModal
+      {/* Modal de Pagamento - Em Breve */}
+      <PaymentComingSoonModal
         isOpen={showPaymentModal}
         onClose={() => {
           setShowPaymentModal(false);
           setSelectedClass(null);
         }}
-        classData={selectedClass}
-        onConfirm={confirmPayment}
       />
 
       {/* Modal de Favoritar Instrutor */}
@@ -575,6 +657,17 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
         }}
         instructor={selectedInstructor}
         onConfirm={confirmFavoriteInstructor}
+      />
+
+      {/* Modal de Avaliação */}
+      <EvaluationModal
+        isOpen={showEvaluationModal}
+        onClose={() => {
+          setShowEvaluationModal(false);
+          setSelectedClass(null);
+        }}
+        classData={selectedClass}
+        onConfirm={confirmEvaluation}
       />
     </div>
   );

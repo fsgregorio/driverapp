@@ -1,22 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from '../../Modal';
 import { getAvailableTimes, hasAvailableTimes } from '../../../utils/availabilityUtils';
-import { mockStudentClasses, mockInstructorClasses } from '../../../utils/mockData';
 import { trackEvent, trackingEvents } from '../../../utils/trackingUtils';
+import { useAuth } from '../../../context/AuthContext';
+import { studentsAPI } from '../../../services/api';
+import ComingSoonModal from './ComingSoonModal';
 
 const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
+  const { user } = useAuth();
   const [selectedDates, setSelectedDates] = useState([]);
   const [selectedTimes, setSelectedTimes] = useState({});
   const [classTypes, setClassTypes] = useState([]);
   const [homeService, setHomeService] = useState(false);
+  const [vehicleType, setVehicleType] = useState('instructor'); // 'instructor' ou 'own'
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [pendingScheduleData, setPendingScheduleData] = useState(null);
+  const [showComingSoonModal, setShowComingSoonModal] = useState(false);
 
   // Tipos de aula disponíveis
   const availableClassTypes = ['Rua', 'Baliza', 'Rodovia', 'Geral'];
-
-  // Combinar todas as aulas agendadas para verificar disponibilidade
-  const allScheduledClasses = [...mockStudentClasses, ...mockInstructorClasses];
+  
+  // State para aulas agendadas (para verificar disponibilidade)
+  const [allScheduledClasses, setAllScheduledClasses] = useState([]);
+  
+  // Load scheduled classes on mount
+  useEffect(() => {
+    const loadClasses = async () => {
+      try {
+        const classes = await studentsAPI.getClasses();
+        setAllScheduledClasses(classes);
+      } catch (error) {
+        console.error('Error loading classes:', error);
+      }
+    };
+    
+    if (isOpen && user) {
+      loadClasses();
+    }
+  }, [isOpen, user]);
 
   // Resetar estado quando o modal fechar ou instrutor mudar
   React.useEffect(() => {
@@ -25,10 +46,19 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
       setSelectedTimes({});
       setClassTypes([]);
       setHomeService(false);
+      setVehicleType('instructor');
       setShowWarningModal(false);
       setPendingScheduleData(null);
+      setShowComingSoonModal(false);
     }
   }, [isOpen, instructor]);
+
+  // Garantir que vehicleType seja 'instructor' se o instrutor não oferece veículo próprio
+  React.useEffect(() => {
+    if (instructor && instructor.offersOwnVehicle === false && vehicleType === 'own') {
+      setVehicleType('instructor');
+    }
+  }, [instructor, vehicleType]);
 
   const handleDateToggle = (date) => {
     setSelectedDates(prev => {
@@ -87,6 +117,13 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
       return;
     }
 
+    // Validar tipo de veículo
+    if (vehicleType === 'own' && (instructor.offersOwnVehicle === false || !instructor.priceOwnVehicle)) {
+      alert('Este instrutor não oferece aulas em veículo próprio.');
+      setVehicleType('instructor');
+      return;
+    }
+
     // Validar busca em casa
     if (homeService && !instructor.homeService) {
       alert('Este instrutor não oferece serviço de busca em casa.');
@@ -128,7 +165,8 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
         times: selectedTimes[date] || []
       })).filter(item => item.times.length > 0),
       classTypes,
-      homeService
+      homeService,
+      vehicleType
     };
 
     // Mostrar modal de aviso antes de confirmar
@@ -136,25 +174,77 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
     setShowWarningModal(true);
   };
 
-  const handleConfirmWithWarning = () => {
-    if (pendingScheduleData && onConfirm) {
-      // Tracking do agendamento de aula
-      trackEvent(trackingEvents.DASHBOARD_ALUNO_CLASS_SCHEDULED, {
-        instructor_id: pendingScheduleData.instructorId,
-        instructor_name: pendingScheduleData.instructor?.name,
-        dates_count: pendingScheduleData.dates.length,
-        total_times: pendingScheduleData.dates.reduce((sum, date) => sum + (date.times?.length || 0), 0),
-        class_types: pendingScheduleData.classTypes,
-        home_service: pendingScheduleData.homeService,
-        page: 'dashboard_aluno',
-        section: 'schedule_modal'
-      });
-      
-      onConfirm(pendingScheduleData);
+  const handleConfirmWithWarning = async () => {
+    if (pendingScheduleData) {
+      try {
+        // Calcular preço total
+        const vehicleTypeToUse = pendingScheduleData.vehicleType || 'instructor';
+        const basePrice = vehicleTypeToUse === 'own' && instructor.priceOwnVehicle 
+          ? instructor.priceOwnVehicle 
+          : instructor.pricePerClass || 0;
+        const homeServicePrice = pendingScheduleData.homeService && instructor.homeServicePrice 
+          ? instructor.homeServicePrice 
+          : 0;
+        const totalPrice = basePrice + homeServicePrice;
+
+        // Prepare class data for API
+        const classData = {
+          instructorId: pendingScheduleData.instructorId,
+          dates: pendingScheduleData.dates,
+          classTypes: pendingScheduleData.classTypes,
+          homeService: pendingScheduleData.homeService,
+          vehicleType: pendingScheduleData.vehicleType,
+          price: totalPrice,
+          basePrice: basePrice,
+          homeServicePrice: homeServicePrice,
+          duration: 60,
+          location: instructor.location || {},
+          car: vehicleTypeToUse === 'instructor' ? (instructor.vehicle || '') : 'Veículo próprio',
+        };
+
+        // Schedule class via API
+        await studentsAPI.scheduleClass(classData);
+
+        // Tracking do agendamento de aula
+        trackEvent(trackingEvents.DASHBOARD_ALUNO_CLASS_SCHEDULED, {
+          instructor_id: pendingScheduleData.instructorId,
+          instructor_name: pendingScheduleData.instructor?.name,
+          dates_count: pendingScheduleData.dates.length,
+          total_times: pendingScheduleData.dates.reduce((sum, date) => sum + (date.times?.length || 0), 0),
+          class_types: pendingScheduleData.classTypes,
+          home_service: pendingScheduleData.homeService,
+          vehicle_type: pendingScheduleData.vehicleType,
+          total_price: totalPrice,
+          page: 'dashboard_aluno',
+          section: 'schedule_modal',
+          user_type: 'student'
+        });
+
+        // Call onConfirm callback if provided
+        if (onConfirm) {
+          onConfirm(pendingScheduleData);
+        }
+
+        // Fechar modal de aviso e mostrar modal "em breve"
+        setShowWarningModal(false);
+        setPendingScheduleData(null);
+        onClose();
+
+        // Mostrar modal "em breve" após um pequeno delay
+        setTimeout(() => {
+          setShowComingSoonModal(true);
+        }, 300);
+      } catch (error) {
+        console.error('Error scheduling class:', error);
+        const errorMessage = error.message || 'Erro ao agendar aula. Por favor, tente novamente.';
+        alert(errorMessage);
+        setShowWarningModal(false);
+        setPendingScheduleData(null);
+      }
+    } else {
+      setShowWarningModal(false);
+      setPendingScheduleData(null);
     }
-    setShowWarningModal(false);
-    setPendingScheduleData(null);
-    onClose();
   };
 
   const handleCancelWarning = () => {
@@ -288,12 +378,16 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
               <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1 truncate">
                 {instructor.name}
               </h3>
-              <p className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-1">
-                {instructor.location?.neighborhood && instructor.location?.city && instructor.location?.state
-                  ? `${instructor.location.neighborhood} - ${instructor.location.city}/${instructor.location.state}`
-                  : instructor.location?.city && instructor.location?.state
-                  ? `${instructor.location.city}/${instructor.location.state}`
-                  : instructor.location?.fullAddress || 'Localização não informada'}
+              <p className="text-xs sm:text-sm text-gray-600 mb-1">
+                {instructor.location?.neighborhood || 'Bairro não informado'}
+              </p>
+              {instructor.vehicle && (
+                <p className="text-xs sm:text-sm text-gray-700 font-medium mb-1">
+                  🚗 {instructor.vehicle}
+                </p>
+              )}
+              <p className="text-xs sm:text-sm text-blue-600 italic mb-2">
+                O endereço completo será combinado diretamente com o instrutor
               </p>
               
               {/* Badge Premium e Tipos de Aula */}
@@ -318,6 +412,51 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
                     ))}
                   </div>
                 )}
+                
+                {/* Badges de Veículo e Busca em Casa */}
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {/* Badge Veículo do Instrutor */}
+                  <span className="inline-flex items-center px-2 sm:px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg">
+                    <svg className="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                      <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z" />
+                    </svg>
+                    Veículo do Instrutor
+                  </span>
+                  
+                  {/* Badge Veículo Próprio */}
+                  {(instructor.offersOwnVehicle !== false && instructor.priceOwnVehicle) && (
+                    <span className="inline-flex items-center px-2 sm:px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-lg">
+                      <svg className="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                        <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z" />
+                      </svg>
+                      Veículo Próprio
+                    </span>
+                  )}
+                  
+                  {/* Badge Busca em Casa */}
+                  <span className={`inline-flex items-center px-2 sm:px-3 py-1 text-xs font-semibold rounded-lg ${
+                    instructor.homeService 
+                      ? 'bg-purple-100 text-purple-700' 
+                      : 'bg-gray-100 text-gray-500'
+                  }`}>
+                    <svg className="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                    </svg>
+                    Busca em Casa
+                  </span>
+                  
+                  {/* Badge Aulas somente para mulheres */}
+                  {instructor.womenOnly && (
+                    <span className="inline-flex items-center px-2 sm:px-3 py-1 bg-pink-100 text-pink-700 text-xs font-semibold rounded-lg">
+                      <svg className="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                      </svg>
+                      Aulas somente para mulheres
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Rating */}
@@ -341,13 +480,7 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
                 </span>
               </div>
 
-              {/* Preço */}
-              <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-2xl sm:text-3xl font-bold text-primary">
-                  R$ {instructor.pricePerClass}
-                </span>
-                <span className="text-sm sm:text-base text-gray-500">/aula</span>
-              </div>
+              {/* Preço - será calculado dinamicamente abaixo */}
 
               {/* Descrição */}
               {instructor.description && (
@@ -357,6 +490,97 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
               )}
             </div>
           </div>
+        </div>
+
+        {/* Seleção de Tipo de Veículo */}
+        {(instructor.offersOwnVehicle !== false) && (
+          <div>
+            <label className="block text-base sm:text-lg font-semibold text-gray-900 mb-3">
+              Tipo de Veículo *
+            </label>
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
+              <button
+                onClick={() => setVehicleType('instructor')}
+                className={`px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border-2 font-medium transition-all text-sm sm:text-base ${
+                  vehicleType === 'instructor'
+                    ? 'border-primary bg-primary text-white'
+                    : 'border-gray-200 bg-white text-gray-700 hover:border-primary hover:bg-accent'
+                }`}
+              >
+                Veículo do Instrutor
+                <div className="text-xs mt-1 opacity-90">
+                  R$ {instructor.pricePerClass || 0}/aula
+                </div>
+              </button>
+              <button
+                onClick={() => setVehicleType('own')}
+                disabled={instructor.offersOwnVehicle === false || !instructor.priceOwnVehicle}
+                className={`px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border-2 font-medium transition-all text-sm sm:text-base ${
+                  vehicleType === 'own'
+                    ? 'border-primary bg-primary text-white'
+                    : 'border-gray-200 bg-white text-gray-700 hover:border-primary hover:bg-accent'
+                } ${(instructor.offersOwnVehicle === false || !instructor.priceOwnVehicle) ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                Meu Veículo
+                <div className="text-xs mt-1 opacity-90">
+                  {instructor.priceOwnVehicle 
+                    ? `R$ ${instructor.priceOwnVehicle}/aula`
+                    : 'Não disponível'}
+                </div>
+              </button>
+            </div>
+            {(instructor.offersOwnVehicle === false || !instructor.priceOwnVehicle) && (
+              <p className="text-xs sm:text-sm text-gray-500 mt-2 italic">
+                Este instrutor não oferece aulas em veículo próprio
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Busca em Casa - sempre mostrar, mas desabilitado se não oferecer */}
+        <div className={`border rounded-xl p-3 sm:p-4 ${
+          instructor.homeService 
+            ? 'bg-blue-50 border-blue-200' 
+            : 'bg-gray-50 border-gray-200 opacity-60'
+        }`}>
+          <label className={`flex items-start gap-2 sm:gap-3 ${
+            instructor.homeService ? 'cursor-pointer' : 'cursor-not-allowed'
+          }`}>
+            <input
+              type="checkbox"
+              checked={homeService}
+              onChange={(e) => {
+                if (instructor.homeService) {
+                  setHomeService(e.target.checked);
+                }
+              }}
+              disabled={!instructor.homeService}
+              className={`w-4 h-4 sm:w-5 sm:h-5 text-primary border-gray-300 rounded focus:ring-primary mt-0.5 flex-shrink-0 ${
+                !instructor.homeService ? 'cursor-not-allowed opacity-50' : ''
+              }`}
+            />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between">
+                <span className={`font-semibold text-sm sm:text-base block ${
+                  instructor.homeService ? 'text-gray-900' : 'text-gray-500'
+                }`}>
+                  Busca em casa
+                </span>
+                {instructor.homeService && instructor.homeServicePrice && instructor.homeServicePrice > 0 && (
+                  <span className="text-sm font-semibold text-primary">
+                    + R$ {instructor.homeServicePrice.toFixed(2).replace('.', ',')}
+                  </span>
+                )}
+              </div>
+              <p className={`text-xs sm:text-sm mt-1 ${
+                instructor.homeService ? 'text-gray-600' : 'text-gray-400'
+              }`}>
+                {instructor.homeService 
+                  ? 'O instrutor buscará você no endereço informado'
+                  : 'Este instrutor não oferece serviço de busca em casa'}
+              </p>
+            </div>
+          </label>
         </div>
 
         {/* Seleção de Tipo de Aula */}
@@ -496,27 +720,6 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
           </div>
         </div>
 
-        {/* Busca em Casa */}
-        {instructor.homeService && (
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4">
-            <label className="flex items-start gap-2 sm:gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={homeService}
-                onChange={(e) => setHomeService(e.target.checked)}
-                className="w-4 h-4 sm:w-5 sm:h-5 text-primary border-gray-300 rounded focus:ring-primary mt-0.5 flex-shrink-0"
-              />
-              <div className="min-w-0 flex-1">
-                <span className="font-semibold text-sm sm:text-base text-gray-900 block">
-                  Busca em casa
-                </span>
-                <p className="text-xs sm:text-sm text-gray-600 mt-1">
-                  O instrutor buscará você no endereço informado
-                </p>
-              </div>
-            </label>
-          </div>
-        )}
 
         {/* Aviso de Cancelamento Automático */}
         <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-3 sm:p-4">
@@ -533,18 +736,83 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
           </div>
         </div>
 
-        {/* Resumo */}
-        {selectedDates.length > 0 && classTypes.length > 0 && (
-          <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 sm:p-4">
-            <h4 className="font-semibold text-sm sm:text-base text-gray-900 mb-2">Resumo do Agendamento:</h4>
-            <ul className="text-xs sm:text-sm text-gray-700 space-y-1">
-              <li>• {selectedDates.length} dia(s) selecionado(s)</li>
-              <li>• {Object.values(selectedTimes).flat().length} horário(s) selecionado(s)</li>
-              <li>• Tipo(s): <span className="break-words">{classTypes.join(', ')}</span></li>
-              {homeService && <li>• Busca em casa: Sim</li>}
-            </ul>
+        {/* Resumo e Preço Total */}
+        {selectedDates.length > 0 && classTypes.length > 0 && (() => {
+          const basePrice = vehicleType === 'own' && instructor.priceOwnVehicle 
+            ? instructor.priceOwnVehicle 
+            : instructor.pricePerClass || 0;
+          const homeServicePrice = homeService && instructor.homeServicePrice 
+            ? instructor.homeServicePrice 
+            : 0;
+          const totalPrice = basePrice + homeServicePrice;
+          const totalClasses = Object.values(selectedTimes).flat().length;
+          const totalAmount = totalPrice * totalClasses;
+
+          return (
+            <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 sm:p-4">
+              <h4 className="font-semibold text-sm sm:text-base text-gray-900 mb-2">Resumo do Agendamento:</h4>
+              <ul className="text-xs sm:text-sm text-gray-700 space-y-1 mb-3">
+                <li>• {selectedDates.length} dia(s) selecionado(s)</li>
+                <li>• {totalClasses} horário(s) selecionado(s)</li>
+                <li>• Tipo(s): <span className="break-words">{classTypes.join(', ')}</span></li>
+                <li>• Veículo: {vehicleType === 'own' ? 'Meu veículo' : 'Veículo do instrutor'}</li>
+                {homeService && <li>• Busca em casa: Sim {instructor.homeServicePrice && instructor.homeServicePrice > 0 && `(+ R$ ${instructor.homeServicePrice})`}</li>}
+              </ul>
+              <div className="border-t border-primary/20 pt-3 mt-3">
+                <div className="flex justify-between items-baseline">
+                  <span className="text-sm text-gray-700">Preço por aula:</span>
+                  <span className="text-lg font-bold text-primary">R$ {totalPrice.toFixed(2)}</span>
+                </div>
+                {totalClasses > 1 && (
+                  <div className="flex justify-between items-baseline mt-2">
+                    <span className="text-sm text-gray-700">Total ({totalClasses} aulas):</span>
+                    <span className="text-xl font-bold text-primary">R$ {totalAmount.toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Valor Total da Aula (antes dos botões) */}
+        <div className="bg-gradient-to-r from-primary/10 to-blue-50 border-2 border-primary/20 rounded-xl p-4 sm:p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm sm:text-base font-semibold text-gray-900 mb-1">Valor Total da Aula</p>
+              <div className="text-xs sm:text-sm text-gray-600">
+                {vehicleType === 'own' && instructor.priceOwnVehicle ? (
+                  <>
+                    <span>Veículo próprio: R$ {instructor.priceOwnVehicle.toFixed(2).replace('.', ',')}</span>
+                    {homeService && instructor.homeServicePrice && instructor.homeServicePrice > 0 && (
+                      <span className="ml-2">+ Busca em casa: R$ {instructor.homeServicePrice.toFixed(2).replace('.', ',')}</span>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <span>Veículo do instrutor: R$ {instructor.pricePerClass.toFixed(2).replace('.', ',')}</span>
+                    {homeService && instructor.homeServicePrice && instructor.homeServicePrice > 0 && (
+                      <span className="ml-2">+ Busca em casa: R$ {instructor.homeServicePrice.toFixed(2).replace('.', ',')}</span>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-2xl sm:text-3xl font-bold text-primary">
+                R$ {(() => {
+                  const basePrice = vehicleType === 'own' && instructor.priceOwnVehicle 
+                    ? instructor.priceOwnVehicle 
+                    : instructor.pricePerClass || 0;
+                  const homeServicePrice = homeService && instructor.homeServicePrice 
+                    ? instructor.homeServicePrice 
+                    : 0;
+                  return (basePrice + homeServicePrice).toFixed(2).replace('.', ',');
+                })()}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">por aula</p>
+            </div>
           </div>
-        )}
+        </div>
 
         {/* Botões de Ação */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4" onClick={(e) => e.stopPropagation()}>
@@ -569,6 +837,14 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
         </div>
       </div>
     </Modal>
+    
+    {/* Modal "Em Breve" */}
+    <ComingSoonModal
+      isOpen={showComingSoonModal}
+      onClose={() => setShowComingSoonModal(false)}
+      scheduleData={pendingScheduleData}
+      instructor={instructor}
+    />
     </>
   );
 };

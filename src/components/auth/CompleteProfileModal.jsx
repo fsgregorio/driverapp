@@ -153,10 +153,25 @@ const CompleteProfileModal = ({ isOpen, onComplete, userType = 'student' }) => {
         photoUrl = photoPreview;
       }
 
-      await completeProfile({
-        ...profileData,
-        photo: photoUrl || '/imgs/users/image.png' // Usar foto padrão se não houver upload
-      });
+      // Prepare data in format expected by AuthContext
+      const completeProfileData = {
+        name: profileData.name,
+        phone: profileData.phone,
+        photo_url: photoUrl || '/imgs/users/image.png', // Use photo_url for Supabase
+      };
+
+      // Add instructor-specific fields
+      if (userType === 'instructor') {
+        completeProfileData.cnh = profileData.cnh;
+        completeProfileData.vehicle = profileData.vehicle;
+        completeProfileData.responseTime = profileData.responseTime || '';
+        completeProfileData.homeService = profileData.homeService || false;
+        completeProfileData.carTypes = profileData.carTypes || [];
+        completeProfileData.specialties = profileData.specialties || [];
+        completeProfileData.classTypes = profileData.classTypes || [];
+      }
+
+      await completeProfile(completeProfileData);
 
       // Tracking de sucesso
       trackEvent(trackingEvents.AUTH_COMPLETE_PROFILE_SUCCESS, {

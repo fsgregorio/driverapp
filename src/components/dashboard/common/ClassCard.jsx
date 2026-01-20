@@ -115,17 +115,24 @@ const ClassCard = ({
         </div>
       </div>
 
-      {classData.rating && (
-        <div className="mb-4 flex items-center">
-          <div className="flex text-yellow-400">
-            {[...Array(5)].map((_, i) => (
-              <svg key={i} className={`w-4 h-4 ${i < classData.rating ? 'fill-current' : 'text-gray-300'}`} viewBox="0 0 20 20">
-                <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-              </svg>
-            ))}
+      {/* Avaliação (se concluída e tiver avaliação) */}
+      {(classData.status === 'concluída' || classData.status === 'concluida') && classData.rating && (
+        <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+          <h4 className="text-sm font-semibold text-gray-700 mb-2">Avaliação</h4>
+          <div className="flex items-center mb-2">
+            <div className="flex text-yellow-400">
+              {[...Array(5)].map((_, i) => (
+                <svg key={i} className={`w-4 h-4 ${i < Math.floor(classData.rating) ? 'fill-current' : 'text-gray-300'}`} viewBox="0 0 20 20">
+                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                </svg>
+              ))}
+            </div>
+            <span className="ml-2 text-sm font-medium text-gray-700">{classData.rating}/5</span>
           </div>
           {classData.review && (
-            <p className="ml-2 text-sm text-gray-600 italic">"{classData.review}"</p>
+            <div className="mt-2 pt-2 border-t border-gray-200">
+              <p className="text-sm text-gray-700 leading-relaxed">"{classData.review}"</p>
+            </div>
           )}
         </div>
       )}
