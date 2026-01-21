@@ -271,8 +271,16 @@ export const AuthProvider = ({ children }) => {
       setUserType(type);
       setLoading(false);
       
-      console.log('Step 5: User state updated, returning basic user', basicUser?.email);
-      console.log('Step 6: Login function completed, should redirect now');
+      console.log('Step 5: Loading profile from database...');
+      // Carregar perfil do banco para garantir que userType está correto
+      // Isso é importante especialmente para admin, que precisa do user_type do banco
+      loadUserProfile(data.user).catch(err => {
+        console.warn('Background profile load failed:', err);
+        // Se falhar, manter o tipo temporário
+      });
+      
+      console.log('Step 6: User state updated, returning basic user', basicUser?.email);
+      console.log('Step 7: Login function completed, should redirect now');
       
       isLoggingInRef.current = false;
       return basicUser;

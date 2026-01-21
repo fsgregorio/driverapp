@@ -42,8 +42,8 @@ const DashboardInstrutor = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <SEO
-        title="Dashboard Instrutor - DriveToPass"
-        description="Gerencie suas aulas, indicadores e finanças na DriveToPass"
+        title="Dashboard Instrutor - iDrive"
+        description="Gerencie suas aulas, indicadores e finanças na iDrive"
       />
       
       <DashboardNavbar 

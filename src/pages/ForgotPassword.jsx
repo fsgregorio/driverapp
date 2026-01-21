@@ -75,8 +75,8 @@ const ForgotPassword = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-accent via-white to-accent">
       <SEO
-        title="Esqueci minha senha - DriveToPass"
-        description="Recupere sua senha na DriveToPass"
+        title="Esqueci minha senha - iDrive"
+        description="Recupere sua senha na iDrive"
       />
       
       <nav className="bg-white shadow-md">

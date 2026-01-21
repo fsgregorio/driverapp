@@ -17,9 +17,9 @@ const LandingInstrutor = () => {
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "DriveToPass",
+    "name": "iDrive",
     "url": siteUrl,
-    "logo": `${siteUrl}/imgs/logo/drivetopass.png`,
+    "logo": `${siteUrl}/imgs/logo/iDrive.png`,
     "description": "Plataforma que conecta alunos e instrutores certificados para aulas práticas de direção seguras, rápidas e sem burocracia.",
     "foundingDate": "2024",
     "areaServed": {
@@ -46,7 +46,7 @@ const LandingInstrutor = () => {
     "description": "Cadastre-se como instrutor de direção independente e transforme sua experiência em uma fonte de renda estável. Controle total sobre sua agenda e seus ganhos.",
     "hiringOrganization": {
       "@type": "Organization",
-      "name": "DriveToPass",
+      "name": "iDrive",
       "url": siteUrl
     },
     "jobLocation": {
@@ -169,7 +169,7 @@ const LandingInstrutor = () => {
   return (
     <div className="LandingInstrutor">
       <SEO
-        title="Seja Instrutor de Direção - Ganhe Renda Extra - DriveToPass"
+        title="Seja Instrutor de Direção - Ganhe Renda Extra - iDrive"
         description="Cadastre-se como instrutor de direção independente e comece a receber alunos hoje mesmo. Zero mensalidade, controle total sobre agenda e preços. Modelo de comissão justo e transparente."
         keywords="ser instrutor de direção, instrutor independente, ganhar dinheiro dando aulas, cadastro instrutor, instrutor certificado, renda extra direção, trabalhar como instrutor, plataforma instrutores"
         canonicalUrl="/instrutor"

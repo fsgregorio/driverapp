@@ -11,7 +11,7 @@ const Home = () => {
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "DriveToPass",
+    "name": "iDrive",
     "description": "A forma moderna de aprender e ensinar direção. Conectamos alunos e instrutores certificados para aulas práticas seguras, rápidas e sem burocracia.",
     "url": siteUrl,
     "potentialAction": {
@@ -26,9 +26,9 @@ const Home = () => {
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "DriveToPass",
+    "name": "iDrive",
     "url": siteUrl,
-    "logo": `${siteUrl}/imgs/logo/drivetopass.png`,
+    "logo": `${siteUrl}/imgs/logo/iDrive.png`,
     "description": "Plataforma que conecta alunos e instrutores certificados para aulas práticas de direção seguras, rápidas e sem burocracia.",
     "foundingDate": "2024",
     "areaServed": {
@@ -80,7 +80,7 @@ const Home = () => {
   return (
     <div className="Home">
       <SEO
-        title="DriveToPass - A forma moderna de aprender e ensinar direção"
+        title="iDrive - A forma moderna de aprender e ensinar direção"
         description="Conectamos alunos e instrutores certificados para aulas práticas seguras, rápidas e sem burocracia. Plataforma gratuita para aulas de direção."
         keywords="aulas de direção, instrutor de direção, aulas práticas, aprender a dirigir, instrutor certificado, aulas de direção habilitados"
         canonicalUrl="/"

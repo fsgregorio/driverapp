@@ -94,15 +94,15 @@ const Waitlist = () => {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "name": "Lista de Espera - DriveToPass",
-    "description": "Cadastre-se na lista de espera e seja um dos primeiros a usar a DriveToPass quando estiver disponível."
+    "name": "Lista de Espera - iDrive",
+    "description": "Cadastre-se na lista de espera e seja um dos primeiros a usar a iDrive quando estiver disponível."
   };
 
   return (
     <div className="Waitlist min-h-screen flex flex-col">
       <SEO
-        title="Lista de Espera - DriveToPass"
-        description="Cadastre-se na lista de espera e seja um dos primeiros a usar a DriveToPass quando estiver disponível. Exclusividade para primeiros usuários."
+        title="Lista de Espera - iDrive"
+        description="Cadastre-se na lista de espera e seja um dos primeiros a usar a iDrive quando estiver disponível. Exclusividade para primeiros usuários."
         keywords="lista de espera, drivetopass, cadastro, pré-lançamento"
         canonicalUrl="/waitlist"
         structuredData={structuredData}
@@ -139,7 +139,7 @@ const Waitlist = () => {
                   Estamos em Desenvolvimento!
                 </h1>
                 <p className="text-xl text-gray-600 mb-2">
-                  A DriveToPass está sendo preparada com muito cuidado para oferecer a melhor experiência possível.
+                  A iDrive está sendo preparada com muito cuidado para oferecer a melhor experiência possível.
                 </p>
                 <p className="text-lg text-gray-500">
                   Cadastre-se na lista de espera e seja um dos <strong className="text-primary">primeiros usuários</strong> a ter acesso exclusivo quando lançarmos!
@@ -158,7 +158,7 @@ const Waitlist = () => {
                     <div>
                       <h3 className="text-xl font-bold text-green-800 mb-2">Cadastro realizado com sucesso!</h3>
                       <p className="text-green-700">
-                        Você será notificado assim que a DriveToPass estiver disponível. Obrigado por fazer parte desta jornada!
+                        Você será notificado assim que a iDrive estiver disponível. Obrigado por fazer parte desta jornada!
                       </p>
                     </div>
                   </div>

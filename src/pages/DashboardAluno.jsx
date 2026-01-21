@@ -167,8 +167,8 @@ const DashboardAluno = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <SEO
-        title="Dashboard Aluno - DriveToPass"
-        description="Gerencie suas aulas e encontre instrutores na DriveToPass"
+        title="Dashboard Aluno - iDrive"
+        description="Gerencie suas aulas e encontre instrutores na iDrive"
       />
       
       <DashboardNavbar 

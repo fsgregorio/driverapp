@@ -15,10 +15,11 @@ const Footer = ({ onSwitchProfile }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8">
           {/* About */}
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">
-              <span className="text-primary">DriveTo</span>
-              <span className="text-secondary">Pass</span>
-            </h2>
+            <img 
+              src="/imgs/logo/idriveblack.png" 
+              alt="iDrive Logo" 
+              className="h-9 md:h-11 w-auto mb-4"
+            />
             <p className="text-gray-400 text-sm">
               Conectamos alunos e instrutores certificados para aulas práticas seguras e sem burocracia.
             </p>
@@ -91,7 +92,7 @@ const Footer = ({ onSwitchProfile }) => {
         {/* Switch Profile Button */}
         <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row items-center justify-between">
           <p className="text-gray-400 text-sm mb-4 md:mb-0">
-            © 2025 DriveToPass. Todos os direitos reservados.
+            © 2025 iDrive. Todos os direitos reservados.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <button

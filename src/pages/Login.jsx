@@ -58,21 +58,22 @@ const Login = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-accent via-white to-accent">
       <SEO
-        title={`Login - ${type === 'student' ? 'Aluno' : 'Instrutor'} - DriveToPass`}
-        description={`Faça login na sua conta ${type === 'student' ? 'de aluno' : 'de instrutor'} na DriveToPass`}
+        title={`Login - ${type === 'student' ? 'Aluno' : 'Instrutor'} - iDrive`}
+        description={`Faça login na sua conta ${type === 'student' ? 'de aluno' : 'de instrutor'} na iDrive`}
       />
       
       <nav className="bg-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-14">
             <div 
               className="flex-shrink-0 cursor-pointer"
               onClick={() => navigate('/')}
             >
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
-                <span className="text-primary">DriveTo</span>
-                <span className="text-secondary">Pass</span>
-              </h1>
+              <img 
+                src="/imgs/logo/iDrive.png" 
+                alt="iDrive Logo" 
+                className="h-7 sm:h-9 md:h-11 lg:h-12 w-auto"
+              />
             </div>
           </div>
         </div>

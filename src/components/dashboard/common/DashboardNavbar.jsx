@@ -118,17 +118,18 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
     <>
       <nav className="bg-white shadow-md border-b border-gray-200 relative z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative flex items-center justify-between h-20 sm:h-24 md:h-28">
+          <div className="relative flex items-center justify-between h-16 sm:h-18 md:h-20">
             {/* Lado Esquerdo - Logo (Desktop) */}
             <div className="hidden lg:flex items-center flex-shrink-0">
               <div 
                 className="cursor-pointer"
                 onClick={handleLogoClick}
               >
-                <h1 className="text-2xl font-bold">
-                  <span className="text-primary">DriveTo</span>
-                  <span className="text-secondary">Pass</span>
-                </h1>
+                <img 
+                  src="/imgs/logo/iDrive.png" 
+                  alt="iDrive Logo" 
+                  className="h-11 w-auto"
+                />
               </div>
             </div>
 
@@ -137,10 +138,11 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
               className="lg:hidden absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10"
               onClick={handleLogoClick}
             >
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
-                <span className="text-primary">DriveTo</span>
-                <span className="text-secondary">Pass</span>
-              </h1>
+              <img 
+                src="/imgs/logo/iDrive.png" 
+                alt="iDrive Logo" 
+                className="h-9 sm:h-11 md:h-12 w-auto"
+              />
             </div>
 
             {/* Navigation Links (Desktop) */}
@@ -232,10 +234,11 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
                   className="cursor-pointer"
                   onClick={handleLogoClick}
                 >
-                  <h1 className="text-2xl font-bold">
-                    <span className="text-primary">DriveTo</span>
-                    <span className="text-secondary">Pass</span>
-                  </h1>
+                  <img 
+                    src="/imgs/logo/iDrive.png" 
+                    alt="iDrive Logo" 
+                    className="h-9 w-auto"
+                  />
                 </div>
                 <button
                   onClick={() => setIsMenuOpen(false)}

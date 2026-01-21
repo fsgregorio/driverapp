@@ -53,7 +53,7 @@ const HeroAluno = () => {
             <div className="relative z-10">
               <img 
                 src="/imgs/student.png" 
-                alt="Aluno praticando aulas práticas de direção com instrutor certificado na DriveToPass" 
+                alt="Aluno praticando aulas práticas de direção com instrutor certificado na iDrive" 
                 className="w-full h-auto rounded-2xl shadow-2xl object-cover"
                 loading="eager"
                 width="600"

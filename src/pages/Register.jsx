@@ -61,8 +61,8 @@ const Register = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-accent via-white to-accent">
       <SEO
-        title={`Criar Conta - ${type === 'student' ? 'Aluno' : 'Instrutor'} - DriveToPass`}
-        description={`Crie sua conta ${type === 'student' ? 'de aluno' : 'de instrutor'} na DriveToPass`}
+        title={`Criar Conta - ${type === 'student' ? 'Aluno' : 'Instrutor'} - iDrive`}
+        description={`Crie sua conta ${type === 'student' ? 'de aluno' : 'de instrutor'} na iDrive`}
       />
       
       <nav className="bg-white shadow-md">

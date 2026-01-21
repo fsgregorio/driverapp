@@ -17,9 +17,9 @@ const LandingAluno = () => {
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "DriveToPass",
+    "name": "iDrive",
     "url": siteUrl,
-    "logo": `${siteUrl}/imgs/logo/drivetopass.png`,
+    "logo": `${siteUrl}/imgs/logo/iDrive.png`,
     "description": "Plataforma que conecta alunos e instrutores certificados para aulas práticas de direção seguras, rápidas e sem burocracia.",
     "foundingDate": "2024",
     "areaServed": {
@@ -45,7 +45,7 @@ const LandingAluno = () => {
     "serviceType": "Aulas Práticas de Direção",
     "provider": {
       "@type": "Organization",
-      "name": "DriveToPass",
+      "name": "iDrive",
       "url": siteUrl
     },
     "areaServed": {
@@ -165,7 +165,7 @@ const LandingAluno = () => {
   return (
     <div className="LandingAluno">
       <SEO
-        title="Aulas Práticas de Direção para Habilitados - DriveToPass"
+        title="Aulas Práticas de Direção para Habilitados - iDrive"
         description="Pratique e melhore suas habilidades ao volante com instrutores certificados. Aulas práticas para habilitados: baliza, controle de embreagem, rodovia e mais. Plataforma 100% gratuita."
         keywords="aulas práticas direção, aulas para habilitados, instrutor de direção, aulas baliza, controle embreagem, aulas rodovia, aprender a dirigir melhor, instrutor certificado, aulas direção habilitados, prática direção, melhorar direção"
         canonicalUrl="/aluno"

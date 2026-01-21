@@ -10,14 +10,14 @@ const TermosDeUso = () => {
       <section className="mb-8">
         <h3 className="text-xl font-bold text-secondary mb-4">1. Aceitação dos Termos</h3>
         <p className="text-gray-700 mb-4">
-          Ao acessar e usar a plataforma DriveToPass, você concorda em cumprir e estar vinculado aos seguintes termos e condições de uso. Se você não concorda com alguma parte destes termos, não deve usar nossa plataforma.
+          Ao acessar e usar a plataforma iDrive, você concorda em cumprir e estar vinculado aos seguintes termos e condições de uso. Se você não concorda com alguma parte destes termos, não deve usar nossa plataforma.
         </p>
       </section>
 
       <section className="mb-8">
         <h3 className="text-xl font-bold text-secondary mb-4">2. Descrição do Serviço</h3>
         <p className="text-gray-700 mb-4">
-          A DriveToPass é uma plataforma digital que conecta alunos interessados em aulas práticas de direção com instrutores certificados e independentes. Nossa plataforma facilita o agendamento, comunicação e pagamento entre alunos e instrutores.
+          A iDrive é uma plataforma digital que conecta alunos interessados em aulas práticas de direção com instrutores certificados e independentes. Nossa plataforma facilita o agendamento, comunicação e pagamento entre alunos e instrutores.
         </p>
       </section>
 
@@ -31,7 +31,7 @@ const TermosDeUso = () => {
             <strong>3.2.</strong> Você é responsável por manter a confidencialidade de suas credenciais de acesso e por todas as atividades que ocorrem em sua conta.
           </p>
           <p>
-            <strong>3.3.</strong> Você concorda em notificar imediatamente a DriveToPass sobre qualquer uso não autorizado de sua conta.
+            <strong>3.3.</strong> Você concorda em notificar imediatamente a iDrive sobre qualquer uso não autorizado de sua conta.
           </p>
         </div>
       </section>
@@ -79,7 +79,7 @@ const TermosDeUso = () => {
       <section className="mb-8">
         <h3 className="text-xl font-bold text-secondary mb-4">6. Limitação de Responsabilidade</h3>
         <p className="text-gray-700 mb-4">
-          A DriveToPass atua apenas como intermediária entre alunos e instrutores. Não somos responsáveis por:
+          A iDrive atua apenas como intermediária entre alunos e instrutores. Não somos responsáveis por:
         </p>
         <ul className="list-disc pl-6 space-y-2 text-gray-700">
           <li>Qualidade das aulas fornecidas pelos instrutores</li>
@@ -92,7 +92,7 @@ const TermosDeUso = () => {
       <section className="mb-8">
         <h3 className="text-xl font-bold text-secondary mb-4">7. Propriedade Intelectual</h3>
         <p className="text-gray-700 mb-4">
-          Todo o conteúdo da plataforma, incluindo textos, gráficos, logos, ícones e software, é propriedade da DriveToPass ou de seus fornecedores de conteúdo e está protegido por leis de direitos autorais.
+          Todo o conteúdo da plataforma, incluindo textos, gráficos, logos, ícones e software, é propriedade da iDrive ou de seus fornecedores de conteúdo e está protegido por leis de direitos autorais.
         </p>
       </section>
 

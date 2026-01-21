@@ -954,10 +954,173 @@ export const instructorsAPI = {
   },
 };
 
+// Admin API
+export const adminAPI = {
+  /**
+   * Indicadores globais para o dashboard de admin
+   * period: 'all' | '7d' | '30d' | 'month'
+   */
+  getIndicators: async (period = 'all') => {
+    try {
+      // Garantir que o usuário está autenticado (e em RLS você pode proteger por user_type = 'admin')
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      // Filtro de data opcional para classes (atividade e pagamentos)
+      const now = new Date();
+      let startDateFilter = null;
+
+      if (period === '7d') {
+        startDateFilter = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      } else if (period === '30d') {
+        startDateFilter = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      } else if (period === 'month') {
+        startDateFilter = new Date(now.getFullYear(), now.getMonth(), 1);
+      }
+
+      // 1) Total de alunos
+      const { data: studentsCountData, error: studentsCountError } = await supabase
+        .from('profiles')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_type', 'student');
+
+      if (studentsCountError) {
+        console.error('❌ Erro ao contar alunos:', studentsCountError);
+        throw studentsCountError;
+      }
+
+      const totalStudents = studentsCountData ? studentsCountData.length : 0;
+
+      // 2) Total de instrutores
+      const { data: instructorsCountData, error: instructorsCountError } = await supabase
+        .from('profiles')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_type', 'instructor');
+
+      if (instructorsCountError) {
+        console.error('❌ Erro ao contar instrutores:', instructorsCountError);
+        throw instructorsCountError;
+      }
+
+      const totalInstructors = instructorsCountData ? instructorsCountData.length : 0;
+
+      // 3) Buscar aulas para calcular alunos/instrutores ativos e total pago
+      let classesQuery = supabase
+        .from('classes')
+        .select('student_id, instructor_id, status, payment_status, price, date');
+
+      if (startDateFilter) {
+        const isoDate = startDateFilter.toISOString().split('T')[0];
+        classesQuery = classesQuery.gte('date', isoDate);
+      }
+
+      const { data: classes, error: classesError } = await classesQuery;
+
+      if (classesError) {
+        console.error('❌ Erro ao buscar aulas para indicadores de admin:', classesError);
+        throw classesError;
+      }
+
+      const activeStudentsSet = new Set();
+      const activeInstructorsSet = new Set();
+      let totalPaid = 0;
+
+      (classes || []).forEach((c) => {
+        // Alunos ativos: agendou/confirmou/concluiu pelo menos uma aula
+        if (['agendada', 'confirmada', 'concluida'].includes(c.status) && c.student_id) {
+          activeStudentsSet.add(c.student_id);
+        }
+
+        // Instrutores ativos: aceitou/concluiu pelo menos uma aula
+        if (['confirmada', 'concluida'].includes(c.status) && c.instructor_id) {
+          activeInstructorsSet.add(c.instructor_id);
+        }
+
+        // Valor total pago
+        if (c.payment_status === 'pago') {
+          totalPaid += parseFloat(c.price || 0);
+        }
+      });
+
+      return {
+        totalStudents,
+        activeStudents: activeStudentsSet.size,
+        totalInstructors,
+        activeInstructors: activeInstructorsSet.size,
+        totalPaid,
+      };
+    } catch (error) {
+      console.error('Error fetching admin indicators:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Métricas de funil baseadas na tabela de eventos
+   * period: 'all' | '7d' | '30d' | 'month'
+   */
+  getFunnelMetrics: async (period = 'all') => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const now = new Date();
+      let startTimestamp = null;
+
+      if (period === '7d') {
+        startTimestamp = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      } else if (period === '30d') {
+        startTimestamp = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      } else if (period === 'month') {
+        startTimestamp = new Date(now.getFullYear(), now.getMonth(), 1);
+      }
+
+      let eventsQuery = supabase
+        .from('events')
+        .select('user_id, event_name, user_type, timestamp')
+        .eq('user_type', 'student');
+
+      if (startTimestamp) {
+        eventsQuery = eventsQuery.gte('timestamp', startTimestamp.toISOString());
+      }
+
+      const { data: events, error: eventsError } = await eventsQuery;
+
+      if (eventsError) {
+        console.error('❌ Erro ao buscar eventos para funil de admin:', eventsError);
+        throw eventsError;
+      }
+
+      const byEvent = (name) => {
+        const set = new Set();
+        (events || []).forEach((e) => {
+          if (e.event_name === name && e.user_id) {
+            set.add(e.user_id);
+          }
+        });
+        return set.size;
+      };
+
+      return {
+        clickedStartNow: byEvent('landing_aluno_cta_hero'),
+        createdAccount: byEvent('auth_register_success'),
+        clickedSchedule: byEvent('dashboard_aluno_schedule_new_class'),
+        scheduledClass: byEvent('dashboard_aluno_class_scheduled'),
+        clickedPay: byEvent('payment_initiated'),
+        clickedCoupon: byEvent('coupon_requested'),
+      };
+    } catch (error) {
+      console.error('Error fetching admin funnel metrics:', error);
+      throw error;
+    }
+  },
+};
+
 const api = {
   auth: authAPI,
   students: studentsAPI,
   instructors: instructorsAPI,
+  admin: adminAPI,
 };
 
 export default api;

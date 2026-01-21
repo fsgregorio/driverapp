@@ -37,7 +37,7 @@ const SEO = ({
       <meta property="og:image:height" content="630" />
       <meta property="og:image:alt" content={title} />
       <meta property="og:locale" content="pt_BR" />
-      <meta property="og:site_name" content="DriveToPass" />
+      <meta property="og:site_name" content="iDrive" />
       {articleAuthor && <meta property="article:author" content={articleAuthor} />}
       {articlePublishedTime && <meta property="article:published_time" content={articlePublishedTime} />}
       {articleModifiedTime && <meta property="article:modified_time" content={articleModifiedTime} />}
@@ -54,7 +54,7 @@ const SEO = ({
 
       {/* Additional SEO */}
       <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
-      <meta name="author" content="DriveToPass" />
+      <meta name="author" content="iDrive" />
       <meta name="language" content="pt-BR" />
       <meta name="revisit-after" content="7 days" />
       <meta name="rating" content="general" />
@@ -66,7 +66,7 @@ const SEO = ({
       <meta name="mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-      <meta name="apple-mobile-web-app-title" content="DriveToPass" />
+      <meta name="apple-mobile-web-app-title" content="iDrive" />
 
       {/* Structured Data */}
       {structuredData && (
