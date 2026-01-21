@@ -540,20 +540,6 @@ export const studentsAPI = {
           total_classes_type: typeof i.total_classes,
           total_classes_value: i.total_classes === null ? 'NULL' : i.total_classes === undefined ? 'UNDEFINED' : i.total_classes
         })));
-        
-        // Verificar valores esperados
-        const expectedValues = {
-          'Roberto Oliveira': 42,
-          'Mariana Costa': 26,
-          'Carlos Silva': 37,
-          'Fernando Alves': 18,
-          'Ana Paula Santos': 6,
-          'João Pedro Lima': 0,
-          'Patricia Mendes': 32
-        };
-        
-        // Verificar valores esperados (vamos fazer isso depois de buscar os perfis)
-        console.log('⏳ Verificação de valores será feita após buscar perfis...');
       } else {
         console.warn('⚠️ Nenhum instrutor retornado da query');
       }

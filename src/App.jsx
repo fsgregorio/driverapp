@@ -11,7 +11,6 @@ import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import DashboardAluno from './pages/DashboardAluno';
 import DashboardInstrutor from './pages/DashboardInstrutor';
-import ProtectedRoute from './components/dashboard/common/ProtectedRoute';
 import DashboardAdmin from './pages/DashboardAdmin';
 
 function App() {
