@@ -55,11 +55,22 @@ const ClassCardEnhanced = ({
       {/* Header com Instrutor e Status */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-4">
-          <img
-            src={classData.instructorPhoto}
-            alt={classData.instructorName}
-            className="w-14 h-14 rounded-full object-cover"
-          />
+          {classData.instructorPhoto ? (
+            <img
+              src={classData.instructorPhoto}
+              alt={classData.instructorName}
+              className="w-14 h-14 rounded-full object-cover"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+          ) : null}
+          <div className={`w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center ${classData.instructorPhoto ? 'hidden' : ''}`}>
+            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
           <div>
             <div className="flex items-center space-x-2">
               <h3 className="font-semibold text-lg text-gray-900">{classData.instructorName}</h3>

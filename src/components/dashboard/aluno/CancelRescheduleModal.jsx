@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { isBefore24Hours } from '../../../utils/dateUtils';
 import { getClassTypeLabel, normalizeClassTypes, getClassTypeBadgeColor } from '../../../utils/classUtils';
-import { trackEvent, trackingEvents } from '../../../utils/trackingUtils';
 
 const CancelRescheduleModal = ({ 
   isOpen, 
@@ -50,20 +49,6 @@ const CancelRescheduleModal = ({
 
   const handleConfirm = () => {
     if (mode === 'cancel') {
-      // Tracking do cancelamento
-      trackEvent(trackingEvents.DASHBOARD_ALUNO_CLASS_CANCELED, {
-        class_id: classData.id,
-        instructor_id: classData.instructorId,
-        instructor_name: classData.instructorName,
-        class_date: classData.date,
-        class_time: classData.time,
-        class_status: classData.status,
-        payment_status: classData.paymentStatus,
-        is_before_24h: isBefore24h,
-        page: 'dashboard_aluno',
-        section: 'cancel_modal'
-      });
-      
       if (onConfirm) {
         onConfirm(classData.id, null);
       }

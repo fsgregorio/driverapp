@@ -72,10 +72,11 @@ const Register = () => {
               className="flex-shrink-0 cursor-pointer"
               onClick={() => navigate('/')}
             >
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
-                <span className="text-primary">DriveTo</span>
-                <span className="text-secondary">Pass</span>
-              </h1>
+              <img 
+                src="/imgs/logo/idrive.png" 
+                alt="iDrive Logo" 
+                className="h-7 sm:h-9 md:h-11 lg:h-12 w-auto"
+              />
             </div>
           </div>
         </div>

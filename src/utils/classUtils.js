@@ -16,7 +16,7 @@ export const filterClassesByStatus = (classes, status) => {
  * @returns {Array} Aulas pendentes de aceite
  */
 export const getPendingAcceptanceClasses = (classes) => {
-  return filterClassesByStatus(classes, 'pendente_aceite');
+  return classes.filter(cls => cls.status === 'pendente_aceite');
 };
 
 /**
@@ -30,14 +30,30 @@ export const getAllClasses = (classes) => {
 
 /**
  * Filtra aulas agendadas (apenas agendada ou confirmada, sem pendentes)
+ * IMPORTANTE: Aulas agendadas só aparecem após o pagamento
  * @param {Array} classes - Lista de aulas
- * @returns {Array} Aulas agendadas/confirmadas
+ * @returns {Array} Aulas agendadas/confirmadas (excluindo canceladas, pendentes, etc)
  */
 export const getAgendadasClasses = (classes) => {
-  return classes.filter(cls => 
-    cls.status === 'agendada' || 
-    cls.status === 'confirmada'
-  );
+  if (!classes || !Array.isArray(classes)) {
+    return [];
+  }
+  
+  return classes.filter(cls => {
+    // Apenas aulas com status 'agendada' ou 'confirmada'
+    // Excluir explicitamente canceladas, pendentes, concluídas
+    if (!cls || !cls.status) {
+      return false;
+    }
+    
+    const status = cls.status.toLowerCase();
+    return (status === 'agendada' || status === 'confirmada') && 
+           status !== 'cancelada' && 
+           status !== 'pendente_aceite' && 
+           status !== 'pendente_pagamento' && 
+           status !== 'pendente_avaliacao' && 
+           status !== 'concluida';
+  });
 };
 
 /**
@@ -82,10 +98,18 @@ export const getScheduledClasses = (classes) => {
  * @returns {Array} Aulas do histórico
  */
 export const getHistoryClasses = (classes) => {
-  return classes.filter(cls => 
-    cls.status === 'concluida' || 
-    cls.status === 'cancelada'
-  );
+  if (!classes || !Array.isArray(classes)) {
+    return [];
+  }
+  
+  return classes.filter(cls => {
+    if (!cls || !cls.status) {
+      return false;
+    }
+    
+    const status = cls.status.toLowerCase();
+    return status === 'concluida' || status === 'cancelada';
+  });
 };
 
 /**

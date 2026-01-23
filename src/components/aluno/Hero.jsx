@@ -10,7 +10,7 @@ const HeroAluno = () => {
       page: 'landing_aluno',
       section: 'hero'
     });
-    navigate('/dashboard/aluno');
+    navigate('/register?type=student');
   };
 
   return (
@@ -31,11 +31,11 @@ const HeroAluno = () => {
           {/* Text Content */}
           <div className="text-center md:text-left">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-secondary mb-6 animate-fadeIn">
-              Aulas práticas para quem já tem habilitação
+              Tire sua carteira de motorista com instrutores profissionais
             </h1>
             
             <p className="text-xl md:text-2xl text-gray-600 mb-10 max-w-2xl mx-auto md:mx-0 animate-fadeIn delay-200">
-              Pratique e melhore suas habilidades ao volante com instrutores certificados. Aulas personalizadas, flexíveis e totalmente gratuitas.
+              Conectamos você aos melhores instrutores certificados para suas aulas práticas. Aprenda a dirigir com segurança, flexibilidade e sem burocracia.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start animate-fadeIn delay-400">
@@ -53,7 +53,7 @@ const HeroAluno = () => {
             <div className="relative z-10">
               <img 
                 src="/imgs/student.png" 
-                alt="Aluno praticando aulas práticas de direção com instrutor certificado na iDrive" 
+                alt="Aluno aprendendo a dirigir com instrutor profissional certificado na iDrive" 
                 className="w-full h-auto rounded-2xl shadow-2xl object-cover"
                 loading="eager"
                 width="600"

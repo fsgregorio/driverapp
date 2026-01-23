@@ -5,6 +5,8 @@ import SEO from '../components/SEO';
 import { adminAPI } from '../services/api';
 import AdminIndicatorsGrid from '../components/dashboard/admin/AdminIndicatorsGrid';
 import AdminFunnel from '../components/dashboard/admin/AdminFunnel';
+import AdminEventsTracking from '../components/dashboard/admin/AdminEventsTracking';
+import AdminClassesManagement from '../components/dashboard/admin/AdminClassesManagement';
 
 const ADMIN_LOGIN = 'admin';
 const ADMIN_PASSWORD = '123456';
@@ -12,7 +14,8 @@ const ADMIN_PASSWORD = '123456';
 const ADMIN_EMAIL = 'admin@idrive.com';
 
 const DashboardAdmin = () => {
-  const { loading, userType, login } = useAuth();
+  const { loading, userType, login, isAuthenticatedAs, setActiveUser } = useAuth();
+  const [activeTab, setActiveTab] = useState('indicators');
   const [period, setPeriod] = useState('all');
   const [indicators, setIndicators] = useState(null);
   const [funnelMetrics, setFunnelMetrics] = useState(null);
@@ -26,7 +29,14 @@ const DashboardAdmin = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const activeSection = 'admin';
-  const adminAuthenticated = userType === 'admin';
+  const adminAuthenticated = isAuthenticatedAs('admin');
+
+  // Ativar sessão de admin se existir
+  useEffect(() => {
+    if (!loading && isAuthenticatedAs('admin')) {
+      setActiveUser('admin');
+    }
+  }, [loading, isAuthenticatedAs, setActiveUser]);
 
   // Debug: log quando userType muda
   useEffect(() => {
@@ -39,26 +49,38 @@ const DashboardAdmin = () => {
         setIsLoadingData(true);
         setError(null);
 
-        const [indicatorsResult, funnelResult] = await Promise.all([
-          adminAPI.getIndicators(period),
-          adminAPI.getFunnelMetrics(period),
-        ]);
+        console.log('📊 Carregando dados do dashboard admin...', { activeTab, period });
 
-        setIndicators(indicatorsResult);
-        setFunnelMetrics(funnelResult);
+        // Carregar indicadores e funil apenas se estiver na aba de indicadores
+        if (activeTab === 'indicators') {
+          console.log('📈 Carregando indicadores e funil...');
+          const [indicatorsResult, funnelResult] = await Promise.all([
+            adminAPI.getIndicators(period),
+            adminAPI.getFunnelMetrics(period),
+          ]);
+
+          console.log('✅ Indicadores carregados:', indicatorsResult);
+          console.log('✅ Funil carregado:', funnelResult);
+
+          setIndicators(indicatorsResult);
+          setFunnelMetrics(funnelResult);
+        }
       } catch (err) {
-        console.error('Erro ao carregar dados do dashboard admin:', err);
-        setError('Erro ao carregar dados. Tente novamente mais tarde.');
+        console.error('❌ Erro ao carregar dados do dashboard admin:', err);
+        setError(err.message || 'Erro ao carregar dados. Tente novamente mais tarde.');
       } finally {
         setIsLoadingData(false);
       }
     };
 
-    // Apenas carrega se o usuário estiver logado como admin
-    if (!loading && userType === 'admin') {
+    // Carrega se o usuário estiver autenticado como admin (verifica tanto userType quanto isAuthenticatedAs)
+    if (!loading && (userType === 'admin' || adminAuthenticated)) {
+      console.log('✅ Condições atendidas para carregar dados:', { loading, userType, adminAuthenticated });
       loadData();
+    } else {
+      console.log('⏳ Aguardando autenticação admin:', { loading, userType, adminAuthenticated });
     }
-  }, [loading, userType, period]);
+  }, [loading, userType, adminAuthenticated, period, activeTab]);
 
   if (loading) {
     return (
@@ -213,17 +235,52 @@ const DashboardAdmin = () => {
           </div>
         </div>
 
+        {/* Abas */}
+        <div className="mb-6 border-b border-gray-200">
+          <nav className="flex space-x-8" aria-label="Tabs">
+            {[
+              { id: 'indicators', label: 'Indicadores' },
+              { id: 'events', label: 'Rastreamento de Eventos' },
+              { id: 'classes', label: 'Gerenciamento de Aulas' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === tab.id
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+        </div>
+
         {error && (
           <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
             {error}
           </div>
         )}
 
-        <AdminIndicatorsGrid indicators={indicators} loading={isLoadingData} />
+        {/* Conteúdo das abas */}
+        {activeTab === 'indicators' && (
+          <>
+            <AdminIndicatorsGrid indicators={indicators} loading={isLoadingData} />
+            <div className="mt-8">
+              <AdminFunnel metrics={funnelMetrics} loading={isLoadingData} />
+            </div>
+          </>
+        )}
 
-        <div className="mt-8">
-          <AdminFunnel metrics={funnelMetrics} loading={isLoadingData} />
-        </div>
+        {activeTab === 'events' && (
+          <AdminEventsTracking period={period} />
+        )}
+
+        {activeTab === 'classes' && (
+          <AdminClassesManagement period={period} />
+        )}
       </main>
     </div>
   );

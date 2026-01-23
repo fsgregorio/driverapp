@@ -6,42 +6,39 @@ import HomeSection from '../components/dashboard/aluno/HomeSection';
 import ClassControl from '../components/dashboard/aluno/ClassControl';
 import InstructorControl from '../components/dashboard/aluno/InstructorControl';
 import SettingsSection from '../components/dashboard/aluno/SettingsSection';
-import ComingSoonModal from '../components/dashboard/aluno/ComingSoonModal';
+import ScheduleConfirmationModal from '../components/dashboard/aluno/ScheduleConfirmationModal';
 import { studentsAPI } from '../services/api';
 import { autoCancelExpiredClasses } from '../utils/classUtils';
 import SEO from '../components/SEO';
 
 const DashboardAluno = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, userType, loading } = useAuth();
+  const { isAuthenticated, userType, loading, isAuthenticatedAs, setActiveUser } = useAuth();
   const [activeSection, setActiveSection] = useState('home');
   const [classes, setClasses] = useState([]);
   const [initialTab, setInitialTab] = useState('agendadas');
   const [initialInstructorTab, setInitialInstructorTab] = useState('search');
-  const [showComingSoonModal, setShowComingSoonModal] = useState(false);
-  const [pendingScheduleData, setPendingScheduleData] = useState(null);
-  const [pendingInstructor, setPendingInstructor] = useState(null);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+
+  // Ativar sessão de aluno se existir
+  useEffect(() => {
+    if (!loading && isAuthenticatedAs('student')) {
+      setActiveUser('student');
+    }
+  }, [loading, isAuthenticatedAs, setActiveUser]);
 
   useEffect(() => {
-    // Evitar redirecionamentos infinitos - só redirecionar se realmente não estiver autenticado
-    if (!loading && !isAuthenticated) {
-      console.log('User not authenticated, redirecting to login');
+    // Só redirecionar se realmente não tiver sessão de aluno
+    if (!loading && !isAuthenticatedAs('student')) {
+      console.log('Student session not found, redirecting to login');
       navigate('/login?type=student', { replace: true });
     }
-  }, [loading, isAuthenticated, navigate]);
-
-  useEffect(() => {
-    // Evitar redirecionamentos infinitos - só redirecionar se realmente for instrutor
-    if (!loading && isAuthenticated && userType && userType !== 'student') {
-      console.log('User is instructor, redirecting to instructor dashboard');
-      navigate('/dashboard/instrutor', { replace: true });
-    }
-  }, [loading, isAuthenticated, userType, navigate]);
+  }, [loading, isAuthenticatedAs, navigate]);
 
   // Load classes from API
   useEffect(() => {
     const loadClasses = async () => {
-      if (isAuthenticated && !loading) {
+      if (isAuthenticatedAs('student') && !loading) {
         try {
           console.log('🔄 Recarregando aulas no DashboardAluno...');
           const loadedClasses = await studentsAPI.getClasses();
@@ -73,14 +70,14 @@ const DashboardAluno = () => {
     return () => {
       window.removeEventListener('focus', handleFocus);
     };
-  }, [isAuthenticated, loading]);
+  }, [isAuthenticatedAs, loading]);
 
   // Removido: não mostrar modal automaticamente no dashboard
   // O modal só deve aparecer após login com Google na primeira vez
 
   // Verificar e cancelar automaticamente aulas que não foram aceitas/pagas até 24h antes
   useEffect(() => {
-    if (!isAuthenticated || loading) return;
+    if (!isAuthenticatedAs('student') || loading) return;
 
     // Função para verificar e cancelar aulas
     const checkAndCancelExpiredClasses = () => {
@@ -112,25 +109,30 @@ const DashboardAluno = () => {
     const interval = setInterval(checkAndCancelExpiredClasses, 30 * 60 * 1000);
 
     return () => clearInterval(interval);
-  }, [isAuthenticated, loading]);
+  }, [isAuthenticatedAs, loading]);
 
   const handleScheduleFromInstructor = async (scheduleData) => {
     try {
+      // Aguardar um pouco para garantir que as aulas foram criadas no banco
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       // Reload classes to get the newly scheduled ones
       const loadedClasses = await studentsAPI.getClasses();
       setClasses(loadedClasses);
       
-      // Armazenar dados para mostrar no modal "em breve"
-      setPendingScheduleData(scheduleData);
-      setPendingInstructor(scheduleData.instructor);
+      console.log('📋 Aulas após agendamento:', {
+        total: loadedClasses.length,
+        pendentes_aceite: loadedClasses.filter(c => c.status === 'pendente_aceite').length,
+        agendadas: loadedClasses.filter(c => c.status === 'agendada' || c.status === 'confirmada').length,
+      });
       
-      // Navegar para a seção de aulas e mostrar agendadas
+      // Navegar para a seção de aulas e mostrar pendentes de aceite
       setActiveSection('classes');
-      setInitialTab('agendadas');
+      setInitialTab('pendentes_aceite');
       
-      // Mostrar modal "em breve" após um pequeno delay
+      // Mostrar modal de confirmação após um pequeno delay
       setTimeout(() => {
-        setShowComingSoonModal(true);
+        setShowConfirmationModal(true);
       }, 300);
     } catch (error) {
       console.error('Error scheduling class:', error);
@@ -160,7 +162,7 @@ const DashboardAluno = () => {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticatedAs('student')) {
     return null; // Será redirecionado pelo useEffect
   }
 
@@ -220,16 +222,12 @@ const DashboardAluno = () => {
         )}
       </main>
       
-      {/* Modal "Em Breve" */}
-      <ComingSoonModal
-        isOpen={showComingSoonModal}
+      {/* Modal de Confirmação */}
+      <ScheduleConfirmationModal
+        isOpen={showConfirmationModal}
         onClose={() => {
-          setShowComingSoonModal(false);
-          setPendingScheduleData(null);
-          setPendingInstructor(null);
+          setShowConfirmationModal(false);
         }}
-        scheduleData={pendingScheduleData}
-        instructor={pendingInstructor}
       />
     </div>
   );

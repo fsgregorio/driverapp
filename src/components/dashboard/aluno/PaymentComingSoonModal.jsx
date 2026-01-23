@@ -1,7 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { trackEvent, trackingEvents } from '../../../utils/trackingUtils';
 
 const PaymentComingSoonModal = ({ isOpen, onClose }) => {
+  const [showCoupon, setShowCoupon] = useState(false);
+  const [copied, setCopied] = useState(false);
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -12,6 +15,14 @@ const PaymentComingSoonModal = ({ isOpen, onClose }) => {
     return () => {
       document.body.style.overflow = 'unset';
     };
+  }, [isOpen]);
+
+  useEffect(() => {
+    // Resetar estado quando o modal fechar
+    if (!isOpen) {
+      setShowCoupon(false);
+      setCopied(false);
+    }
   }, [isOpen]);
 
   const handleClose = () => {
@@ -27,9 +38,16 @@ const PaymentComingSoonModal = ({ isOpen, onClose }) => {
       source: 'payment_modal',
     });
     
-    // TODO: Implementar ação para obter cupom
-    // Por exemplo: redirecionar para página de cadastro ou fazer chamada de API
-    console.log('Quero meu cupom');
+    // Mostrar o cupom
+    setShowCoupon(true);
+  };
+
+  const handleCopyCoupon = () => {
+    const couponCode = 'USUARIODIAMANTE';
+    navigator.clipboard.writeText(couponCode).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
   };
 
   const handleBackdropClick = (e) => {
@@ -88,32 +106,93 @@ const PaymentComingSoonModal = ({ isOpen, onClose }) => {
               </p>
             </div>
 
-            {/* Mensagem sobre o cupom */}
-            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-200 rounded-xl p-4">
-              <div className="flex items-start gap-3">
-                <div className="flex-shrink-0">
-                  <svg className="w-5 h-5 text-yellow-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+            {!showCoupon ? (
+              <>
+                {/* Mensagem sobre o cupom */}
+                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-200 rounded-xl p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0">
+                      <svg className="w-5 h-5 text-yellow-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-yellow-900 font-semibold mb-1 text-sm">
+                        🎁 Ganhe um cupom de desconto!
+                      </p>
+                      <p className="text-yellow-800 text-xs">
+                        Clique no botão abaixo para garantir seu <strong>cupom exclusivo</strong> quando a plataforma estiver funcionando. Você será um dos primeiros a ser notificado!
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className="text-yellow-900 font-semibold mb-1 text-sm">
-                    🎁 Ganhe um cupom de desconto!
-                  </p>
-                  <p className="text-yellow-800 text-xs">
-                    Clique no botão abaixo para garantir seu <strong>cupom exclusivo</strong> quando a plataforma estiver funcionando. Você será um dos primeiros a ser notificado!
-                  </p>
-                </div>
-              </div>
-            </div>
 
-            {/* Botão de Cupom */}
-            <button
-              onClick={handleGetCoupon}
-              className="w-full bg-primary hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105"
-            >
-              Quero meu cupom
-            </button>
+                {/* Botão de Cupom */}
+                <button
+                  onClick={handleGetCoupon}
+                  className="w-full bg-primary hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105"
+                >
+                  Quero meu cupom
+                </button>
+              </>
+            ) : (
+              <>
+                {/* Exibição do Cupom */}
+                <div className="bg-gradient-to-br from-primary/10 via-blue-50 to-purple-50 border-2 border-primary/30 rounded-xl p-6 text-center">
+                  <div className="mb-4">
+                    <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-primary/20 mb-3">
+                      <svg 
+                        className="h-8 w-8 text-primary" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth={2} 
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" 
+                        />
+                      </svg>
+                    </div>
+                    <h4 className="text-lg font-bold text-gray-900 mb-2">
+                      🎉 Parabéns! Seu cupom está aqui!
+                    </h4>
+                    <p className="text-gray-600 text-sm mb-4">
+                      Use este cupom quando a plataforma estiver funcionando para obter seu desconto exclusivo.
+                    </p>
+                  </div>
+                  
+                  {/* Código do Cupom */}
+                  <div className="bg-white border-2 border-dashed border-primary rounded-lg p-4 mb-4">
+                    <p className="text-xs text-gray-500 mb-2 font-medium">SEU CUPOM EXCLUSIVO</p>
+                    <div className="flex items-center justify-center gap-3">
+                      <code className="text-2xl font-bold text-primary tracking-wider">
+                        USUARIODIAMANTE
+                      </code>
+                      <button
+                        onClick={handleCopyCoupon}
+                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        title="Copiar cupom"
+                      >
+                        {copied ? (
+                          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        ) : (
+                          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
+                    {copied && (
+                      <p className="text-green-600 text-xs mt-2 font-medium">✓ Cupom copiado!</p>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Botão de Fechar */}
             <button

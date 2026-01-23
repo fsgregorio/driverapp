@@ -1,15 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { trackButtonClick, trackingEvents } from '../../utils/trackingUtils';
 
 const HeroInstrutor = () => {
   const navigate = useNavigate();
 
   const handleCTAClick = () => {
-    trackButtonClick(trackingEvents.LANDING_INSTRUTOR_CTA_HERO, 'Cadastrar como Instrutor', {
-      page: 'landing_instrutor',
-      section: 'hero'
-    });
     navigate('/dashboard/instrutor');
   };
 

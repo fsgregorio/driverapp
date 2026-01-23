@@ -25,19 +25,19 @@ const ClassControl = () => {
   }, []);
 
   const pendentes = classes.filter(c => c.status === 'pendente_aceite');
-  const proximas = classes.filter(c => c.status === 'confirmada' || c.status === 'agendada');
+  const proximas = classes.filter(c => c.status === 'pendente_pagamento' || c.status === 'agendada' || c.status === 'confirmada');
   const historico = classes.filter(c => c.status === 'concluida' || c.status === 'cancelada');
 
   const handleConfirm = async (classId) => {
     try {
       await instructorsAPI.confirmClass(classId);
       setClasses(classes.map(c => 
-        c.id === classId ? { ...c, status: 'confirmada' } : c
+        c.id === classId ? { ...c, status: 'pendente_pagamento' } : c
       ));
-      alert('Aula confirmada com sucesso!');
+      alert('Aula aceita com sucesso! O aluno será notificado para realizar o pagamento.');
     } catch (error) {
       console.error('Error confirming class:', error);
-      alert('Erro ao confirmar aula. Por favor, tente novamente.');
+      alert('Erro ao aceitar aula. Por favor, tente novamente.');
     }
   };
 

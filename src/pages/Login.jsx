@@ -13,14 +13,8 @@ const Login = () => {
   const type = searchParams.get('type') || 'student';
   const [showCompleteProfile, setShowCompleteProfile] = useState(false);
 
-  // Se já está autenticado, redirecionar para o dashboard
-  useEffect(() => {
-    if (!loading && isAuthenticated) {
-      console.log('User already authenticated, redirecting to dashboard');
-      const dashboardPath = userType === 'student' ? '/dashboard/aluno' : '/dashboard/instrutor';
-      navigate(dashboardPath, { replace: true });
-    }
-  }, [loading, isAuthenticated, userType, navigate]);
+  // Não redirecionar automaticamente - permitir múltiplos logins
+  // O usuário pode estar logado como aluno e querer logar como admin também
 
   const handleAuthSuccess = () => {
     console.log('handleAuthSuccess called');
@@ -46,14 +40,7 @@ const Login = () => {
     );
   }
 
-  // Se já está autenticado, não renderizar nada (vai redirecionar)
-  if (isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  // Permitir login mesmo se já estiver autenticado como outro tipo
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-accent via-white to-accent">
@@ -70,7 +57,7 @@ const Login = () => {
               onClick={() => navigate('/')}
             >
               <img 
-                src="/imgs/logo/iDrive.png" 
+                src="/imgs/logo/idrive.png" 
                 alt="iDrive Logo" 
                 className="h-7 sm:h-9 md:h-11 lg:h-12 w-auto"
               />

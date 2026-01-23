@@ -4,7 +4,7 @@ import { getAvailableTimes } from '../../../utils/availabilityUtils';
 import { trackEvent, trackingEvents } from '../../../utils/trackingUtils';
 import { useAuth } from '../../../context/AuthContext';
 import { studentsAPI } from '../../../services/api';
-import ComingSoonModal from './ComingSoonModal';
+import ScheduleConfirmationModal from './ScheduleConfirmationModal';
 
 const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
   const { user } = useAuth();
@@ -15,7 +15,8 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
   const [vehicleType, setVehicleType] = useState('instructor'); // 'instructor' ou 'own'
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [pendingScheduleData, setPendingScheduleData] = useState(null);
-  const [showComingSoonModal, setShowComingSoonModal] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Tipos de aula disponíveis
   const availableClassTypes = ['Rua', 'Baliza', 'Rodovia', 'Geral'];
@@ -49,7 +50,8 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
       setVehicleType('instructor');
       setShowWarningModal(false);
       setPendingScheduleData(null);
-      setShowComingSoonModal(false);
+      setShowConfirmationModal(false);
+      setIsSubmitting(false);
     }
   }, [isOpen, instructor]);
 
@@ -169,14 +171,34 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
       vehicleType
     };
 
+    // Tracking do clique em "Confirmar Agendamento" - antes do modal de aviso
+    trackEvent(trackingEvents.DASHBOARD_ALUNO_SCHEDULE_CONFIRM_CLICK, {
+      user_type: 'student',
+      page: 'dashboard_aluno',
+      section: 'schedule_modal',
+      instructor_id: instructor.id,
+      instructor_name: instructor.name,
+      dates_count: selectedDates.length,
+      total_times: Object.values(selectedTimes).flat().length,
+      class_types: classTypes,
+      home_service: homeService,
+      vehicle_type: vehicleType,
+    });
+
     // Mostrar modal de aviso antes de confirmar
     setPendingScheduleData(scheduleData);
     setShowWarningModal(true);
   };
 
   const handleConfirmWithWarning = async () => {
-    if (pendingScheduleData) {
-      try {
+    // Prevenir duplicação: não permitir múltiplos envios simultâneos
+    if (isSubmitting || !pendingScheduleData) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
         // Calcular preço total
         const vehicleTypeToUse = pendingScheduleData.vehicleType || 'instructor';
         const basePrice = vehicleTypeToUse === 'own' && instructor.priceOwnVehicle 
@@ -205,34 +227,19 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
         // Schedule class via API
         await studentsAPI.scheduleClass(classData);
 
-        // Tracking do agendamento de aula
-        trackEvent(trackingEvents.DASHBOARD_ALUNO_CLASS_SCHEDULED, {
-          instructor_id: pendingScheduleData.instructorId,
-          instructor_name: pendingScheduleData.instructor?.name,
-          dates_count: pendingScheduleData.dates.length,
-          total_times: pendingScheduleData.dates.reduce((sum, date) => sum + (date.times?.length || 0), 0),
-          class_types: pendingScheduleData.classTypes,
-          home_service: pendingScheduleData.homeService,
-          vehicle_type: pendingScheduleData.vehicleType,
-          total_price: totalPrice,
-          page: 'dashboard_aluno',
-          section: 'schedule_modal',
-          user_type: 'student'
-        });
-
         // Call onConfirm callback if provided
         if (onConfirm) {
           onConfirm(pendingScheduleData);
         }
 
-        // Fechar modal de aviso e mostrar modal "em breve"
+        // Fechar modal de aviso e mostrar modal de confirmação
         setShowWarningModal(false);
         setPendingScheduleData(null);
         onClose();
 
-        // Mostrar modal "em breve" após um pequeno delay
+        // Mostrar modal de confirmação após um pequeno delay
         setTimeout(() => {
-          setShowComingSoonModal(true);
+          setShowConfirmationModal(true);
         }, 300);
       } catch (error) {
         console.error('Error scheduling class:', error);
@@ -240,11 +247,9 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
         alert(errorMessage);
         setShowWarningModal(false);
         setPendingScheduleData(null);
+      } finally {
+        setIsSubmitting(false);
       }
-    } else {
-      setShowWarningModal(false);
-      setPendingScheduleData(null);
-    }
   };
 
   const handleCancelWarning = () => {
@@ -350,9 +355,10 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
                   e.stopPropagation();
                   handleConfirmWithWarning();
                 }}
-                className="w-full sm:flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-primary hover:bg-blue-600 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 text-sm sm:text-base"
+                disabled={isSubmitting}
+                className="w-full sm:flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-primary hover:bg-blue-600 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
-                Entendi, Confirmar Agendamento
+                {isSubmitting ? 'Confirmando...' : 'Entendi, Confirmar Agendamento'}
               </button>
             </div>
           </div>
@@ -838,12 +844,13 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
       </div>
     </Modal>
     
-    {/* Modal "Em Breve" */}
-    <ComingSoonModal
-      isOpen={showComingSoonModal}
-      onClose={() => setShowComingSoonModal(false)}
-      scheduleData={pendingScheduleData}
-      instructor={instructor}
+    {/* Modal de Confirmação */}
+    <ScheduleConfirmationModal
+      isOpen={showConfirmationModal}
+      onClose={() => {
+        setShowConfirmationModal(false);
+        setPendingScheduleData(null);
+      }}
     />
     </>
   );

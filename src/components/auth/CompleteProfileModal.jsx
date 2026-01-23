@@ -157,7 +157,7 @@ const CompleteProfileModal = ({ isOpen, onComplete, userType = 'student' }) => {
       const completeProfileData = {
         name: profileData.name,
         phone: profileData.phone,
-        photo_url: photoUrl || '/imgs/users/image.png', // Use photo_url for Supabase
+        photo_url: photoUrl || null, // Use photo_url for Supabase - null se não houver foto
       };
 
       // Add instructor-specific fields

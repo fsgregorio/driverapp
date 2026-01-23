@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
-import { trackButtonClick, trackNavigation, trackingEvents } from '../../../utils/trackingUtils';
+import { isValidPhoto, getPhotoUrl } from '../../../utils/photoUtils';
 
 const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass }) => {
   const navigate = useNavigate();
-  const { user, logout, userType } = useAuth();
+  const { user, logout, userType, isAuthenticatedAs } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // Verificar se o usuário ATIVO é admin, não apenas se há sessão admin
+  const isAdmin = userType === 'admin';
 
   // Bloquear scroll do body quando menu mobile estiver aberto
   useEffect(() => {
@@ -33,46 +35,25 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
     // Salvar o tipo de usuário antes do logout (pois será limpo)
     const currentUserType = userType;
     
-    const eventName = currentUserType === 'student' 
-      ? trackingEvents.DASHBOARD_ALUNO_LOGOUT 
-      : trackingEvents.DASHBOARD_INSTRUTOR_LOGOUT;
-    
-    trackButtonClick(eventName, 'Sair', {
-      user_type: currentUserType,
-      page: `dashboard_${currentUserType}`
-    });
-    
     try {
-      // Fazer logout
-      await logout();
+      // Fazer logout apenas do tipo específico (não desloga outros tipos)
+      await logout(currentUserType);
       
       // Aguardar um pouco para garantir que o estado foi atualizado
       await new Promise(resolve => setTimeout(resolve, 200));
       
       // Redirecionar para tela de login com o tipo de usuário
-      const loginType = currentUserType === 'student' ? 'student' : 'instructor';
+      const loginType = currentUserType === 'student' ? 'student' : currentUserType === 'admin' ? 'admin' : 'instructor';
       navigate(`/login?type=${loginType}`, { replace: true });
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
       // Mesmo com erro, redireciona para a tela de login
-      const loginType = currentUserType === 'student' ? 'student' : 'instructor';
+      const loginType = currentUserType === 'student' ? 'student' : currentUserType === 'admin' ? 'admin' : 'instructor';
       navigate(`/login?type=${loginType}`, { replace: true });
     }
   };
 
   const handleSectionChange = (sectionId) => {
-    const eventName = userType === 'student' 
-      ? trackingEvents.DASHBOARD_ALUNO_SECTION_CHANGE 
-      : trackingEvents.DASHBOARD_INSTRUTOR_SECTION_CHANGE;
-    
-    trackButtonClick(eventName, sectionId, {
-      user_type: userType,
-      page: `dashboard_${userType}`,
-      section: 'navbar',
-      target_section: sectionId,
-      previous_section: activeSection
-    });
-    
     setIsMenuOpen(false); // Fechar menu mobile ao mudar de seção
     if (onSectionChange) {
       onSectionChange(sectionId);
@@ -80,12 +61,6 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
   };
 
   const handleScheduleNewClassClick = () => {
-    trackButtonClick(trackingEvents.DASHBOARD_ALUNO_SCHEDULE_NEW_CLASS, '+ Agendar Nova Aula', {
-      user_type: userType,
-      page: 'dashboard_aluno',
-      section: 'navbar'
-    });
-    
     if (onScheduleNewClass) {
       onScheduleNewClass();
     } else {
@@ -94,14 +69,12 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
   };
 
   const handleLogoClick = () => {
-    trackNavigation(trackingEvents.NAV_HOME_CLICK, '/', {
-      user_type: userType,
-      from: `dashboard_${userType}`
-    });
     navigate('/');
   };
 
-  const sections = userType === 'student' 
+  const sections = isAdmin
+    ? [] // Admin não tem seções de navegação
+    : userType === 'student' 
     ? [
         { id: 'home', label: 'Início' },
         { id: 'classes', label: 'Aulas' },
@@ -126,7 +99,7 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
                 onClick={handleLogoClick}
               >
                 <img 
-                  src="/imgs/logo/iDrive.png" 
+                  src="/imgs/logo/idrive.png" 
                   alt="iDrive Logo" 
                   className="h-11 w-auto"
                 />
@@ -139,28 +112,30 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
               onClick={handleLogoClick}
             >
               <img 
-                src="/imgs/logo/iDrive.png" 
+                src="/imgs/logo/idrive.png" 
                 alt="iDrive Logo" 
                 className="h-9 sm:h-11 md:h-12 w-auto"
               />
             </div>
 
-            {/* Navigation Links (Desktop) */}
-            <div className="hidden lg:flex items-center space-x-4 xl:space-x-6 flex-1 ml-8">
-              {sections.map((section) => (
-                <button
-                  key={section.id}
-                  onClick={() => handleSectionChange(section.id)}
-                  className={`px-3 py-2 rounded-lg font-medium transition-colors ${
-                    activeSection === section.id
-                      ? 'bg-primary text-white'
-                      : 'text-gray-700 hover:text-primary hover:bg-gray-50'
-                  }`}
-                >
-                  {section.label}
-                </button>
-              ))}
-            </div>
+            {/* Navigation Links (Desktop) - Oculto para admin */}
+            {!isAdmin && (
+              <div className="hidden lg:flex items-center space-x-4 xl:space-x-6 flex-1 ml-8">
+                {sections.map((section) => (
+                  <button
+                    key={section.id}
+                    onClick={() => handleSectionChange(section.id)}
+                    className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                      activeSection === section.id
+                        ? 'bg-primary text-white'
+                        : 'text-gray-700 hover:text-primary hover:bg-gray-50'
+                    }`}
+                  >
+                    {section.label}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Lado Direito - User Menu (Desktop) ou Mobile Menu Button */}
             <div className="flex items-center lg:flex-shrink-0 justify-end">
@@ -178,13 +153,25 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
                 {/* User Info com Foto e Nome */}
                 <div className="hidden xl:flex items-center space-x-3">
                   <img
-                    src={user?.photo || '/imgs/users/image.png'}
+                    src={getPhotoUrl(user?.photo)}
                     alt={user?.name || 'Usuário'}
                     className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
                     onError={(e) => {
-                      e.target.src = '/imgs/users/image.png';
+                      // Se a foto padrão também falhar, mostrar ícone SVG
+                      if (e.target.src.includes('no_user.png')) {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      } else {
+                        // Se a foto do usuário falhar, tentar a padrão
+                        e.target.src = '/imgs/users/no_user.png';
+                      }
                     }}
                   />
+                  <div className="w-10 h-10 rounded-full bg-gray-200 border-2 border-gray-300 flex items-center justify-center hidden">
+                    <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
                   <span className="text-sm font-medium text-gray-700">
                     {user?.name}
                   </span>
@@ -197,27 +184,39 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
                 </button>
               </div>
 
-              {/* Mobile Menu Button */}
-              <button
-                className="lg:hidden text-gray-700 z-20 relative"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                aria-label="Toggle menu"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  {isMenuOpen ? (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  ) : (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  )}
-                </svg>
-              </button>
+              {/* Mobile Menu Button - Oculto para admin */}
+              {!isAdmin && (
+                <button
+                  className="lg:hidden text-gray-700 z-20 relative"
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  aria-label="Toggle menu"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {isMenuOpen ? (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    ) : (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    )}
+                  </svg>
+                </button>
+              )}
+              
+              {/* Botão Sair para Admin Mobile - Mostrar sempre visível */}
+              {userType === 'admin' && (
+                <button
+                  onClick={(e) => handleLogout(e)}
+                  className="lg:hidden text-gray-600 hover:text-primary transition-colors text-sm font-medium px-3 py-2"
+                >
+                  Sair
+                </button>
+              )}
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Mobile Menu Overlay */}
-      {isMenuOpen && (
+      {/* Mobile Menu Overlay - Oculto para admin */}
+      {isMenuOpen && !isAdmin && (
         <>
           {/* Backdrop */}
           <div 
@@ -235,7 +234,7 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
                   onClick={handleLogoClick}
                 >
                   <img 
-                    src="/imgs/logo/iDrive.png" 
+                    src="/imgs/logo/idrive.png" 
                     alt="iDrive Logo" 
                     className="h-9 w-auto"
                   />
@@ -264,34 +263,48 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
                 </button>
               )}
 
-              {/* Navigation Links Mobile */}
-              <div className="space-y-2 mb-6">
-                {sections.map((section) => (
-                  <button
-                    key={section.id}
-                    onClick={() => handleSectionChange(section.id)}
-                    className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-colors ${
-                      activeSection === section.id
-                        ? 'bg-primary text-white'
-                        : 'text-gray-700 hover:text-primary hover:bg-gray-50'
-                    }`}
-                  >
-                    {section.label}
-                  </button>
-                ))}
-              </div>
+              {/* Navigation Links Mobile - Oculto para admin */}
+              {!isAdmin && (
+                <div className="space-y-2 mb-6">
+                  {sections.map((section) => (
+                    <button
+                      key={section.id}
+                      onClick={() => handleSectionChange(section.id)}
+                      className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-colors ${
+                        activeSection === section.id
+                          ? 'bg-primary text-white'
+                          : 'text-gray-700 hover:text-primary hover:bg-gray-50'
+                      }`}
+                    >
+                      {section.label}
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {/* User Info e Logout */}
               <div className="border-t border-gray-200 pt-6">
                 <div className="flex items-center space-x-3 px-4 py-3 mb-4">
                   <img
-                    src={user?.photo || '/imgs/users/image.png'}
+                    src={getPhotoUrl(user?.photo)}
                     alt={user?.name || 'Usuário'}
                     className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
                     onError={(e) => {
-                      e.target.src = '/imgs/users/image.png';
+                      // Se a foto padrão também falhar, mostrar ícone SVG
+                      if (e.target.src.includes('no_user.png')) {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      } else {
+                        // Se a foto do usuário falhar, tentar a padrão
+                        e.target.src = '/imgs/users/no_user.png';
+                      }
                     }}
                   />
+                  <div className="w-12 h-12 rounded-full bg-gray-200 border-2 border-gray-300 flex items-center justify-center hidden">
+                    <svg className="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
                   <span className="text-sm font-medium text-gray-700">
                     {user?.name}
                   </span>

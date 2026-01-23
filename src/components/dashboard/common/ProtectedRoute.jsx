@@ -1,9 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 
 const ProtectedRoute = ({ children, requiredUserType }) => {
-  const { isAuthenticated, userType, loading } = useAuth();
+  const { isAuthenticated, userType, loading, isAuthenticatedAs, setActiveUser } = useAuth();
+
+  // Quando acessar uma rota protegida, ativar o usuário do tipo requerido se existir
+  useEffect(() => {
+    if (!loading && requiredUserType && isAuthenticatedAs(requiredUserType)) {
+      setActiveUser(requiredUserType);
+    }
+  }, [loading, requiredUserType, isAuthenticatedAs, setActiveUser]);
 
   if (loading) {
     return (
@@ -13,29 +20,25 @@ const ProtectedRoute = ({ children, requiredUserType }) => {
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
+  // Verificar se há sessão ativa do tipo requerido
+  const hasRequiredSession = requiredUserType ? isAuthenticatedAs(requiredUserType) : isAuthenticated;
+
+  if (!hasRequiredSession) {
+    // Se não tem sessão do tipo requerido, redirecionar para login
+    if (requiredUserType === 'admin') {
+      return <Navigate to="/dashboard/admin" replace />;
+    }
+    return <Navigate to={`/login?type=${requiredUserType || 'student'}`} replace />;
   }
 
-  if (requiredUserType && userType !== requiredUserType) {
-    // Se a rota exigir admin e o usuário não for admin,
-    // redirecionar para o dashboard correspondente ao tipo atual
-    if (requiredUserType === 'admin') {
-      if (userType === 'student') {
-        return <Navigate to="/dashboard/aluno" replace />;
-      }
-      if (userType === 'instructor') {
-        return <Navigate to="/dashboard/instrutor" replace />;
-      }
-      // Se o tipo não for reconhecido, volta para home
-      return <Navigate to="/" replace />;
-    }
-
+  // Se tem sessão mas o userType não corresponde, atualizar o usuário ativo
+  if (requiredUserType && userType !== requiredUserType && isAuthenticatedAs(requiredUserType)) {
+    setActiveUser(requiredUserType);
+    // Retornar loading enquanto atualiza
     return (
-      <Navigate
-        to={`/dashboard/${requiredUserType === 'student' ? 'aluno' : 'instrutor'}`}
-        replace
-      />
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
     );
   }
 

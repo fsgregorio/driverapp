@@ -18,15 +18,15 @@ const FAQ = () => {
     },
     {
       question: "Quais os tipos de aula posso fazer?",
-      answer: "Oferecemos diversos tipos de aulas práticas para habilitados, incluindo: baliza e estacionamento, controle de embreagem, rodovia e estradas, manobras em trânsito, direção defensiva, e muito mais. Cada instrutor pode oferecer diferentes tipos de aula, então você pode escolher o que melhor atende às suas necessidades."
+      answer: "Oferecemos aulas práticas completas para primeira habilitação, incluindo: primeiros passos, controle de embreagem, baliza e estacionamento, rodovia e estradas, manobras em trânsito, direção defensiva, e preparação para o exame do Detran. Cada instrutor pode oferecer diferentes tipos de aula, então você pode escolher o que melhor atende às suas necessidades de aprendizado."
     },
     {
-      question: "Como funcionam os pacotes de aulas?",
-      answer: "Muitos instrutores oferecem pacotes de aulas com valores mais vantajosos. Os pacotes podem incluir múltiplas aulas do mesmo tipo ou uma combinação de diferentes tipos de aula. Os valores e condições variam de acordo com cada instrutor e estão disponíveis no perfil de cada um. Você pode comparar pacotes e escolher o que melhor se adequa ao seu orçamento e necessidades."
+      question: "Quantas aulas preciso fazer para tirar a carteira?",
+      answer: "O número de aulas necessárias varia de acordo com seu aprendizado e confiança ao volante. Muitos instrutores oferecem pacotes de aulas com valores mais vantajosos para o curso completo de primeira habilitação. Os pacotes podem incluir todas as aulas necessárias até você estar pronto para o exame do Detran. Os valores e condições variam de acordo com cada instrutor e estão disponíveis no perfil de cada um. Você pode comparar pacotes e escolher o que melhor se adequa ao seu orçamento e necessidades."
     },
     {
-      question: "Os instrutores são independentes ou vinculados a autoescolas?",
-      answer: "Nossa plataforma conecta alunos com instrutores independentes certificados. Isso permite maior flexibilidade, preços mais competitivos e liberdade de escolha tanto para alunos quanto para instrutores."
+      question: "Preciso fazer a parte teórica também?",
+      answer: "Nossa plataforma conecta você com instrutores profissionais para as aulas práticas. A parte teórica (curso teórico e exame teórico) geralmente é feita através de autoescolas ou cursos online credenciados pelo Detran. Nossos instrutores podem te orientar sobre esse processo e focar nas aulas práticas que são essenciais para você passar no exame prático do Detran."
     }
   ];
 

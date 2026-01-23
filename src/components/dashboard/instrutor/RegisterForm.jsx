@@ -58,18 +58,22 @@ const RegisterForm = ({ onSuccess }) => {
     setIsSubmitting(true);
 
     try {
-      // TODO: Substituir por chamada de API real
+      console.log('[RegisterForm] Starting registration for instructor...');
       // Criar conta apenas com email e senha - perfil será completado depois
       await register({
         email: formData.email,
         password: formData.password
       }, 'instructor');
 
+      console.log('[RegisterForm] Registration successful for instructor');
+
       if (onSuccess) {
         onSuccess();
       }
     } catch (error) {
-      setErrors({ submit: 'Erro ao cadastrar. Tente novamente.' });
+      console.error('[RegisterForm] Registration error:', error);
+      const errorMessage = error.message || 'Erro ao cadastrar. Tente novamente.';
+      setErrors({ submit: errorMessage });
     } finally {
       setIsSubmitting(false);
     }

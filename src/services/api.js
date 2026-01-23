@@ -1,5 +1,5 @@
 // API Service - Integração com Supabase
-import { supabase } from './supabase';
+import { supabase, supabaseStudent, supabaseInstructor, supabaseAdmin, getSupabaseClient } from './supabase';
 
 // Helper function to transform class data from DB to app format
 const transformClass = (dbClass, instructorProfile = null) => {
@@ -19,7 +19,7 @@ const transformClass = (dbClass, instructorProfile = null) => {
     id: dbClass.id,
     instructorId: dbClass.instructor_id,
     instructorName: instructorProfile?.name || '',
-    instructorPhoto: instructorProfile?.photo_url || '/imgs/instructors/1.png',
+    instructorPhoto: instructorProfile?.photo_url || null,
     date: dbClass.date,
     time: dbClass.time,
     duration: dbClass.duration,
@@ -71,6 +71,36 @@ const transformInstructor = (instructor, profile) => {
   };
 };
 
+// Helper function to get the active Supabase client based on current session
+// If userType is provided, use that specific client. Otherwise, detect from active sessions.
+const getActiveSupabaseClient = async (userType = null) => {
+  // If a specific user type is requested, use that client directly
+  if (userType) {
+    return getSupabaseClient(userType);
+  }
+  
+  // Try to get session from each client, return the one with an active session
+  // Priority: admin > instructor > student (for backwards compatibility)
+  const [studentSession, instructorSession, adminSession] = await Promise.all([
+    supabaseStudent.auth.getSession(),
+    supabaseInstructor.auth.getSession(),
+    supabaseAdmin.auth.getSession()
+  ]);
+
+  if (adminSession.data?.session?.user) {
+    return supabaseAdmin;
+  }
+  if (instructorSession.data?.session?.user) {
+    return supabaseInstructor;
+  }
+  if (studentSession.data?.session?.user) {
+    return supabaseStudent;
+  }
+  
+  // Fallback to default client
+  return supabase;
+};
+
 // Auth API (now handled by AuthContext, but keeping for compatibility)
 export const authAPI = {
   login: async (email, password, userType) => {
@@ -98,7 +128,8 @@ export const authAPI = {
 export const studentsAPI = {
   getClasses: async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const client = await getActiveSupabaseClient('student');
+      const { data: { user } } = await client.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
       console.log('📚 Buscando aulas do aluno:', user.id);
@@ -107,7 +138,7 @@ export const studentsAPI = {
       const cacheBuster = Date.now();
       console.log(`🔄 Cache buster: ${cacheBuster}`);
 
-      const { data: classes, error } = await supabase
+      const { data: classes, error } = await client
         .from('classes')
         .select('*')
         .eq('student_id', user.id)
@@ -135,7 +166,7 @@ export const studentsAPI = {
 
       // Get instructor profiles for each class
       const instructorIds = [...new Set(classes.map(c => c.instructor_id))];
-      const { data: profiles } = await supabase
+      const { data: profiles } = await client
         .from('profiles')
         .select('id, name, photo_url')
         .in('id', instructorIds);
@@ -145,8 +176,16 @@ export const studentsAPI = {
         profileMap[p.id] = p;
       });
 
-      const transformedClasses = classes.map(c => transformClass(c, profileMap[c.instructor_id]));
+      const transformedClasses = classes.map(c => {
+        const transformed = transformClass(c, profileMap[c.instructor_id]);
+        // Verificar se o status foi preservado corretamente
+        if (transformed.status !== c.status) {
+          console.warn(`⚠️ Status alterado na transformação: ${c.status} -> ${transformed.status} (ID: ${c.id})`);
+        }
+        return transformed;
+      });
       console.log(`✅ Total de aulas transformadas: ${transformedClasses.length}`);
+      console.log('📊 Status das aulas transformadas:', transformedClasses.map(c => ({ id: c.id, status: c.status, date: c.date })));
       
       return transformedClasses;
     } catch (error) {
@@ -157,10 +196,11 @@ export const studentsAPI = {
 
   getPendingClasses: async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const client = await getActiveSupabaseClient('student');
+      const { data: { user } } = await client.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      const { data: classes, error } = await supabase
+      const { data: classes, error } = await client
         .from('classes')
         .select('*')
         .eq('student_id', user.id)
@@ -170,7 +210,7 @@ export const studentsAPI = {
       if (error) throw error;
 
       const instructorIds = [...new Set(classes.map(c => c.instructor_id))];
-      const { data: profiles } = await supabase
+      const { data: profiles } = await client
         .from('profiles')
         .select('id, name, photo_url')
         .in('id', instructorIds);
@@ -189,7 +229,8 @@ export const studentsAPI = {
 
   getIndicators: async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const client = await getActiveSupabaseClient('student');
+      const { data: { user } } = await client.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
       console.log('📊 Buscando indicadores do aluno:', user.id);
@@ -198,7 +239,7 @@ export const studentsAPI = {
       const cacheBuster = Date.now();
       console.log(`🔄 Cache buster (indicators): ${cacheBuster}`);
 
-      const { data: classes, error } = await supabase
+      const { data: classes, error } = await client
         .from('classes')
         .select('status, payment_status')
         .eq('student_id', user.id);
@@ -230,7 +271,8 @@ export const studentsAPI = {
 
   scheduleClass: async (classData) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const client = await getActiveSupabaseClient('student');
+      const { data: { user } } = await client.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
       // Validate required fields
@@ -270,7 +312,7 @@ export const studentsAPI = {
               date: dateData.date,
               time: time,
               duration: classData.duration || 60,
-              status: 'agendada',
+              status: 'pendente_aceite',
               price: parseFloat(classData.price) || 0,
               class_types: classTypesArray,
               car: classData.car || '',
@@ -305,7 +347,7 @@ export const studentsAPI = {
           date: classData.date,
           time: classData.time,
           duration: classData.duration || 60,
-          status: 'agendada',
+          status: 'pendente_aceite',
           price: parseFloat(classData.price) || 0,
           class_types: classTypesArray,
           car: classData.car || '',
@@ -319,9 +361,21 @@ export const studentsAPI = {
         throw new Error('No valid classes to create. Please select at least one date and time.');
       }
 
-      console.log('Creating classes:', classesToCreate);
+      console.log('🔵 Creating classes:', classesToCreate.length, 'aulas');
+      console.log('📝 Status das aulas a serem criadas:', classesToCreate.map(c => ({ date: c.date, time: c.time, status: c.status })));
+      
+      // Validar que todas as aulas têm status 'pendente_aceite'
+      const invalidStatuses = classesToCreate.filter(c => c.status !== 'pendente_aceite');
+      if (invalidStatuses.length > 0) {
+        console.error('❌ ERRO CRÍTICO: Algumas aulas têm status incorreto ANTES da inserção:', invalidStatuses);
+        console.error('❌ Status esperado: pendente_aceite');
+        console.error('❌ Status encontrado:', invalidStatuses.map(c => c.status));
+        throw new Error('Erro interno: status das aulas incorreto antes da inserção');
+      }
+      
+      console.log('✅ Validação passou: Todas as aulas têm status pendente_aceite');
 
-      const { data, error } = await supabase
+      const { data, error } = await client
         .from('classes')
         .insert(classesToCreate)
         .select();
@@ -335,8 +389,29 @@ export const studentsAPI = {
         throw new Error('No classes were created');
       }
 
+      console.log('✅ Aulas criadas no banco:', data.length, 'aulas');
+      console.log('📋 Detalhes das aulas criadas:', data.map(c => ({ id: c.id, date: c.date, time: c.time, status: c.status, payment_status: c.payment_status })));
+      
+      // Verificar se o status foi preservado após inserção
+      const wrongStatuses = data.filter(c => c.status !== 'pendente_aceite');
+      if (wrongStatuses.length > 0) {
+        console.error('❌ ERRO CRÍTICO: Status foi alterado após inserção no banco!');
+        console.error('❌ Total de aulas com status incorreto:', wrongStatuses.length);
+        console.error('❌ Detalhes:', wrongStatuses.map(c => ({ 
+          id: c.id, 
+          status_atual: c.status, 
+          status_esperado: 'pendente_aceite',
+          payment_status: c.payment_status,
+          created_at: c.created_at
+        })));
+        console.error('⚠️ Isso indica que há um TRIGGER ou CONSTRAINT no banco alterando o status!');
+        alert('ATENÇÃO: O status da aula foi alterado após a criação. Verifique os logs no console.');
+      } else {
+        console.log('✅ Todas as aulas foram criadas com status pendente_aceite corretamente!');
+      }
+
       // Get instructor profile
-      const { data: profile, error: profileError } = await supabase
+      const { data: profile, error: profileError } = await client
         .from('profiles')
         .select('id, name, photo_url')
         .eq('id', classData.instructorId)
@@ -366,10 +441,13 @@ export const studentsAPI = {
 
   cancelClass: async (classId) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const client = await getActiveSupabaseClient('student');
+      const { data: { user } } = await client.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      const { data, error } = await supabase
+      console.log('🔄 Cancelando aula:', classId, 'do aluno:', user.id);
+
+      const { data, error } = await client
         .from('classes')
         .update({ status: 'cancelada', updated_at: new Date().toISOString() })
         .eq('id', classId)
@@ -377,7 +455,12 @@ export const studentsAPI = {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro ao cancelar aula no banco:', error);
+        throw error;
+      }
+
+      console.log('✅ Aula cancelada no banco:', { id: data.id, status: data.status });
       return transformClass(data);
     } catch (error) {
       console.error('Error canceling class:', error);
@@ -387,8 +470,11 @@ export const studentsAPI = {
 
   rescheduleClass: async (classId, newData) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const client = await getActiveSupabaseClient('student');
+      const { data: { user } } = await client.auth.getUser();
       if (!user) throw new Error('User not authenticated');
+
+      console.log('🔄 Reagendando aula:', classId, 'com novos dados:', newData);
 
       const updateData = {
         updated_at: new Date().toISOString(),
@@ -397,7 +483,7 @@ export const studentsAPI = {
       if (newData.date) updateData.date = newData.date;
       if (newData.time) updateData.time = newData.time;
 
-      const { data, error } = await supabase
+      const { data, error } = await client
         .from('classes')
         .update(updateData)
         .eq('id', classId)
@@ -405,7 +491,12 @@ export const studentsAPI = {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro ao reagendar aula no banco:', error);
+        throw error;
+      }
+
+      console.log('✅ Aula reagendada no banco:', { id: data.id, date: data.date, time: data.time });
       return transformClass(data);
     } catch (error) {
       console.error('Error rescheduling class:', error);
@@ -415,10 +506,11 @@ export const studentsAPI = {
 
   payClass: async (classId, paymentMethod) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const client = await getActiveSupabaseClient('student');
+      const { data: { user } } = await client.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      const { data, error } = await supabase
+      const { data, error } = await client
         .from('classes')
         .update({ 
           payment_status: 'pago',
@@ -439,11 +531,12 @@ export const studentsAPI = {
 
   evaluateClass: async (classId, rating, review) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const client = await getActiveSupabaseClient('student');
+      const { data: { user } } = await client.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
       // Atualizar a aula com a avaliação e mudar status para concluída
-      const { data: classData, error: classError } = await supabase
+      const { data: classData, error: classError } = await client
         .from('classes')
         .update({ 
           rating: rating,
@@ -461,7 +554,7 @@ export const studentsAPI = {
       // Atualizar a avaliação média do instrutor
       if (classData && classData.instructor_id) {
         // Buscar todas as avaliações do instrutor
-        const { data: allClasses, error: classesError } = await supabase
+        const { data: allClasses, error: classesError } = await client
           .from('classes')
           .select('rating')
           .eq('instructor_id', classData.instructor_id)
@@ -475,7 +568,7 @@ export const studentsAPI = {
           const totalReviews = allClasses.length;
 
           // Atualizar avaliação do instrutor
-          await supabase
+          await client
             .from('instructors')
             .update({
               rating: parseFloat(averageRating.toFixed(1)),
@@ -497,14 +590,17 @@ export const studentsAPI = {
     try {
       console.log('🔍 Buscando instrutores com filtros:', filters);
       
+      // Para buscar instrutores, pode ser chamado por qualquer tipo de usuário
+      // Mas vamos usar o cliente do aluno se ele estiver logado, senão tenta detectar
+      const client = await getActiveSupabaseClient('student');
       // Verificar autenticação atual
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await client.auth.getUser();
       console.log('👤 Usuário autenticado:', user ? user.id : 'Não autenticado');
       
       // First, get all available instructors
       // Usando '*' para buscar todos os campos disponíveis (mais tolerante a campos que podem não existir)
       // Adicionar timestamp para evitar cache do Supabase
-      let query = supabase
+      let query = client
         .from('instructors')
         .select('*')
         .eq('available', true)
@@ -557,7 +653,7 @@ export const studentsAPI = {
         // Se o erro for sobre campos que não existem, tentar sem os campos novos
         if (instructorsError.message && instructorsError.message.includes('column')) {
           console.warn('⚠️ Tentando buscar sem campos novos...');
-          const fallbackQuery = supabase
+          const fallbackQuery = client
             .from('instructors')
             .select('id, rating, total_reviews, total_classes, price_per_class, location, availability, description, available')
             .eq('available', true);
@@ -572,7 +668,7 @@ export const studentsAPI = {
           }
           // Continuar com fallbackData
           const instructorIds = fallbackData.map(i => i.id);
-          const { data: profiles } = await supabase
+          const { data: profiles } = await client
             .from('profiles')
             .select('*')
             .in('id', instructorIds)
@@ -600,7 +696,7 @@ export const studentsAPI = {
         console.warn('⚠️ No instructors found in database (available = true)');
         // Verificar se há instrutores mas não estão disponíveis
         console.log('🔍 Verificando se há instrutores no banco...');
-        const { data: allInstructors, error: checkError } = await supabase
+        const { data: allInstructors, error: checkError } = await client
           .from('instructors')
           .select('id, available, price_per_class')
           .limit(10);
@@ -623,7 +719,7 @@ export const studentsAPI = {
       // Fetch profiles for these instructors
       // Usando '*' para buscar todos os campos disponíveis (mais tolerante a campos que podem não existir)
       console.log('🔍 Buscando perfis para', instructorIds.length, 'instrutores...');
-      const { data: profiles, error: profilesError } = await supabase
+      const { data: profiles, error: profilesError } = await client
         .from('profiles')
         .select('*')
         .in('id', instructorIds)
@@ -727,7 +823,8 @@ export const studentsAPI = {
 
   updateProfile: async (profileData) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const client = await getActiveSupabaseClient('student');
+      const { data: { user } } = await client.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
       const updateData = {
@@ -737,7 +834,7 @@ export const studentsAPI = {
         updated_at: new Date().toISOString(),
       };
 
-      const { data, error } = await supabase
+      const { data, error } = await client
         .from('profiles')
         .update(updateData)
         .eq('id', user.id)
@@ -759,7 +856,9 @@ export const studentsAPI = {
 
   changePassword: async (currentPassword, newPassword) => {
     try {
-      const { error } = await supabase.auth.updateUser({
+      // Para mudança de senha, detecta o tipo do usuário atual
+      const client = await getActiveSupabaseClient();
+      const { error } = await client.auth.updateUser({
         password: newPassword,
       });
 
@@ -776,10 +875,11 @@ export const studentsAPI = {
 export const instructorsAPI = {
   getClasses: async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const client = await getActiveSupabaseClient('instructor');
+      const { data: { user } } = await client.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      const { data: classes, error } = await supabase
+      const { data: classes, error } = await client
         .from('classes')
         .select('*')
         .eq('instructor_id', user.id)
@@ -790,7 +890,7 @@ export const instructorsAPI = {
 
       // Get student profiles
       const studentIds = [...new Set(classes.map(c => c.student_id))];
-      const { data: profiles } = await supabase
+      const { data: profiles } = await client
         .from('profiles')
         .select('id, name, photo_url')
         .in('id', studentIds);
@@ -803,7 +903,7 @@ export const instructorsAPI = {
       return classes.map(c => ({
         ...transformClass(c),
         studentName: profileMap[c.student_id]?.name || '',
-        studentPhoto: profileMap[c.student_id]?.photo_url || '/imgs/users/image.png',
+        studentPhoto: profileMap[c.student_id]?.photo_url || null,
       }));
     } catch (error) {
       console.error('Error fetching instructor classes:', error);
@@ -813,18 +913,29 @@ export const instructorsAPI = {
 
   confirmClass: async (classId) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const client = await getActiveSupabaseClient('instructor');
+      const { data: { user } } = await client.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      const { data, error } = await supabase
+      console.log('🔄 Instrutor aceitando aula:', classId);
+
+      const { data, error } = await client
         .from('classes')
-        .update({ status: 'confirmada', updated_at: new Date().toISOString() })
+        .update({ 
+          status: 'pendente_pagamento', 
+          updated_at: new Date().toISOString() 
+        })
         .eq('id', classId)
         .eq('instructor_id', user.id)
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro ao aceitar aula no banco:', error);
+        throw error;
+      }
+
+      console.log('✅ Aula aceita pelo instrutor, status alterado para pendente_pagamento:', { id: data.id, status: data.status });
       return transformClass(data);
     } catch (error) {
       console.error('Error confirming class:', error);
@@ -834,10 +945,11 @@ export const instructorsAPI = {
 
   rejectClass: async (classId) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const client = await getActiveSupabaseClient('instructor');
+      const { data: { user } } = await client.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      const { data, error } = await supabase
+      const { data, error } = await client
         .from('classes')
         .update({ status: 'cancelada', updated_at: new Date().toISOString() })
         .eq('id', classId)
@@ -855,7 +967,8 @@ export const instructorsAPI = {
 
   getIndicators: async (period = 'month') => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const client = await getActiveSupabaseClient('instructor');
+      const { data: { user } } = await client.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
       // Calculate date range based on period
@@ -869,7 +982,7 @@ export const instructorsAPI = {
         startDate = new Date(now.getFullYear(), 0, 1); // Year
       }
 
-      const { data: classes } = await supabase
+      const { data: classes } = await client
         .from('classes')
         .select('status, price, payment_status, date')
         .eq('instructor_id', user.id)
@@ -897,7 +1010,8 @@ export const instructorsAPI = {
 
   getTransactions: async (period = 'month') => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const client = await getActiveSupabaseClient('instructor');
+      const { data: { user } } = await client.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
       // Calculate date range
@@ -911,7 +1025,7 @@ export const instructorsAPI = {
         startDate = new Date(now.getFullYear(), 0, 1);
       }
 
-      const { data: classes, error } = await supabase
+      const { data: classes, error } = await client
         .from('classes')
         .select('id, date, price, payment_status, status')
         .eq('instructor_id', user.id)
@@ -948,8 +1062,9 @@ export const adminAPI = {
    */
   getIndicators: async (period = 'all') => {
     try {
+      const client = await getActiveSupabaseClient('admin');
       // Garantir que o usuário está autenticado (e em RLS você pode proteger por user_type = 'admin')
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await client.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
       // Filtro de data opcional para classes (atividade e pagamentos)
@@ -965,9 +1080,9 @@ export const adminAPI = {
       }
 
       // 1) Total de alunos
-      const { data: studentsCountData, error: studentsCountError } = await supabase
+      const { count: totalStudents, error: studentsCountError } = await client
         .from('profiles')
-        .select('id', { count: 'exact', head: true })
+        .select('*', { count: 'exact', head: true })
         .eq('user_type', 'student');
 
       if (studentsCountError) {
@@ -975,12 +1090,10 @@ export const adminAPI = {
         throw studentsCountError;
       }
 
-      const totalStudents = studentsCountData ? studentsCountData.length : 0;
-
       // 2) Total de instrutores
-      const { data: instructorsCountData, error: instructorsCountError } = await supabase
+      const { count: totalInstructors, error: instructorsCountError } = await client
         .from('profiles')
-        .select('id', { count: 'exact', head: true })
+        .select('*', { count: 'exact', head: true })
         .eq('user_type', 'instructor');
 
       if (instructorsCountError) {
@@ -988,10 +1101,8 @@ export const adminAPI = {
         throw instructorsCountError;
       }
 
-      const totalInstructors = instructorsCountData ? instructorsCountData.length : 0;
-
       // 3) Buscar aulas para calcular alunos/instrutores ativos e total pago
-      let classesQuery = supabase
+      let classesQuery = client
         .from('classes')
         .select('student_id, instructor_id, status, payment_status, price, date');
 
@@ -1029,9 +1140,9 @@ export const adminAPI = {
       });
 
       return {
-        totalStudents,
+        totalStudents: totalStudents || 0,
         activeStudents: activeStudentsSet.size,
-        totalInstructors,
+        totalInstructors: totalInstructors || 0,
         activeInstructors: activeInstructorsSet.size,
         totalPaid,
       };
@@ -1047,7 +1158,8 @@ export const adminAPI = {
    */
   getFunnelMetrics: async (period = 'all') => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const client = await getActiveSupabaseClient('admin');
+      const { data: { user } } = await client.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
       const now = new Date();
@@ -1061,7 +1173,7 @@ export const adminAPI = {
         startTimestamp = new Date(now.getFullYear(), now.getMonth(), 1);
       }
 
-      let eventsQuery = supabase
+      let eventsQuery = client
         .from('events')
         .select('user_id, event_name, user_type, timestamp')
         .eq('user_type', 'student');
@@ -1097,6 +1209,439 @@ export const adminAPI = {
       };
     } catch (error) {
       console.error('Error fetching admin funnel metrics:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Aceita uma aula (muda status de pendente_aceite para pendente_pagamento)
+   * @param {string} classId - ID da aula a ser aceita
+   * @returns {Promise<Object>} Aula atualizada
+   */
+  acceptClass: async (classId) => {
+    try {
+      const client = await getActiveSupabaseClient('admin');
+      const { data: { user } } = await client.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      console.log('🔄 Admin aceitando aula:', classId);
+
+      const { data, error } = await client
+        .from('classes')
+        .update({ 
+          status: 'pendente_pagamento', 
+          updated_at: new Date().toISOString() 
+        })
+        .eq('id', classId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Erro ao aceitar aula no banco (admin):', error);
+        throw error;
+      }
+
+      console.log('✅ Aula aceita pelo admin, status alterado para pendente_pagamento:', { id: data.id, status: data.status });
+      
+      // Transformar a aula para o formato esperado
+      const { data: instructorProfile } = await client
+        .from('profiles')
+        .select('id, name, photo_url')
+        .eq('id', data.instructor_id)
+        .single();
+
+      return transformClass(data, instructorProfile);
+    } catch (error) {
+      console.error('Error accepting class (admin):', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Busca eventos da plataforma com paginação e filtros
+   * @param {Object} options - Opções de busca
+   * @param {string} options.period - Período: 'all' | '7d' | '30d' | 'month'
+   * @param {number} options.page - Página atual
+   * @param {number} options.limit - Limite de resultados por página
+   * @param {string} options.eventName - Filtrar por nome do evento
+   * @param {string} options.userType - Filtrar por tipo de usuário
+   * @returns {Promise<Object>} { events: Array, total: number }
+   */
+  getEvents: async ({ period = 'all', page = 1, limit = 50, eventName, userType } = {}) => {
+    try {
+      const client = await getActiveSupabaseClient('admin');
+      const { data: { user } } = await client.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const now = new Date();
+      let startTimestamp = null;
+
+      if (period === '7d') {
+        startTimestamp = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      } else if (period === '30d') {
+        startTimestamp = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      } else if (period === 'month') {
+        startTimestamp = new Date(now.getFullYear(), now.getMonth(), 1);
+      }
+
+      // Query base
+      let eventsQuery = client
+        .from('events')
+        .select('*', { count: 'exact' });
+
+      // Aplicar filtros
+      if (startTimestamp) {
+        eventsQuery = eventsQuery.gte('timestamp', startTimestamp.toISOString());
+      }
+
+      if (eventName) {
+        eventsQuery = eventsQuery.ilike('event_name', `%${eventName}%`);
+      }
+
+      if (userType) {
+        eventsQuery = eventsQuery.eq('user_type', userType);
+      }
+
+      // Ordenar por timestamp descendente (mais recentes primeiro)
+      eventsQuery = eventsQuery.order('timestamp', { ascending: false });
+
+      // Paginação
+      const from = (page - 1) * limit;
+      const to = from + limit - 1;
+      eventsQuery = eventsQuery.range(from, to);
+
+      const { data: events, error, count } = await eventsQuery;
+
+      if (error) {
+        console.error('❌ Erro ao buscar eventos:', error);
+        throw error;
+      }
+
+      return {
+        events: events || [],
+        total: count || 0,
+      };
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Busca todas as aulas da plataforma com paginação e filtros
+   * @param {Object} options - Opções de busca
+   * @param {string} options.period - Período: 'all' | '7d' | '30d' | 'month'
+   * @param {number} options.page - Página atual
+   * @param {number} options.limit - Limite de resultados por página
+   * @param {string} options.status - Filtrar por status
+   * @returns {Promise<Object>} { classes: Array, total: number }
+   */
+  getAllClasses: async ({ period = 'all', page = 1, limit = 20, status, sortBy = 'statusDate', sortOrder = 'desc' } = {}) => {
+    try {
+      const client = await getActiveSupabaseClient('admin');
+      const { data: { user } } = await client.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      console.log('📚 Admin buscando todas as aulas:', { period, page, limit, status });
+
+      const now = new Date();
+      let startDateFilter = null;
+
+      if (period === '7d') {
+        startDateFilter = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      } else if (period === '30d') {
+        startDateFilter = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      } else if (period === 'month') {
+        startDateFilter = new Date(now.getFullYear(), now.getMonth(), 1);
+      }
+
+      // Query base - buscar TODAS as aulas
+      // IMPORTANTE: Não aplicar nenhum filtro de student_id ou instructor_id para admin ver todas
+      // Tentar primeiro com JOIN, se falhar, buscar separadamente
+      let classesQuery = client
+        .from('classes')
+        .select('*', { count: 'exact' });
+
+      // Aplicar filtros apenas se não for 'all'
+      if (period !== 'all' && startDateFilter) {
+        const isoDate = startDateFilter.toISOString().split('T')[0];
+        classesQuery = classesQuery.gte('date', isoDate);
+        console.log('📅 Aplicando filtro de data:', isoDate);
+      } else {
+        console.log('📅 Sem filtro de data - buscando TODAS as aulas');
+      }
+
+      if (status) {
+        classesQuery = classesQuery.eq('status', status);
+        console.log('🔍 Aplicando filtro de status:', status);
+      } else {
+        console.log('🔍 Sem filtro de status - buscando todos os status');
+      }
+
+      // Ordenar por padrão por updated_at/created_at (statusDate) em ordem descendente
+      // A ordenação detalhada será feita no frontend para maior flexibilidade
+      const ascending = sortOrder === 'asc';
+      
+      // Ordenação base para garantir ordem consistente na paginação
+      // Por padrão, ordenar por updated_at desc, depois created_at desc
+      classesQuery = classesQuery.order('updated_at', { ascending: false, nullsFirst: false });
+      classesQuery = classesQuery.order('created_at', { ascending: false });
+      classesQuery = classesQuery.order('date', { ascending: false });
+      classesQuery = classesQuery.order('time', { ascending: false });
+
+      // Paginação
+      const from = (page - 1) * limit;
+      const to = from + limit - 1;
+      classesQuery = classesQuery.range(from, to);
+
+      console.log('🔍 Executando query de aulas...', { from, to, limit });
+      console.log('👤 Usuário admin autenticado:', user.id);
+      
+      const { data: classes, error, count } = await classesQuery;
+
+      if (error) {
+        console.error('❌ Erro ao buscar aulas:', error);
+        throw error;
+      }
+
+      console.log(`✅ Total de aulas encontradas: ${count || 0}, retornando ${classes?.length || 0} para esta página`);
+      
+      if (classes && classes.length > 0) {
+        // Verificar se os perfis vieram no JOIN
+        const firstClass = classes[0];
+        console.log('📋 Estrutura da primeira aula:', {
+          hasStudentProfile: !!firstClass.student_profile,
+          hasInstructorProfile: !!firstClass.instructor_profile,
+          studentProfile: firstClass.student_profile,
+          instructorProfile: firstClass.instructor_profile
+        });
+      } else {
+        console.warn('⚠️ Nenhuma aula retornada pela query!');
+      }
+
+      // Buscar perfis de alunos e instrutores separadamente
+      // Coletar todos os IDs únicos primeiro
+      const studentIds = [...new Set((classes || []).map(c => c.student_id).filter(Boolean))];
+      const instructorIds = [...new Set((classes || []).map(c => c.instructor_id).filter(Boolean))];
+      const allUserIds = [...studentIds, ...instructorIds];
+
+      console.log('👥 Buscando perfis:', { 
+        studentIds: studentIds.length, 
+        instructorIds: instructorIds.length,
+        total: allUserIds.length 
+      });
+      
+      // Log dos IDs que estamos buscando
+      if (studentIds.length > 0) {
+        console.log('📋 Primeiros IDs dos alunos:', studentIds.slice(0, 3).map(id => id));
+      }
+
+      // Buscar perfis - incluir email se disponível na tabela profiles
+      let profiles = [];
+      let profileMap = {};
+      
+      if (allUserIds.length > 0) {
+        console.log('🔍 Executando query de perfis...');
+        const { data: profilesData, error: profilesError } = await client
+          .from('profiles')
+          .select('id, name, photo_url, user_type, email')
+          .in('id', allUserIds);
+
+        if (profilesError) {
+          console.error('❌ Erro ao buscar perfis:', profilesError);
+          console.error('   Código:', profilesError.code);
+          console.error('   Mensagem:', profilesError.message);
+          console.error('   Detalhes:', profilesError.details);
+          console.error('   Hint:', profilesError.hint);
+        } else {
+          profiles = profilesData || [];
+          console.log(`✅ Perfis retornados: ${profiles.length} de ${allUserIds.length} solicitados`);
+          
+          // Criar map de perfis usando o ID completo como chave
+          profiles.forEach(p => {
+            if (p && p.id) {
+              profileMap[p.id] = p;
+              console.log(`📝 Perfil mapeado: ${p.id} -> "${p.name || 'SEM NOME'}" (tipo: ${p.user_type || 'N/A'})`);
+            }
+          });
+          
+          // Verificar correspondência
+          console.log('🔍 Verificando correspondência de IDs...');
+          const sampleClasses = classes?.slice(0, 3) || [];
+          sampleClasses.forEach(c => {
+            const studentFound = !!profileMap[c.student_id];
+            const instructorFound = !!profileMap[c.instructor_id];
+            console.log(`   Aula ${c.id?.substring(0, 8)}:`, {
+              student_id: c.student_id,
+              studentFound,
+              studentName: profileMap[c.student_id]?.name || 'NÃO ENCONTRADO',
+              instructor_id: c.instructor_id,
+              instructorFound,
+              instructorName: profileMap[c.instructor_id]?.name || 'NÃO ENCONTRADO'
+            });
+          });
+        }
+      }
+
+      // Criar map de emails a partir dos perfis (se email estiver na tabela profiles)
+      const emailMap = {};
+      profiles.forEach(p => {
+        if (p.email) {
+          emailMap[p.id] = p.email;
+        }
+      });
+      
+      // Se ainda faltarem emails, buscar através da função SQL get_user_emails
+      const missingEmailIds = studentIds.filter(id => !emailMap[id]);
+      
+      if (missingEmailIds.length > 0) {
+        console.log(`📧 Buscando emails de ${missingEmailIds.length} alunos que não têm email no perfil...`);
+        
+        try {
+          // Chamar a função SQL get_user_emails apenas para os que faltam
+          const { data: emails, error: emailsError } = await client
+            .rpc('get_user_emails', { user_ids: missingEmailIds });
+          
+          if (emailsError) {
+            console.warn('⚠️ Erro ao buscar emails via função:', emailsError);
+            console.warn('   Código:', emailsError.code);
+            console.warn('   Mensagem:', emailsError.message);
+            console.warn('   Detalhes:', emailsError.details);
+            console.warn('   Dica: Execute o script create_user_emails_view.sql no Supabase');
+          } else if (emails) {
+            emails.forEach(e => {
+              if (e && e.id) {
+                emailMap[e.id] = e.email;
+              }
+            });
+            console.log(`✅ Emails encontrados via função: ${emails.length}`);
+          }
+        } catch (emailError) {
+          console.warn('⚠️ Não foi possível buscar emails:', emailError);
+        }
+      } else {
+        console.log('✅ Todos os emails já estão nos perfis!');
+      }
+      
+      console.log(`📧 Total de emails no map: ${Object.keys(emailMap).length}`);
+
+      // Transformar aulas
+      const transformedClasses = (classes || []).map(c => {
+        // Buscar perfil do aluno - tentar múltiplas formas de busca
+        let studentProfile = profileMap[c.student_id];
+        
+        // Se não encontrou, tentar buscar por string (caso haja diferença de tipo)
+        if (!studentProfile && c.student_id) {
+          const studentIdStr = String(c.student_id);
+          studentProfile = Object.values(profileMap).find(p => 
+            String(p.id) === studentIdStr || 
+            p.id === c.student_id ||
+            (p.id && c.student_id && p.id.toString() === c.student_id.toString())
+          );
+        }
+        
+        // Buscar perfil do instrutor
+        let instructorProfile = profileMap[c.instructor_id];
+        if (!instructorProfile && c.instructor_id) {
+          const instructorIdStr = String(c.instructor_id);
+          instructorProfile = Object.values(profileMap).find(p => 
+            String(p.id) === instructorIdStr || 
+            p.id === c.instructor_id ||
+            (p.id && c.instructor_id && p.id.toString() === c.instructor_id.toString())
+          );
+        }
+        
+        const studentName = studentProfile?.name || '';
+        const studentEmail = emailMap[c.student_id] || emailMap[String(c.student_id)] || '';
+        
+        // Log detalhado para debug se ainda não encontrar
+        if (!studentName && c.student_id) {
+          console.warn(`⚠️ Nome do aluno não encontrado para student_id: ${c.student_id}`);
+          console.warn(`   Tipo do student_id:`, typeof c.student_id);
+          console.warn(`   Perfil encontrado no map direto:`, !!profileMap[c.student_id]);
+          console.warn(`   Perfil encontrado por busca:`, !!studentProfile);
+          console.warn(`   Total de perfis no map:`, Object.keys(profileMap).length);
+          console.warn(`   Primeiros IDs no map:`, Object.keys(profileMap).slice(0, 3));
+          console.warn(`   Primeiros IDs das aulas:`, classes?.slice(0, 3).map(c => c.student_id));
+        }
+        
+        const transformed = transformClass(c, instructorProfile);
+        
+        return {
+          ...transformed,
+          studentName: studentName,
+          studentEmail: studentEmail,
+          studentPhoto: studentProfile?.photo_url || null,
+          // Datas importantes da aula
+          createdAt: c.created_at || transformed.createdAt, // Data de criação/solicitação
+          updatedAt: c.updated_at, // Última atualização
+        };
+      });
+
+      console.log('✅ Aulas transformadas:', transformedClasses.length);
+
+      return {
+        classes: transformedClasses,
+        total: count || 0,
+      };
+    } catch (error) {
+      console.error('Error fetching all classes:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Atualiza o status de uma aula
+   * @param {string} classId - ID da aula
+   * @param {string} newStatus - Novo status
+   * @returns {Promise<Object>} Aula atualizada
+   */
+  updateClassStatus: async (classId, newStatus) => {
+    try {
+      const client = await getActiveSupabaseClient('admin');
+      const { data: { user } } = await client.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      console.log('🔄 Admin atualizando status da aula:', classId, 'para', newStatus);
+
+      const { data, error } = await client
+        .from('classes')
+        .update({ 
+          status: newStatus,
+          updated_at: new Date().toISOString() 
+        })
+        .eq('id', classId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Erro ao atualizar status da aula:', error);
+        throw error;
+      }
+
+      console.log('✅ Status da aula atualizado:', { id: data.id, status: data.status });
+      
+      // Buscar perfil do instrutor
+      const { data: instructorProfile } = await client
+        .from('profiles')
+        .select('id, name, photo_url')
+        .eq('id', data.instructor_id)
+        .single();
+
+      // Buscar perfil do aluno
+      const { data: studentProfile } = await client
+        .from('profiles')
+        .select('id, name, photo_url')
+        .eq('id', data.student_id)
+        .single();
+
+      return {
+        ...transformClass(data, instructorProfile),
+        studentName: studentProfile?.name || '',
+        studentPhoto: studentProfile?.photo_url || null,
+      };
+    } catch (error) {
+      console.error('Error updating class status:', error);
       throw error;
     }
   },

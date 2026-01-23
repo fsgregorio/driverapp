@@ -9,20 +9,22 @@ import SEO from '../components/SEO';
 
 const DashboardInstrutor = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, userType, loading } = useAuth();
+  const { isAuthenticated, userType, loading, isAuthenticatedAs, setActiveUser } = useAuth();
   const [activeSection, setActiveSection] = useState('indicators');
 
+  // Ativar sessão de instrutor se existir
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      navigate('/login?type=instructor');
+    if (!loading && isAuthenticatedAs('instructor')) {
+      setActiveUser('instructor');
     }
-  }, [loading, isAuthenticated, navigate]);
+  }, [loading, isAuthenticatedAs, setActiveUser]);
 
   useEffect(() => {
-    if (!loading && isAuthenticated && userType !== 'instructor') {
-      navigate('/dashboard/aluno');
+    // Só redirecionar se realmente não tiver sessão de instrutor
+    if (!loading && !isAuthenticatedAs('instructor')) {
+      navigate('/login?type=instructor');
     }
-  }, [loading, isAuthenticated, userType, navigate]);
+  }, [loading, isAuthenticatedAs, navigate]);
 
   // Removido: não mostrar modal automaticamente no dashboard
   // O modal só deve aparecer após login com Google na primeira vez

@@ -215,11 +215,22 @@ const InstructorsList = ({ onScheduleClass }) => {
               
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center space-x-3">
-                  <img
-                    src={instructor.photo}
-                    alt={instructor.name}
-                    className="w-16 h-16 rounded-full object-cover"
-                  />
+                  {instructor.photo ? (
+                    <img
+                      src={instructor.photo}
+                      alt={instructor.name}
+                      className="w-16 h-16 rounded-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div className={`w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center ${instructor.photo ? 'hidden' : ''}`}>
+                    <svg className="w-9 h-9 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
                   <div>
                     <h3 className="font-bold text-gray-900">{instructor.name}</h3>
                     <p className="text-sm text-gray-500">

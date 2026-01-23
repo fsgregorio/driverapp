@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { trackEvent, trackingEvents } from '../../utils/trackingUtils';
 
 const LoginForm = ({ onSuccess, userType = 'student' }) => {
   const navigate = useNavigate();
@@ -61,18 +60,6 @@ const LoginForm = ({ onSuccess, userType = 'student' }) => {
       setErrors({ submit: 'O login está demorando muito. Tente novamente.' });
     }, 15000);
 
-    // Tracking do início do login
-    try {
-      trackEvent(trackingEvents.AUTH_LOGIN_FORM, {
-        user_type: userType,
-        page: userType === 'student' ? 'login_aluno' : 'login_instrutor',
-        section: 'auth',
-        has_email: !!formData.email
-      });
-    } catch (trackError) {
-      console.warn('Tracking error:', trackError);
-    }
-
     try {
       console.log('[LoginForm] Calling login function...');
       const result = await login(formData.email, formData.password, userType);
@@ -80,17 +67,6 @@ const LoginForm = ({ onSuccess, userType = 'student' }) => {
       
       clearTimeout(safetyTimeout);
       console.log('[LoginForm] Safety timeout cleared');
-
-      // Tracking de sucesso
-      try {
-        trackEvent(trackingEvents.AUTH_LOGIN_SUCCESS, {
-          method: 'form',
-          user_type: userType,
-          page: userType === 'student' ? 'login_aluno' : 'login_instrutor'
-        });
-      } catch (trackError) {
-        console.warn('Tracking error:', trackError);
-      }
 
       // Chamar onSuccess para atualizar estado na página de login
       if (onSuccess) {

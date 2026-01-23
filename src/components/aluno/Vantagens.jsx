@@ -9,7 +9,7 @@ const Vantagens = () => {
             Vantagens
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Por que escolher nossa plataforma para suas aulas práticas
+            Por que escolher nossa plataforma para tirar sua carteira de motorista
           </p>
         </header>
 
@@ -45,8 +45,8 @@ const Vantagens = () => {
               </svg>
             </div>
             <div>
-              <h3 className="font-bold text-lg text-secondary mb-2">Flexibilidade de Veículo</h3>
-              <p className="text-gray-600">As aulas podem ser feitas no carro do instrutor ou no seu próprio veículo.</p>
+              <h3 className="font-bold text-lg text-secondary mb-2">Instrutores Profissionais</h3>
+              <p className="text-gray-600">Conectamos você com instrutores certificados e experientes para garantir seu aprendizado.</p>
             </div>
           </article>
 
@@ -69,8 +69,8 @@ const Vantagens = () => {
               </svg>
             </div>
             <div>
-              <h3 className="font-bold text-lg text-secondary mb-2">Aulas Personalizadas</h3>
-              <p className="text-gray-600">Aulas adaptadas ao seu nível e necessidades específicas.</p>
+              <h3 className="font-bold text-lg text-secondary mb-2">Acompanhamento Completo</h3>
+              <p className="text-gray-600">Acompanhamento desde o início até você estar pronto para o exame do Detran.</p>
             </div>
           </article>
 

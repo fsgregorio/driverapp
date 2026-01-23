@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { studentsAPI } from '../../../services/api';
 import { sortByRelevance } from '../../../utils/sortUtils';
-import { trackEvent, trackingEvents } from '../../../utils/trackingUtils';
 
 const InstructorSearch = ({ onScheduleClass }) => {
   const [instructors, setInstructors] = useState([]);
@@ -256,35 +255,11 @@ const InstructorSearch = ({ onScheduleClass }) => {
   }, [filters, instructors]);
 
   const handleSchedule = (instructor) => {
-    // Tracking da visualização e tentativa de agendamento
-    trackEvent(trackingEvents.DASHBOARD_ALUNO_INSTRUCTOR_VIEW, {
-      instructor_id: instructor.id,
-      instructor_name: instructor.name,
-      instructor_premium: instructor.premium || false,
-      instructor_rating: instructor.rating,
-      instructor_price: instructor.pricePerClass,
-      page: 'dashboard_aluno',
-      section: 'instructor_search',
-      action: 'schedule_click'
-    });
-    
     if (onScheduleClass) {
       onScheduleClass(instructor);
     }
   };
 
-  // Tracking de busca quando filtros são aplicados
-  useEffect(() => {
-    const hasActiveFilters = Object.values(filters).some(value => value !== '' && value !== 'relevancia');
-    if (hasActiveFilters) {
-      trackEvent(trackingEvents.DASHBOARD_ALUNO_INSTRUCTOR_SEARCH, {
-        filters_applied: filters,
-        results_count: filteredInstructors.length,
-        page: 'dashboard_aluno',
-        section: 'instructor_search'
-      });
-    }
-  }, [filters, filteredInstructors.length]);
 
   const handleToggleFavorite = (instructorId, e) => {
     e.stopPropagation();

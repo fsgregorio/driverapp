@@ -19,8 +19,8 @@ const LandingAluno = () => {
     "@type": "Organization",
     "name": "iDrive",
     "url": siteUrl,
-    "logo": `${siteUrl}/imgs/logo/iDrive.png`,
-    "description": "Plataforma que conecta alunos e instrutores certificados para aulas práticas de direção seguras, rápidas e sem burocracia.",
+    "logo": `${siteUrl}/imgs/logo/idrive.png`,
+    "description": "Plataforma que conecta alunos que querem tirar carteira de motorista com instrutores profissionais certificados. Aulas práticas seguras, flexíveis e sem burocracia.",
     "foundingDate": "2024",
     "areaServed": {
       "@type": "Country",
@@ -42,7 +42,7 @@ const LandingAluno = () => {
   const serviceSchema = {
     "@context": "https://schema.org",
     "@type": "Service",
-    "serviceType": "Aulas Práticas de Direção",
+    "serviceType": "Aulas Práticas de Direção para Primeira Habilitação",
     "provider": {
       "@type": "Organization",
       "name": "iDrive",
@@ -61,7 +61,7 @@ const LandingAluno = () => {
       "availability": "https://schema.org/InStock"
     },
     "category": "Educação e Treinamento de Direção",
-    "serviceOutput": "Melhoria nas habilidades de direção"
+    "serviceOutput": "Preparação completa para tirar a primeira habilitação"
   };
 
   // Breadcrumb Schema
@@ -94,7 +94,7 @@ const LandingAluno = () => {
         "name": "Como os instrutores são avaliados?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Todos os instrutores passam por um processo de verificação onde validamos sua documentação exigida pelo Detran local, incluindo certificação profissional. Mantemos um padrão rigoroso para garantir a segurança e qualidade das aulas. Além disso, os instrutores recebem avaliações dos alunos após cada aula, o que ajuda a manter a qualidade do serviço."
+          "text": "Todos os instrutores passam por um processo rigoroso de verificação onde validamos sua documentação exigida pelo Detran local, incluindo certificação profissional. Mantemos um padrão rigoroso para garantir a segurança e qualidade das aulas para alunos que estão tirando sua primeira habilitação. Além disso, os instrutores recebem avaliações dos alunos após cada aula, o que ajuda a manter a qualidade do serviço."
         }
       },
       {
@@ -118,23 +118,23 @@ const LandingAluno = () => {
         "name": "Quais os tipos de aula posso fazer?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Oferecemos diversos tipos de aulas práticas para habilitados, incluindo: baliza e estacionamento, controle de embreagem, rodovia e estradas, manobras em trânsito, direção defensiva, e muito mais. Cada instrutor pode oferecer diferentes tipos de aula, então você pode escolher o que melhor atende às suas necessidades."
+          "text": "Oferecemos aulas práticas completas para primeira habilitação, incluindo: primeiros passos, controle de embreagem, baliza e estacionamento, rodovia e estradas, manobras em trânsito, direção defensiva, e preparação para o exame do Detran. Cada instrutor pode oferecer diferentes tipos de aula, então você pode escolher o que melhor atende às suas necessidades de aprendizado."
         }
       },
       {
         "@type": "Question",
-        "name": "Como funcionam os pacotes de aulas?",
+        "name": "Quantas aulas preciso fazer para tirar a carteira?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Muitos instrutores oferecem pacotes de aulas com valores mais vantajosos. Os pacotes podem incluir múltiplas aulas do mesmo tipo ou uma combinação de diferentes tipos de aula. Os valores e condições variam de acordo com cada instrutor e estão disponíveis no perfil de cada um. Você pode comparar pacotes e escolher o que melhor se adequa ao seu orçamento e necessidades."
+          "text": "O número de aulas necessárias varia de acordo com seu aprendizado e confiança ao volante. Muitos instrutores oferecem pacotes de aulas com valores mais vantajosos para o curso completo de primeira habilitação. Os pacotes podem incluir todas as aulas necessárias até você estar pronto para o exame do Detran. Os valores e condições variam de acordo com cada instrutor e estão disponíveis no perfil de cada um."
         }
       },
       {
         "@type": "Question",
-        "name": "Os instrutores são independentes ou vinculados a autoescolas?",
+        "name": "Preciso fazer a parte teórica também?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Nossa plataforma conecta alunos com instrutores independentes certificados. Isso permite maior flexibilidade, preços mais competitivos e liberdade de escolha tanto para alunos quanto para instrutores."
+          "text": "Nossa plataforma conecta você com instrutores profissionais para as aulas práticas. A parte teórica (curso teórico e exame teórico) geralmente é feita através de autoescolas ou cursos online credenciados pelo Detran. Nossos instrutores podem te orientar sobre esse processo e focar nas aulas práticas que são essenciais para você passar no exame prático do Detran."
         }
       }
     ]
@@ -165,9 +165,9 @@ const LandingAluno = () => {
   return (
     <div className="LandingAluno">
       <SEO
-        title="Aulas Práticas de Direção para Habilitados - iDrive"
-        description="Pratique e melhore suas habilidades ao volante com instrutores certificados. Aulas práticas para habilitados: baliza, controle de embreagem, rodovia e mais. Plataforma 100% gratuita."
-        keywords="aulas práticas direção, aulas para habilitados, instrutor de direção, aulas baliza, controle embreagem, aulas rodovia, aprender a dirigir melhor, instrutor certificado, aulas direção habilitados, prática direção, melhorar direção"
+        title="Tire sua Carteira de Motorista com Instrutores Profissionais - iDrive"
+        description="Conectamos você com instrutores profissionais certificados para tirar sua primeira habilitação. Aulas práticas seguras, flexíveis e sem burocracia. Plataforma 100% gratuita."
+        keywords="tirar carteira motorista, primeira habilitação, aulas práticas direção, instrutor de direção, aprender a dirigir, aulas baliza, controle embreagem, aulas rodovia, instrutor certificado, exame detran, carteira de motorista, CNH"
         canonicalUrl="/aluno"
         ogImage="/imgs/student.png"
         structuredData={structuredData}

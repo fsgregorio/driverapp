@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
+import { isValidPhoto, getPhotoUrl } from '../../../utils/photoUtils';
 
 const ProfileSettings = () => {
-  const { user, register } = useAuth();
+  const { user, completeProfile } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -18,7 +19,7 @@ const ProfileSettings = () => {
         name: user.name || '',
         email: user.email || '',
         phone: user.phone || '',
-        photo: user.photo || ''
+        photo: user.photo || null // Usar null em vez de string vazia para evitar renderizar imagem vazia
       });
     }
   }, [user]);
@@ -51,18 +52,20 @@ const ProfileSettings = () => {
     setSaveSuccess(false);
 
     try {
-      // TODO: Substituir por chamada de API real
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Simular atualização
-      if (register) {
-        await register(formData, 'student');
-      }
+      // Preparar dados para atualização do perfil
+      const profileData = {
+        name: formData.name.trim(),
+        phone: formData.phone.replace(/\D/g, ''), // Remove caracteres não numéricos
+        photo_url: isValidPhoto(formData.photo) ? formData.photo : null, // Salva apenas se for foto válida
+      };
+
+      await completeProfile(profileData);
       
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (error) {
       console.error('Erro ao salvar perfil:', error);
+      alert('Erro ao salvar perfil. Tente novamente.');
     } finally {
       setIsSaving(false);
     }
@@ -84,10 +87,25 @@ const ProfileSettings = () => {
           <div className="flex items-center space-x-4">
             <div className="relative">
               <img
-                src={formData.photo || 'https://i.pravatar.cc/150?img=1'}
+                src={getPhotoUrl(formData.photo)}
                 alt="Perfil"
                 className="w-24 h-24 rounded-full object-cover border-4 border-gray-200"
+                onError={(e) => {
+                  // Se a foto padrão também falhar, mostrar ícone SVG
+                  if (e.target.src.includes('no_user.png')) {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  } else {
+                    // Se a foto do usuário falhar, tentar a padrão
+                    e.target.src = '/imgs/users/no_user.png';
+                  }
+                }}
               />
+              <div className="w-24 h-24 rounded-full bg-gray-200 border-4 border-gray-300 flex items-center justify-center hidden">
+                <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
               <label className="absolute bottom-0 right-0 bg-primary text-white rounded-full p-2 cursor-pointer hover:bg-blue-600 transition-colors">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />

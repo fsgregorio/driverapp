@@ -108,12 +108,11 @@ const Precos = () => {
         <div className="text-center">
           <button 
             onClick={() => {
-              navigate('/waitlist');
-              // Scroll será feito automaticamente pela página Waitlist ao carregar
+              navigate('/register?type=student');
             }}
             className="bg-primary hover:bg-blue-600 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-xl text-base sm:text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl w-full sm:w-auto"
           >
-            Ver Instrutores e Preços
+            Ver Instrutores Disponíveis
           </button>
         </div>
       </div>

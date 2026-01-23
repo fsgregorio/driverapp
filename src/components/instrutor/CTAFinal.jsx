@@ -1,24 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { trackButtonClick, trackingEvents } from '../../utils/trackingUtils';
 
 const CTAFinalInstrutor = () => {
   const navigate = useNavigate();
 
   const handleCTAClick = () => {
-    trackButtonClick(trackingEvents.LANDING_INSTRUTOR_CTA_FINAL, 'Cadastrar como Instrutor', {
-      page: 'landing_instrutor',
-      section: 'cta_final'
-    });
     navigate('/dashboard/instrutor');
   };
 
   const handleComoFuncionaClick = () => {
-    trackButtonClick(trackingEvents.LANDING_INSTRUTOR_NAV_SECTION, 'Ver Como Funciona', {
-      page: 'landing_instrutor',
-      section: 'cta_final',
-      target_section: 'como-funciona-section'
-    });
     const element = document.getElementById('como-funciona-section');
     if (element) {
       const offset = 80;

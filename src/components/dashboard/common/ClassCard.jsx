@@ -1,5 +1,6 @@
 import React from 'react';
 import { getClassTypeLabel, normalizeClassTypes, getClassTypeBadgeColor } from '../../../utils/classUtils';
+import { getPhotoUrl } from '../../../utils/photoUtils';
 
 const ClassCard = ({ 
   classData, 
@@ -12,9 +13,12 @@ const ClassCard = ({
   const getStatusColor = (status) => {
     const colors = {
       'pendente': 'bg-yellow-100 text-yellow-800',
+      'pendente_aceite': 'bg-yellow-100 text-yellow-800',
+      'pendente_pagamento': 'bg-orange-100 text-orange-800',
       'confirmada': 'bg-blue-100 text-blue-800',
       'em andamento': 'bg-purple-100 text-purple-800',
       'concluída': 'bg-green-100 text-green-800',
+      'concluida': 'bg-green-100 text-green-800',
       'cancelada': 'bg-red-100 text-red-800',
       'agendada': 'bg-blue-100 text-blue-800'
     };
@@ -37,11 +41,22 @@ const ClassCard = ({
         <div className="flex items-center space-x-4">
           {userType === 'student' ? (
             <>
-              <img
-                src={classData.instructorPhoto}
-                alt={classData.instructorName}
-                className="w-12 h-12 rounded-full"
-              />
+              {classData.instructorPhoto ? (
+                <img
+                  src={classData.instructorPhoto}
+                  alt={classData.instructorName}
+                  className="w-12 h-12 rounded-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div className={`w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center ${classData.instructorPhoto ? 'hidden' : ''}`}>
+                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
               <div>
                 <h3 className="font-semibold text-gray-900">{classData.instructorName}</h3>
                 <div className="flex flex-wrap gap-1 mt-1">
@@ -59,10 +74,25 @@ const ClassCard = ({
           ) : (
             <>
               <img
-                src={classData.studentPhoto}
+                src={getPhotoUrl(classData.studentPhoto)}
                 alt={classData.studentName}
-                className="w-12 h-12 rounded-full"
+                className="w-12 h-12 rounded-full object-cover"
+                onError={(e) => {
+                  // Se a foto padrão também falhar, mostrar ícone SVG
+                  if (e.target.src.includes('no_user.png')) {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  } else {
+                    // Se a foto do aluno falhar, tentar a padrão
+                    e.target.src = '/imgs/users/no_user.png';
+                  }
+                }}
               />
+              <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center hidden">
+                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
               <div>
                 <h3 className="font-semibold text-gray-900">{classData.studentName}</h3>
                 <div className="flex flex-wrap gap-1 mt-1">
@@ -80,7 +110,10 @@ const ClassCard = ({
           )}
         </div>
         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(classData.status)}`}>
-          {classData.status.charAt(0).toUpperCase() + classData.status.slice(1)}
+          {classData.status === 'pendente_aceite' ? 'Pendente de Aceite' :
+           classData.status === 'pendente_pagamento' ? 'Pendente de Pagamento' :
+           classData.status === 'concluida' ? 'Concluída' :
+           classData.status.charAt(0).toUpperCase() + classData.status.slice(1)}
         </span>
       </div>
 
@@ -139,7 +172,7 @@ const ClassCard = ({
 
       {/* Action Buttons */}
       <div className="flex space-x-2">
-        {classData.status === 'pendente' && userType === 'instructor' && (
+        {(classData.status === 'pendente' || classData.status === 'pendente_aceite') && userType === 'instructor' && (
           <>
             <button
               onClick={() => onConfirm(classData.id)}

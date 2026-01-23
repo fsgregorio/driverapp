@@ -12,7 +12,7 @@ const ComoFunciona = () => {
             Como Funciona
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Processo simples e rápido para começar suas aulas práticas
+            Processo simples e rápido para tirar sua carteira de motorista
           </p>
         </div>
 
@@ -23,10 +23,10 @@ const ComoFunciona = () => {
               <span className="text-white text-xl md:text-2xl font-bold">1</span>
             </div>
             <h4 className="text-xl md:text-2xl font-bold text-secondary mb-4 text-center">
-              Selecione o Tipo de Aula
+              Crie sua Conta
             </h4>
             <p className="text-gray-600 text-center text-sm md:text-base">
-              Escolha entre baliza, controle de embreagem, rodovia, estacionamento e outros tipos de aula.
+              Cadastre-se gratuitamente na plataforma. É rápido, simples e sem burocracia.
             </p>
           </div>
 
@@ -36,10 +36,10 @@ const ComoFunciona = () => {
               <span className="text-white text-xl md:text-2xl font-bold">2</span>
             </div>
             <h4 className="text-xl md:text-2xl font-bold text-secondary mb-4 text-center">
-              Preencha seu Perfil
+              Encontre seu Instrutor
             </h4>
             <p className="text-gray-600 text-center text-sm md:text-base">
-              Complete seu cadastro com suas informações básicas. É rápido e simples.
+              Navegue pela lista de instrutores profissionais certificados, veja avaliações, preços e escolha o melhor para você.
             </p>
           </div>
 
@@ -49,10 +49,10 @@ const ComoFunciona = () => {
               <span className="text-white text-xl md:text-2xl font-bold">3</span>
             </div>
             <h4 className="text-xl md:text-2xl font-bold text-secondary mb-4 text-center">
-              Escolha seu Instrutor
+              Agende suas Aulas
             </h4>
             <p className="text-gray-600 text-center text-sm md:text-base">
-              Navegue pela lista de instrutores certificados, veja avaliações e escolha o que melhor se adequa a você.
+              Selecione os dias e horários que preferir. Nossa plataforma oferece total flexibilidade para se adequar à sua rotina.
             </p>
           </div>
 
@@ -62,10 +62,10 @@ const ComoFunciona = () => {
               <span className="text-white text-xl md:text-2xl font-bold">4</span>
             </div>
             <h4 className="text-xl md:text-2xl font-bold text-secondary mb-4 text-center">
-              Agende sua Aula
+              Aprenda e Pratique
             </h4>
             <p className="text-gray-600 text-center text-sm md:text-base">
-              Selecione o dia e horário que preferir. Nossa plataforma é totalmente flexível e sem burocracia.
+              Aprenda a dirigir com segurança e confiança. Seu instrutor profissional te guiará em cada etapa até você estar pronto para o exame.
             </p>
           </div>
 
@@ -75,10 +75,10 @@ const ComoFunciona = () => {
               <span className="text-white text-xl md:text-2xl font-bold">5</span>
             </div>
             <h4 className="text-xl md:text-2xl font-bold text-secondary mb-4 text-center">
-              Pratique e Melhore
+              Tire sua Carteira
             </h4>
             <p className="text-gray-600 text-center text-sm md:text-base">
-              Pratique suas habilidades ao volante com segurança e confiança. Melhore sua técnica a cada aula.
+              Após concluir suas aulas práticas, você estará preparado para fazer o exame do Detran e tirar sua primeira habilitação.
             </p>
           </div>
         </div>
@@ -86,12 +86,11 @@ const ComoFunciona = () => {
         <div className="text-center mt-12">
           <button 
             onClick={() => {
-              navigate('/waitlist');
-              // Scroll será feito automaticamente pela página Waitlist ao carregar
+              navigate('/register?type=student');
             }}
             className="bg-primary hover:bg-blue-600 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-xl text-base sm:text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl w-full sm:w-auto"
           >
-            Encontre um Instrutor Agora
+            Começar Agora
           </button>
         </div>
       </div>

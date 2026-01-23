@@ -238,30 +238,50 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
     };
   }, []);
 
-  const confirmCancel = (classId, rescheduleData) => {
-    // TODO: Substituir por chamada de API real
-    const updatedClasses = classes.map(c => 
-      c.id === classId ? { ...c, status: 'cancelada' } : c
-    );
-    updateClasses(updatedClasses);
-    setShowCancelModal(false);
-    setSelectedClass(null);
-    // Aqui poderia mostrar uma mensagem de sucesso
+  const confirmCancel = async (classId, rescheduleData) => {
+    try {
+      // Chamar API para cancelar a aula no banco
+      await studentsAPI.cancelClass(classId);
+      
+      // Atualizar estado local após sucesso da API
+      const updatedClasses = classes.map(c => 
+        c.id === classId ? { ...c, status: 'cancelada' } : c
+      );
+      updateClasses(updatedClasses);
+      
+      setShowCancelModal(false);
+      setSelectedClass(null);
+      
+      console.log('✅ Aula cancelada com sucesso:', classId);
+    } catch (error) {
+      console.error('❌ Erro ao cancelar aula:', error);
+      alert('Erro ao cancelar aula. Por favor, tente novamente.');
+    }
   };
 
-  const confirmReschedule = (classId, newData) => {
-    // TODO: Substituir por chamada de API real
-    const updatedClasses = classes.map(c => 
-      c.id === classId ? { 
-        ...c, 
-        date: newData.date,
-        time: newData.time
-      } : c
-    );
-    updateClasses(updatedClasses);
-    setShowRescheduleModal(false);
-    setSelectedClass(null);
-    // Aqui poderia mostrar uma mensagem de sucesso
+  const confirmReschedule = async (classId, newData) => {
+    try {
+      // Chamar API para reagendar a aula no banco
+      await studentsAPI.rescheduleClass(classId, newData);
+      
+      // Atualizar estado local após sucesso da API
+      const updatedClasses = classes.map(c => 
+        c.id === classId ? { 
+          ...c, 
+          date: newData.date,
+          time: newData.time
+        } : c
+      );
+      updateClasses(updatedClasses);
+      
+      setShowRescheduleModal(false);
+      setSelectedClass(null);
+      
+      console.log('✅ Aula reagendada com sucesso:', classId);
+    } catch (error) {
+      console.error('❌ Erro ao reagendar aula:', error);
+      alert('Erro ao reagendar aula. Por favor, tente novamente.');
+    }
   };
 
   // eslint-disable-next-line no-unused-vars

@@ -10,7 +10,6 @@
  */
 import React, { useState } from 'react';
 import { useAuth } from '../../../context/AuthContext';
-import { trackEvent, trackingEvents } from '../../../utils/trackingUtils';
 
 const GoogleAuthButton = ({ onSuccess, onProfileIncomplete, userType = 'student' }) => {
   const { loginWithGoogle, user } = useAuth();
@@ -21,19 +20,12 @@ const GoogleAuthButton = ({ onSuccess, onProfileIncomplete, userType = 'student'
     if (!userData) return false;
     const hasFullName = userData.name && userData.name.trim().split(' ').length >= 2;
     const hasPhone = userData.phone && userData.phone.length >= 10;
-    const hasPhoto = userData.photo && userData.photo !== '/imgs/users/image.png';
+    const hasPhoto = !!userData.photo; // Verifica se existe foto (não null/undefined)
     return hasFullName && hasPhone && hasPhoto;
   };
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
-    
-    // Tracking do início do login
-    trackEvent(trackingEvents.AUTH_LOGIN_GOOGLE, {
-      user_type: userType,
-      page: userType === 'student' ? 'dashboard_aluno' : 'dashboard_instrutor',
-      section: 'auth'
-    });
     
     try {
       // Mockup: simula login com Google
@@ -42,14 +34,6 @@ const GoogleAuthButton = ({ onSuccess, onProfileIncomplete, userType = 'student'
       
       // Verificar se o perfil está completo
       const profileComplete = checkProfileComplete(loggedInUser);
-      
-      // Tracking de sucesso
-      trackEvent(trackingEvents.AUTH_LOGIN_SUCCESS, {
-        method: 'google',
-        user_type: userType,
-        page: userType === 'student' ? 'dashboard_aluno' : 'dashboard_instrutor',
-        profile_complete: profileComplete
-      });
       
       if (!profileComplete && onProfileIncomplete) {
         // Se o perfil não estiver completo, chamar callback para mostrar modal
@@ -71,14 +55,6 @@ const GoogleAuthButton = ({ onSuccess, onProfileIncomplete, userType = 'student'
       }
       
       alert(errorMessage);
-      
-      // Tracking de erro
-      trackEvent(trackingEvents.AUTH_LOGIN_ERROR, {
-        method: 'google',
-        user_type: userType,
-        error_code: error.code || 'unknown',
-        error_message: error.message || 'unknown'
-      });
     } finally {
       setIsLoading(false);
     }

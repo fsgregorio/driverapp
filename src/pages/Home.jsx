@@ -28,7 +28,7 @@ const Home = () => {
     "@type": "Organization",
     "name": "iDrive",
     "url": siteUrl,
-    "logo": `${siteUrl}/imgs/logo/iDrive.png`,
+    "logo": `${siteUrl}/imgs/logo/idrive.png`,
     "description": "Plataforma que conecta alunos e instrutores certificados para aulas práticas de direção seguras, rápidas e sem burocracia.",
     "foundingDate": "2024",
     "areaServed": {

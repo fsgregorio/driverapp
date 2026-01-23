@@ -1,19 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { trackButtonClick, trackNavigation, trackingEvents } from '../utils/trackingUtils';
 
 const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScrollToSection, hideFAQ = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   const scrollToSection = (sectionId) => {
-    const page = currentProfile === 'student' ? 'landing_aluno' : currentProfile === 'instructor' ? 'landing_instrutor' : 'home';
-    trackButtonClick(
-      currentProfile === 'student' ? trackingEvents.LANDING_ALUNO_NAV_SECTION : trackingEvents.LANDING_INSTRUTOR_NAV_SECTION,
-      sectionId,
-      { page, section: 'navbar', target_section: sectionId }
-    );
-    
     if (externalScrollToSection) {
       externalScrollToSection(sectionId);
     } else {
@@ -32,10 +24,6 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
   };
 
   const handleLogoClick = () => {
-    trackNavigation(trackingEvents.NAV_HOME_CLICK, currentProfile === 'student' ? '/aluno' : currentProfile === 'instructor' ? '/instrutor' : '/', {
-      current_profile: currentProfile
-    });
-    
     if (currentProfile === 'student') {
       navigate('/aluno');
     } else if (currentProfile === 'instructor') {
@@ -47,17 +35,6 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
   };
 
   const handleLoginClick = () => {
-    const eventName = currentProfile === 'student' 
-      ? trackingEvents.LANDING_ALUNO_LOGIN 
-      : currentProfile === 'instructor' 
-      ? trackingEvents.LANDING_INSTRUTOR_LOGIN 
-      : trackingEvents.LANDING_ALUNO_LOGIN;
-    
-    trackButtonClick(eventName, 'Login', {
-      page: currentProfile === 'student' ? 'landing_aluno' : currentProfile === 'instructor' ? 'landing_instrutor' : 'home',
-      section: 'navbar'
-    });
-
     // Redirecionar para página de login com o tipo apropriado
     const userType = currentProfile === 'instructor' ? 'instructor' : 'student';
     navigate(`/login?type=${userType}`);
@@ -72,10 +49,6 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
   };
 
   const handleSwitchProfileClick = () => {
-    trackButtonClick(trackingEvents.NAV_PROFILE_SWITCH, 'Trocar Perfil', {
-      current_profile: currentProfile,
-      page: currentProfile === 'student' ? 'landing_aluno' : currentProfile === 'instructor' ? 'landing_instrutor' : 'home'
-    });
     if (onSwitchProfile) {
       onSwitchProfile();
     }
@@ -88,7 +61,7 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
           {/* Logo */}
           <div className="flex-shrink-0 cursor-pointer" onClick={handleLogoClick}>
             <img 
-              src="/imgs/logo/iDrive.png" 
+              src="/imgs/logo/idrive.png" 
               alt="iDrive Logo" 
               className="h-7 sm:h-9 md:h-11 lg:h-12 w-auto"
             />
