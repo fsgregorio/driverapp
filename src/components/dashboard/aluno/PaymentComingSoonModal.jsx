@@ -79,13 +79,13 @@ const PaymentComingSoonModal = ({ isOpen, onClose }) => {
         </button>
 
         {/* Content */}
-        <div className="overflow-y-auto flex-1 p-6">
-          <div className="space-y-4">
+        <div className="overflow-y-auto flex-1 p-6 sm:p-8">
+          <div className="space-y-5">
             {/* Ícone e Mensagem Principal */}
-            <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 mb-3">
+            <div className="text-center pt-2">
+              <div className="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-primary/10 mb-4">
                 <svg 
-                  className="h-8 w-8 text-primary" 
+                  className="h-7 w-7 text-primary" 
                   fill="none" 
                   stroke="currentColor" 
                   viewBox="0 0 24 24"
@@ -98,10 +98,10 @@ const PaymentComingSoonModal = ({ isOpen, onClose }) => {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
                 Estamos em fase de teste!
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 text-sm sm:text-base">
                 A plataforma estará funcionando em breve.
               </p>
             </div>
@@ -109,7 +109,7 @@ const PaymentComingSoonModal = ({ isOpen, onClose }) => {
             {!showCoupon ? (
               <>
                 {/* Mensagem sobre o cupom */}
-                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-200 rounded-xl p-4">
+                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-4 sm:p-5">
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0">
                       <svg className="w-5 h-5 text-yellow-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,10 +117,10 @@ const PaymentComingSoonModal = ({ isOpen, onClose }) => {
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <p className="text-yellow-900 font-semibold mb-1 text-sm">
+                      <p className="text-yellow-900 font-semibold mb-1.5 text-sm sm:text-base">
                         🎁 Ganhe um cupom de desconto!
                       </p>
-                      <p className="text-yellow-800 text-xs">
+                      <p className="text-yellow-800 text-xs sm:text-sm leading-relaxed">
                         Clique no botão abaixo para garantir seu <strong>cupom exclusivo</strong> quando a plataforma estiver funcionando. Você será um dos primeiros a ser notificado!
                       </p>
                     </div>
@@ -130,7 +130,7 @@ const PaymentComingSoonModal = ({ isOpen, onClose }) => {
                 {/* Botão de Cupom */}
                 <button
                   onClick={handleGetCoupon}
-                  className="w-full bg-primary hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105"
+                  className="w-full bg-primary hover:bg-blue-600 text-white font-semibold py-3.5 px-6 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg"
                 >
                   Quero meu cupom
                 </button>
@@ -138,11 +138,11 @@ const PaymentComingSoonModal = ({ isOpen, onClose }) => {
             ) : (
               <>
                 {/* Exibição do Cupom */}
-                <div className="bg-gradient-to-br from-primary/10 via-blue-50 to-purple-50 border-2 border-primary/30 rounded-xl p-6 text-center">
-                  <div className="mb-4">
-                    <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-primary/20 mb-3">
+                <div className="bg-gradient-to-br from-primary/10 via-blue-50 to-purple-50 border border-primary/30 rounded-xl p-5 sm:p-6 text-center">
+                  <div className="mb-5">
+                    <div className="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-primary/20 mb-4">
                       <svg 
-                        className="h-8 w-8 text-primary" 
+                        className="h-7 w-7 text-primary" 
                         fill="none" 
                         stroke="currentColor" 
                         viewBox="0 0 24 24"
@@ -155,25 +155,26 @@ const PaymentComingSoonModal = ({ isOpen, onClose }) => {
                         />
                       </svg>
                     </div>
-                    <h4 className="text-lg font-bold text-gray-900 mb-2">
+                    <h4 className="text-lg sm:text-xl font-bold text-gray-900 mb-2.5">
                       🎉 Parabéns! Seu cupom está aqui!
                     </h4>
-                    <p className="text-gray-600 text-sm mb-4">
+                    <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
                       Use este cupom quando a plataforma estiver funcionando para obter seu desconto exclusivo.
                     </p>
                   </div>
                   
                   {/* Código do Cupom */}
-                  <div className="bg-white border-2 border-dashed border-primary rounded-lg p-3 sm:p-4 mb-4">
-                    <p className="text-xs text-gray-500 mb-2 font-medium">SEU CUPOM EXCLUSIVO</p>
-                    <div className="flex items-center justify-center gap-2 sm:gap-3">
-                      <code className="text-[11px] sm:text-base md:text-lg lg:text-2xl font-bold text-primary tracking-tighter sm:tracking-normal md:tracking-wider text-center">
+                  <div className="bg-white border-2 border-dashed border-primary/50 rounded-xl p-4 sm:p-5">
+                    <p className="text-xs text-gray-500 mb-3 font-medium uppercase tracking-wide">Seu cupom exclusivo</p>
+                    <div className="flex items-center justify-center gap-3">
+                      <code className="text-base sm:text-lg md:text-xl font-bold text-primary tracking-wide text-center font-mono">
                         USUARIODIAMANTE
                       </code>
                       <button
                         onClick={handleCopyCoupon}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
                         title="Copiar cupom"
+                        aria-label="Copiar código do cupom"
                       >
                         {copied ? (
                           <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -187,7 +188,7 @@ const PaymentComingSoonModal = ({ isOpen, onClose }) => {
                       </button>
                     </div>
                     {copied && (
-                      <p className="text-green-600 text-xs mt-2 font-medium">✓ Cupom copiado!</p>
+                      <p className="text-green-600 text-xs sm:text-sm mt-3 font-medium">✓ Cupom copiado!</p>
                     )}
                   </div>
                 </div>
@@ -197,7 +198,7 @@ const PaymentComingSoonModal = ({ isOpen, onClose }) => {
             {/* Botão de Fechar */}
             <button
               onClick={handleClose}
-              className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-6 rounded-xl transition-colors"
+              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-6 rounded-xl transition-colors mt-2"
             >
               Fechar
             </button>

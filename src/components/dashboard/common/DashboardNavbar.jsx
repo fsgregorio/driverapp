@@ -69,7 +69,24 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
   };
 
   const handleLogoClick = () => {
-    navigate('/');
+    // Redirecionar para o dashboard inicial baseado no tipo de usuário
+    if (userType === 'student') {
+      navigate('/dashboard/aluno');
+    } else if (userType === 'instructor') {
+      navigate('/dashboard/instrutor');
+    } else if (userType === 'admin') {
+      navigate('/dashboard/admin');
+    } else {
+      // Fallback: se não houver tipo de usuário, manter comportamento padrão
+      navigate('/');
+    }
+    // Resetar para a seção inicial do dashboard
+    if (onSectionChange) {
+      const initialSection = userType === 'student' ? 'home' : userType === 'instructor' ? 'classes' : null;
+      if (initialSection) {
+        onSectionChange(initialSection);
+      }
+    }
   };
 
   const sections = isAdmin
