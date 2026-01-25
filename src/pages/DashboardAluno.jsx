@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import DashboardNavbar from '../components/dashboard/common/DashboardNavbar';
@@ -20,6 +20,14 @@ const DashboardAluno = () => {
   const [initialInstructorTab, setInitialInstructorTab] = useState('search');
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
+  // Inicializar seção a partir do hash da URL se existir
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && ['home', 'classes', 'instructors', 'settings'].includes(hash)) {
+      setActiveSection(hash);
+    }
+  }, []);
+
   // Ativar sessão de aluno se existir
   useEffect(() => {
     if (!loading && isAuthenticatedAs('student')) {
@@ -27,11 +35,25 @@ const DashboardAluno = () => {
     }
   }, [loading, isAuthenticatedAs, setActiveUser]);
 
+  // Usar useRef para evitar múltiplos redirecionamentos
+  const hasRedirectedRef = useRef(false);
+  
   useEffect(() => {
-    // Só redirecionar se realmente não tiver sessão de aluno
-    if (!loading && !isAuthenticatedAs('student')) {
-      console.log('Student session not found, redirecting to login');
-      navigate('/login?type=student', { replace: true });
+    // Resetar flag quando a sessão for restaurada
+    if (isAuthenticatedAs('student')) {
+      hasRedirectedRef.current = false;
+      return;
+    }
+    
+    // Só redirecionar uma vez se realmente não tiver sessão de aluno
+    if (!loading && !isAuthenticatedAs('student') && !hasRedirectedRef.current) {
+      const currentPath = window.location.pathname;
+      // Só redirecionar se não estiver já na página de login e não tiver redirecionado antes
+      if (currentPath !== '/login' && !currentPath.startsWith('/login')) {
+        console.log('Student session not found, redirecting to login');
+        hasRedirectedRef.current = true;
+        navigate('/login?type=student');
+      }
     }
   }, [loading, isAuthenticatedAs, navigate]);
 
@@ -127,7 +149,7 @@ const DashboardAluno = () => {
       });
       
       // Navegar para a seção de aulas e mostrar pendentes de aceite
-      setActiveSection('classes');
+      handleSectionChange('classes');
       setInitialTab('pendentes_aceite');
       
       // Mostrar modal de confirmação após um pequeno delay
@@ -140,7 +162,37 @@ const DashboardAluno = () => {
     }
   };
 
+  // Sincronizar seção com o histórico do navegador
+  useEffect(() => {
+    // Criar entrada inicial no histórico se não houver
+    const currentHash = window.location.hash.replace('#', '');
+    if (!currentHash || !['home', 'classes', 'instructors', 'settings'].includes(currentHash)) {
+      window.history.replaceState({ section: activeSection }, '', `#${activeSection}`);
+    }
+
+    // Listener para o botão voltar do navegador
+    const handlePopState = (event) => {
+      if (event.state && event.state.section) {
+        setActiveSection(event.state.section);
+      } else {
+        // Se não houver state, verificar hash
+        const hash = window.location.hash.replace('#', '');
+        if (hash && ['home', 'classes', 'instructors', 'settings'].includes(hash)) {
+          setActiveSection(hash);
+        } else {
+          // Se não houver hash válido, voltar para home
+          setActiveSection('home');
+        }
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []); // Executar apenas uma vez na montagem
+
   const handleSectionChange = (section) => {
+    // Criar nova entrada no histórico quando mudar de seção
+    window.history.pushState({ section }, '', `#${section}`);
     setActiveSection(section);
     // Quando mudar para instrutores, definir tab padrão
     if (section === 'instructors' && activeSection !== 'instructors') {
@@ -149,7 +201,7 @@ const DashboardAluno = () => {
   };
 
   const handleScheduleNewClass = () => {
-    setActiveSection('instructors');
+    handleSectionChange('instructors');
     setInitialInstructorTab('search');
   };
 
@@ -184,7 +236,7 @@ const DashboardAluno = () => {
           <HomeSection 
             classes={classes} 
             onNavigateToSection={(section, tab) => {
-              setActiveSection(section);
+              handleSectionChange(section);
               if (tab) {
                 setInitialTab(tab);
               }

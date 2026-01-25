@@ -26,9 +26,9 @@ const ProtectedRoute = ({ children, requiredUserType }) => {
   if (!hasRequiredSession) {
     // Se não tem sessão do tipo requerido, redirecionar para login
     if (requiredUserType === 'admin') {
-      return <Navigate to="/dashboard/admin" replace />;
+      return <Navigate to="/dashboard/admin" />;
     }
-    return <Navigate to={`/login?type=${requiredUserType || 'student'}`} replace />;
+    return <Navigate to={`/login?type=${requiredUserType || 'student'}`} />;
   }
 
   // Se tem sessão mas o userType não corresponde, atualizar o usuário ativo

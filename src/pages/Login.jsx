@@ -28,7 +28,7 @@ const Login = () => {
   const handleProfileComplete = () => {
     setShowCompleteProfile(false);
     const dashboardPath = type === 'student' ? '/dashboard/aluno' : '/dashboard/instrutor';
-    navigate(dashboardPath, { replace: true });
+    navigate(dashboardPath);
   };
 
   // Mostrar loading enquanto verifica autenticação

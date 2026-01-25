@@ -44,12 +44,12 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
       
       // Redirecionar para tela de login com o tipo de usuário
       const loginType = currentUserType === 'student' ? 'student' : currentUserType === 'admin' ? 'admin' : 'instructor';
-      navigate(`/login?type=${loginType}`, { replace: true });
+      navigate(`/login?type=${loginType}`);
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
       // Mesmo com erro, redireciona para a tela de login
       const loginType = currentUserType === 'student' ? 'student' : currentUserType === 'admin' ? 'admin' : 'instructor';
-      navigate(`/login?type=${loginType}`, { replace: true });
+      navigate(`/login?type=${loginType}`);
     }
   };
 

@@ -83,7 +83,7 @@ const LoginForm = ({ onSuccess, userType = 'student' }) => {
       console.log('[LoginForm] isSubmitting reset to false');
       
       console.log('[LoginForm] Calling navigate...');
-      navigate(dashboardPath, { replace: true });
+      navigate(dashboardPath);
       console.log('[LoginForm] Navigate called, should redirect now');
       
     } catch (error) {
