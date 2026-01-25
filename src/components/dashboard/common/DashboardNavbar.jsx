@@ -225,10 +225,10 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
           />
           
           {/* Mobile Menu Sidebar */}
-          <div className="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-white shadow-2xl z-50 lg:hidden transform transition-transform duration-300 ease-in-out overflow-y-auto">
-            <div className="p-6">
+          <div className="fixed inset-y-0 left-0 w-72 sm:w-80 max-w-[85vw] bg-white shadow-2xl z-50 lg:hidden transform transition-transform duration-300 ease-in-out overflow-y-auto">
+            <div className="p-4 sm:p-6">
               {/* Header com Logo e Botão Fechar */}
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center justify-between mb-6 sm:mb-8">
                 <div 
                   className="cursor-pointer"
                   onClick={handleLogoClick}
@@ -236,15 +236,15 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
                   <img 
                     src="/imgs/logo/idrive.png" 
                     alt="iDrive Logo" 
-                    className="h-9 w-auto"
+                    className="h-8 sm:h-9 w-auto"
                   />
                 </div>
                 <button
                   onClick={() => setIsMenuOpen(false)}
-                  className="text-gray-700 hover:text-primary p-2"
+                  className="text-gray-700 hover:text-primary p-1.5 sm:p-2 flex-shrink-0"
                   aria-label="Fechar menu"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
@@ -257,7 +257,7 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
                     handleScheduleNewClassClick();
                     setIsMenuOpen(false);
                   }}
-                  className="w-full bg-primary hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 text-center mb-6"
+                  className="w-full bg-primary hover:bg-blue-600 text-white font-semibold py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg transition-all duration-300 text-center mb-4 sm:mb-6 text-sm sm:text-base"
                 >
                   + Agendar Nova Aula
                 </button>
@@ -265,12 +265,12 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
 
               {/* Navigation Links Mobile - Oculto para admin */}
               {!isAdmin && (
-                <div className="space-y-2 mb-6">
+                <div className="space-y-1.5 sm:space-y-2 mb-4 sm:mb-6">
                   {sections.map((section) => (
                     <button
                       key={section.id}
                       onClick={() => handleSectionChange(section.id)}
-                      className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-colors ${
+                      className={`w-full text-left px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg font-medium transition-colors text-sm sm:text-base ${
                         activeSection === section.id
                           ? 'bg-primary text-white'
                           : 'text-gray-700 hover:text-primary hover:bg-gray-50'
@@ -283,12 +283,12 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
               )}
 
               {/* User Info e Logout */}
-              <div className="border-t border-gray-200 pt-6">
-                <div className="flex items-center space-x-3 px-4 py-3 mb-4">
+              <div className="border-t border-gray-200 pt-4 sm:pt-6">
+                <div className="flex items-center space-x-2 sm:space-x-3 px-3 sm:px-4 py-2 sm:py-3 mb-3 sm:mb-4">
                   <img
                     src={getPhotoUrl(user?.photo)}
                     alt={user?.name || 'Usuário'}
-                    className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200 flex-shrink-0"
                     onError={(e) => {
                       // Se a foto padrão também falhar, mostrar ícone SVG
                       if (e.target.src.includes('no_user.png')) {
@@ -300,18 +300,18 @@ const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass })
                       }
                     }}
                   />
-                  <div className="w-12 h-12 rounded-full bg-gray-200 border-2 border-gray-300 flex items-center justify-center hidden">
-                    <svg className="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-200 border-2 border-gray-300 flex items-center justify-center hidden flex-shrink-0">
+                    <svg className="w-6 h-6 sm:w-7 sm:h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-sm font-medium text-gray-700 truncate flex-1 min-w-0">
                     {user?.name}
                   </span>
                 </div>
                 <button
                   onClick={(e) => handleLogout(e)}
-                  className="w-full text-left px-4 py-3 text-gray-600 hover:text-primary transition-colors text-sm font-medium rounded-lg hover:bg-gray-50"
+                  className="w-full text-left px-3 sm:px-4 py-2 sm:py-3 text-gray-600 hover:text-primary transition-colors text-sm font-medium rounded-lg hover:bg-gray-50"
                 >
                   Sair
                 </button>

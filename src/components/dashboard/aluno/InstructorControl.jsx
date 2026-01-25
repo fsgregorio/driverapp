@@ -37,27 +37,29 @@ const InstructorControl = ({ onScheduleClass, initialTab = 'search' }) => {
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Tabs */}
-      <div className="flex flex-row gap-2 sm:gap-4 border-b border-gray-200 pb-2 overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
-        <button
-          onClick={() => setActiveTab('search')}
-          className={`pb-3 sm:pb-4 px-3 sm:px-4 md:px-6 text-sm sm:text-base font-semibold transition-colors whitespace-nowrap flex-shrink-0 ${
-            activeTab === 'search'
-              ? 'text-primary border-b-2 border-primary'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          Busca de Instrutores
-        </button>
-        <button
-          onClick={() => setActiveTab('favorites')}
-          className={`pb-3 sm:pb-4 px-3 sm:px-4 md:px-6 text-sm sm:text-base font-semibold transition-colors whitespace-nowrap flex-shrink-0 ${
-            activeTab === 'favorites'
-              ? 'text-primary border-b-2 border-primary'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          Instrutores Favoritos
-        </button>
+      <div className="mb-4 sm:mb-6 border-b border-gray-200 pb-3">
+        <div className="flex flex-wrap gap-1.5">
+          <button
+            onClick={() => setActiveTab('search')}
+            className={`px-3 py-2 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+              activeTab === 'search'
+                ? 'bg-primary text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            Busca de Instrutores
+          </button>
+          <button
+            onClick={() => setActiveTab('favorites')}
+            className={`px-3 py-2 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+              activeTab === 'favorites'
+                ? 'bg-primary text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            Instrutores Favoritos
+          </button>
+        </div>
       </div>
 
       {/* Content */}

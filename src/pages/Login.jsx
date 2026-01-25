@@ -66,14 +66,14 @@ const Login = () => {
         </div>
       </nav>
 
-      <main className="flex-1 flex items-center justify-center py-12 px-4">
+      <main className="flex-1 flex items-center justify-center py-6 sm:py-8 md:py-12 px-3 sm:px-4">
         <div className="max-w-md w-full">
-          <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12">
-            <div className="text-center mb-8">
-              <h1 className="text-3xl md:text-4xl font-bold text-secondary mb-4">
+          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl p-5 sm:p-6 md:p-8 lg:p-12">
+            <div className="text-center mb-6 sm:mb-8">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-secondary mb-3 sm:mb-4">
                 Bem-vindo de volta!
               </h1>
-              <p className="text-gray-600">
+              <p className="text-sm sm:text-base text-gray-600">
                 Faça login na sua conta {type === 'student' ? 'de aluno' : 'de instrutor'}
               </p>
             </div>

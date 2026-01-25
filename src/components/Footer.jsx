@@ -10,25 +10,25 @@ const Footer = ({ onSwitchProfile }) => {
   const [showPolitica, setShowPolitica] = useState(false);
 
   return (
-    <footer className="bg-secondary text-white py-12 md:py-16">
+    <footer className="bg-secondary text-white py-8 sm:py-10 md:py-12 lg:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8 mb-6 sm:mb-8">
           {/* About */}
           <div>
             <img 
               src="/imgs/logo/idriveblack.png" 
               alt="iDrive Logo" 
-              className="h-9 md:h-11 w-auto mb-4"
+              className="h-8 sm:h-9 md:h-11 w-auto mb-3 sm:mb-4"
             />
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-400 text-xs sm:text-sm">
               Conectamos alunos e instrutores certificados para aulas práticas seguras e sem burocracia.
             </p>
           </div>
 
           {/* Links */}
           <div>
-            <h3 className="font-bold text-lg mb-4">Links</h3>
-            <ul className="space-y-2 text-gray-400 text-sm">
+            <h3 className="font-bold text-base sm:text-lg mb-3 sm:mb-4">Links</h3>
+            <ul className="space-y-1.5 sm:space-y-2 text-gray-400 text-xs sm:text-sm">
               <li>
                 <button
                   onClick={() => navigate('/aluno')}
@@ -50,8 +50,8 @@ const Footer = ({ onSwitchProfile }) => {
 
           {/* Legal */}
           <div>
-            <h3 className="font-bold text-lg mb-4">Legal</h3>
-            <ul className="space-y-2 text-gray-400 text-sm">
+            <h3 className="font-bold text-base sm:text-lg mb-3 sm:mb-4">Legal</h3>
+            <ul className="space-y-1.5 sm:space-y-2 text-gray-400 text-xs sm:text-sm">
               <li>
                 <button
                   onClick={() => setShowTermos(true)}
@@ -73,8 +73,8 @@ const Footer = ({ onSwitchProfile }) => {
 
           {/* Contact */}
           <div>
-            <h3 className="font-bold text-lg mb-4">Contato</h3>
-            <ul className="space-y-2 text-gray-400 text-sm">
+            <h3 className="font-bold text-base sm:text-lg mb-3 sm:mb-4">Contato</h3>
+            <ul className="space-y-1.5 sm:space-y-2 text-gray-400 text-xs sm:text-sm">
               <li>
                 <a href="https://wa.me/5511999999999" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
                   WhatsApp
@@ -90,20 +90,20 @@ const Footer = ({ onSwitchProfile }) => {
         </div>
 
         {/* Switch Profile Button */}
-        <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row items-center justify-between">
-          <p className="text-gray-400 text-sm mb-4 md:mb-0">
+        <div className="border-t border-gray-700 pt-6 sm:pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-gray-400 text-xs sm:text-sm text-center md:text-left">
             © 2025 iDrive. Todos os direitos reservados.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
             <button
               onClick={() => navigate('/login?type=student')}
-              className="bg-white hover:bg-gray-100 text-secondary font-semibold py-2.5 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
+              className="bg-white hover:bg-gray-100 text-secondary font-semibold py-2 sm:py-2.5 px-4 sm:px-6 rounded-lg transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm md:text-base w-full sm:w-auto"
             >
               Login
             </button>
             <button
               onClick={onSwitchProfile}
-              className="bg-primary hover:bg-blue-600 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
+              className="bg-primary hover:bg-blue-600 text-white font-semibold py-2 sm:py-2.5 px-4 sm:px-6 rounded-lg transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm md:text-base w-full sm:w-auto"
             >
               Trocar Perfil
             </button>

@@ -188,7 +188,8 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden text-gray-700 hover:text-primary"
+            className="md:hidden text-gray-700 hover:text-primary p-2 -mr-2"
+            aria-label="Toggle menu"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {isMenuOpen ? (
@@ -202,7 +203,7 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden py-4 space-y-3 border-t border-gray-200 mt-2">
+          <div className="lg:hidden py-3 sm:py-4 space-y-2 sm:space-y-3 border-t border-gray-200 mt-2">
             {currentProfile === 'student' && (
               <>
                 <button
@@ -309,13 +310,13 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
                 </button>
               </>
             )}
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2 sm:gap-3 pt-2 border-t border-gray-200">
               <button
                 onClick={() => {
                   handleLoginClick();
                   setIsMenuOpen(false);
                 }}
-                className="block w-full bg-white hover:bg-gray-100 text-secondary border-2 border-gray-300 font-semibold py-2 px-4 rounded-lg transition-all duration-300 text-center"
+                className="block w-full bg-white hover:bg-gray-100 text-secondary border-2 border-gray-300 font-semibold py-2 sm:py-2.5 px-4 rounded-lg transition-all duration-300 text-center text-sm sm:text-base"
               >
                 Login
               </button>
@@ -324,7 +325,7 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
                   handleSwitchProfileClick();
                   setIsMenuOpen(false);
                 }}
-                className="block w-full bg-primary hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 text-center"
+                className="block w-full bg-primary hover:bg-blue-600 text-white font-semibold py-2 sm:py-2.5 px-4 rounded-lg transition-all duration-300 text-center text-sm sm:text-base"
               >
                 Trocar Perfil
               </button>

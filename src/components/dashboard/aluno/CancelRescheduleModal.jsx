@@ -10,6 +10,8 @@ const CancelRescheduleModal = ({
   onConfirm 
 }) => {
   const [showRefundWarning, setShowRefundWarning] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [rescheduleForm, setRescheduleForm] = useState({
     date: '',
     time: ''
@@ -45,28 +47,57 @@ const CancelRescheduleModal = ({
     return today.toISOString().split('T')[0];
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (mode === 'cancel') {
-      if (onConfirm) {
-        onConfirm(classData.id, null);
+      if (!onConfirm) {
+        handleClose();
+        return;
       }
-      handleClose();
+      
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        await onConfirm(classData.id, null);
+        handleClose();
+      } catch (err) {
+        console.error('Erro ao cancelar aula:', err);
+        setError(err.message || 'Erro ao cancelar aula. Por favor, tente novamente.');
+        setIsLoading(false);
+      }
     } else {
       // Reschedule
-      if (rescheduleForm.date && rescheduleForm.time) {
-        if (onConfirm) {
-          onConfirm(classData.id, {
-            date: rescheduleForm.date,
-            time: rescheduleForm.time
-          });
-        }
+      if (!rescheduleForm.date || !rescheduleForm.time) {
+        setError('Por favor, preencha a data e o horário.');
+        return;
+      }
+      
+      if (!onConfirm) {
         handleClose();
+        return;
+      }
+      
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        await onConfirm(classData.id, {
+          date: rescheduleForm.date,
+          time: rescheduleForm.time
+        });
+        handleClose();
+      } catch (err) {
+        console.error('Erro ao reagendar aula:', err);
+        setError(err.message || 'Erro ao reagendar aula. Por favor, tente novamente.');
+        setIsLoading(false);
       }
     }
   };
 
   const handleClose = () => {
     setShowRefundWarning(false);
+    setError(null);
+    setIsLoading(false);
     setRescheduleForm({ date: '', time: '' });
     onClose();
   };
@@ -184,6 +215,21 @@ const CancelRescheduleModal = ({
           </div>
         )}
 
+        {/* Mensagem de Erro */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-lg">
+            <div className="flex items-start">
+              <svg className="w-6 h-6 text-red-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <h3 className="font-semibold text-red-800 mb-1">Erro</h3>
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Confirmação */}
         <div className="mb-6">
           <p className="text-gray-600 text-sm">
@@ -197,20 +243,31 @@ const CancelRescheduleModal = ({
         <div className="flex space-x-3">
           <button
             onClick={handleClose}
-            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-xl transition-colors"
+            disabled={isLoading}
+            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Voltar
           </button>
           <button
             onClick={handleConfirm}
-            disabled={mode === 'reschedule' && (!rescheduleForm.date || !rescheduleForm.time)}
+            disabled={isLoading || (mode === 'reschedule' && (!rescheduleForm.date || !rescheduleForm.time))}
             className={`flex-1 font-semibold py-3 px-6 rounded-xl transition-colors ${
               mode === 'cancel'
                 ? 'bg-red-500 hover:bg-red-600 text-white'
-                : 'bg-primary hover:bg-blue-600 text-white disabled:bg-gray-300 disabled:cursor-not-allowed'
-            }`}
+                : 'bg-primary hover:bg-blue-600 text-white'
+            } disabled:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50`}
           >
-            {mode === 'cancel' ? 'Confirmar Cancelamento' : 'Confirmar Reagendamento'}
+            {isLoading ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {mode === 'cancel' ? 'Cancelando...' : 'Reagendando...'}
+              </span>
+            ) : (
+              mode === 'cancel' ? 'Confirmar Cancelamento' : 'Confirmar Reagendamento'
+            )}
           </button>
         </div>
       </div>

@@ -443,7 +443,7 @@ export const studentsAPI = {
     try {
       const client = await getActiveSupabaseClient('student');
       const { data: { user } } = await client.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      if (!user) throw new Error('Usuário não autenticado');
 
       console.log('🔄 Cancelando aula:', classId, 'do aluno:', user.id);
 
@@ -457,14 +457,35 @@ export const studentsAPI = {
 
       if (error) {
         console.error('❌ Erro ao cancelar aula no banco:', error);
-        throw error;
+        
+        // Verificar se a aula não foi encontrada ou não pertence ao aluno
+        if (error.code === 'PGRST116' || !data) {
+          throw new Error('Aula não encontrada ou você não tem permissão para cancelá-la.');
+        }
+        
+        // Verificar erros de permissão RLS
+        if (error.code === '42501' || error.message?.includes('permission')) {
+          throw new Error('Você não tem permissão para cancelar esta aula.');
+        }
+        
+        // Erro genérico
+        throw new Error(error.message || 'Erro ao cancelar aula. Por favor, tente novamente.');
+      }
+
+      if (!data) {
+        throw new Error('Aula não encontrada.');
       }
 
       console.log('✅ Aula cancelada no banco:', { id: data.id, status: data.status });
       return transformClass(data);
     } catch (error) {
       console.error('Error canceling class:', error);
-      throw error;
+      // Se já é um Error com mensagem amigável, apenas relançar
+      if (error instanceof Error && error.message) {
+        throw error;
+      }
+      // Caso contrário, criar um erro com mensagem amigável
+      throw new Error(error.message || 'Erro ao cancelar aula. Por favor, tente novamente.');
     }
   },
 
@@ -472,7 +493,7 @@ export const studentsAPI = {
     try {
       const client = await getActiveSupabaseClient('student');
       const { data: { user } } = await client.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      if (!user) throw new Error('Usuário não autenticado');
 
       console.log('🔄 Reagendando aula:', classId, 'com novos dados:', newData);
 
@@ -493,14 +514,35 @@ export const studentsAPI = {
 
       if (error) {
         console.error('❌ Erro ao reagendar aula no banco:', error);
-        throw error;
+        
+        // Verificar se a aula não foi encontrada ou não pertence ao aluno
+        if (error.code === 'PGRST116' || !data) {
+          throw new Error('Aula não encontrada ou você não tem permissão para reagendá-la.');
+        }
+        
+        // Verificar erros de permissão RLS
+        if (error.code === '42501' || error.message?.includes('permission')) {
+          throw new Error('Você não tem permissão para reagendar esta aula.');
+        }
+        
+        // Erro genérico
+        throw new Error(error.message || 'Erro ao reagendar aula. Por favor, tente novamente.');
+      }
+
+      if (!data) {
+        throw new Error('Aula não encontrada.');
       }
 
       console.log('✅ Aula reagendada no banco:', { id: data.id, date: data.date, time: data.time });
       return transformClass(data);
     } catch (error) {
       console.error('Error rescheduling class:', error);
-      throw error;
+      // Se já é um Error com mensagem amigável, apenas relançar
+      if (error instanceof Error && error.message) {
+        throw error;
+      }
+      // Caso contrário, criar um erro com mensagem amigável
+      throw new Error(error.message || 'Erro ao reagendar aula. Por favor, tente novamente.');
     }
   },
 

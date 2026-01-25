@@ -68,49 +68,49 @@ const EvaluationModal = ({ isOpen, onClose, classData, onConfirm }) => {
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-2 sm:p-4"
       onClick={handleClose}
     >
       <div 
-        className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-slideUp max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-md w-full p-4 sm:p-6 animate-slideUp max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Avaliar Aula</h2>
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Avaliar Aula</h2>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors p-1 flex-shrink-0"
             aria-label="Fechar"
             disabled={isSubmitting}
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Informações da Aula */}
-        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-          <div className="flex items-center space-x-4 mb-4">
+        <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center space-x-3 sm:space-x-4 mb-3 sm:mb-4">
             {classData.instructorPhoto ? (
               <img
                 src={classData.instructorPhoto}
                 alt={classData.instructorName}
-                className="w-16 h-16 rounded-full object-cover"
+                className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover flex-shrink-0"
                 onError={(e) => {
                   e.target.style.display = 'none';
                   e.target.nextSibling.style.display = 'flex';
                 }}
               />
             ) : null}
-            <div className={`w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center ${classData.instructorPhoto ? 'hidden' : ''}`}>
-              <svg className="w-9 h-9 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 ${classData.instructorPhoto ? 'hidden' : ''}`}>
+              <svg className="w-7 h-7 sm:w-9 sm:h-9 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
                 {classData.instructorName}
               </h3>
               <div className="flex flex-wrap gap-1 mt-1">
@@ -143,11 +143,11 @@ const EvaluationModal = ({ isOpen, onClose, classData, onConfirm }) => {
         </div>
 
         {/* Sistema de Estrelas */}
-        <div className="mb-6">
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
+        <div className="mb-4 sm:mb-6">
+          <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
             Como foi sua experiência? <span className="text-red-500">*</span>
           </label>
-          <div className="flex items-center justify-center space-x-2">
+          <div className="flex items-center justify-center space-x-1 sm:space-x-2">
             {[1, 2, 3, 4, 5].map((value) => (
               <button
                 key={value}
@@ -162,7 +162,7 @@ const EvaluationModal = ({ isOpen, onClose, classData, onConfirm }) => {
                 aria-label={`Avaliar com ${value} estrela${value > 1 ? 's' : ''}`}
               >
                 <svg
-                  className={`w-10 h-10 sm:w-12 sm:h-12 ${
+                  className={`w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 ${
                     value <= displayRating
                       ? 'text-yellow-400 fill-current'
                       : 'text-gray-300'
@@ -187,7 +187,7 @@ const EvaluationModal = ({ isOpen, onClose, classData, onConfirm }) => {
         </div>
 
         {/* Campo de Comentário */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             Comentário (opcional)
           </label>
@@ -198,7 +198,7 @@ const EvaluationModal = ({ isOpen, onClose, classData, onConfirm }) => {
             rows={4}
             maxLength={500}
             disabled={isSubmitting}
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-none disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-none disabled:bg-gray-100 disabled:cursor-not-allowed text-sm sm:text-base"
           />
           <p className="text-xs text-gray-500 mt-1 text-right">
             {comment.length}/500 caracteres
@@ -206,18 +206,18 @@ const EvaluationModal = ({ isOpen, onClose, classData, onConfirm }) => {
         </div>
 
         {/* Botões */}
-        <div className="flex space-x-3">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <button
             onClick={handleClose}
             disabled={isSubmitting}
-            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-xl transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg sm:rounded-xl transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed text-sm sm:text-base"
           >
             Cancelar
           </button>
           <button
             onClick={handleSubmit}
             disabled={rating === 0 || isSubmitting}
-            className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded-xl transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center"
+            className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg sm:rounded-xl transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center text-sm sm:text-base"
           >
             {isSubmitting ? (
               <>

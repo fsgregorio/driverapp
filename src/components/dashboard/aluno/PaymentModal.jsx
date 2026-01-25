@@ -41,36 +41,36 @@ const PaymentModal = ({ isOpen, onClose, classData, onConfirm }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-md w-full p-4 sm:p-6 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Pagamento</h2>
+        <div className="flex justify-between items-center mb-4 sm:mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Pagamento</h2>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors p-1 flex-shrink-0"
             disabled={isProcessing}
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Informações da Aula */}
-        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Instrutor:</span>
-              <span className="font-semibold">{classData?.instructorName}</span>
+        <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
+          <div className="space-y-2 sm:space-y-2.5">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+              <span className="text-sm sm:text-base text-gray-600">Instrutor:</span>
+              <span className="font-semibold text-sm sm:text-base break-words">{classData?.instructorName}</span>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Data e Hora:</span>
-              <span className="font-semibold">{classData?.date} às {classData?.time}</span>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+              <span className="text-sm sm:text-base text-gray-600">Data e Hora:</span>
+              <span className="font-semibold text-sm sm:text-base">{classData?.date} às {classData?.time}</span>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Tipo de Aula:</span>
-              <div className="flex flex-wrap gap-1 justify-end">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
+              <span className="text-sm sm:text-base text-gray-600">Tipo de Aula:</span>
+              <div className="flex flex-wrap gap-1 justify-start sm:justify-end">
                 {normalizeClassTypes(classData?.type).map((type, index) => (
                   <span
                     key={index}
@@ -81,13 +81,13 @@ const PaymentModal = ({ isOpen, onClose, classData, onConfirm }) => {
                 ))}
               </div>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Carro:</span>
-              <span className="font-semibold">{classData?.car || 'Não informado'}</span>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+              <span className="text-sm sm:text-base text-gray-600">Carro:</span>
+              <span className="font-semibold text-sm sm:text-base break-words">{classData?.car || 'Não informado'}</span>
             </div>
-            <div className="flex items-center justify-between pt-2 border-t border-gray-200">
-              <span className="text-lg font-semibold text-gray-900">Total a pagar:</span>
-              <span className="text-2xl font-bold text-primary">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 pt-2 border-t border-gray-200">
+              <span className="text-base sm:text-lg font-semibold text-gray-900">Total a pagar:</span>
+              <span className="text-xl sm:text-2xl font-bold text-primary">
                 R$ {classData?.price?.toFixed(2).replace('.', ',')}
               </span>
             </div>
@@ -95,84 +95,84 @@ const PaymentModal = ({ isOpen, onClose, classData, onConfirm }) => {
         </div>
 
         {/* Métodos de Pagamento */}
-        <div className="mb-6">
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
+        <div className="mb-4 sm:mb-6">
+          <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
             Método de Pagamento
           </label>
           <div className="space-y-2">
-            <label className="flex items-center p-4 border-2 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
+            <label className="flex items-center p-3 sm:p-4 border-2 rounded-lg sm:rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
               <input
                 type="radio"
                 name="paymentMethod"
                 value="credit_card"
                 checked={paymentMethod === 'credit_card'}
                 onChange={(e) => setPaymentMethod(e.target.value)}
-                className="mr-3"
+                className="mr-2 sm:mr-3 flex-shrink-0"
                 disabled={isProcessing}
               />
-              <div className="flex items-center flex-1">
-                <svg className="w-6 h-6 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center flex-1 min-w-0">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>
-                <span className="font-medium">Cartão de Crédito</span>
+                <span className="font-medium text-sm sm:text-base">Cartão de Crédito</span>
               </div>
             </label>
 
-            <label className="flex items-center p-4 border-2 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
+            <label className="flex items-center p-3 sm:p-4 border-2 rounded-lg sm:rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
               <input
                 type="radio"
                 name="paymentMethod"
                 value="debit_card"
                 checked={paymentMethod === 'debit_card'}
                 onChange={(e) => setPaymentMethod(e.target.value)}
-                className="mr-3"
+                className="mr-2 sm:mr-3 flex-shrink-0"
                 disabled={isProcessing}
               />
-              <div className="flex items-center flex-1">
-                <svg className="w-6 h-6 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center flex-1 min-w-0">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>
-                <span className="font-medium">Cartão de Débito</span>
+                <span className="font-medium text-sm sm:text-base">Cartão de Débito</span>
               </div>
             </label>
 
-            <label className="flex items-center p-4 border-2 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
+            <label className="flex items-center p-3 sm:p-4 border-2 rounded-lg sm:rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
               <input
                 type="radio"
                 name="paymentMethod"
                 value="pix"
                 checked={paymentMethod === 'pix'}
                 onChange={(e) => setPaymentMethod(e.target.value)}
-                className="mr-3"
+                className="mr-2 sm:mr-3 flex-shrink-0"
                 disabled={isProcessing}
               />
-              <div className="flex items-center flex-1">
-                <svg className="w-6 h-6 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center flex-1 min-w-0">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
-                <span className="font-medium">PIX</span>
+                <span className="font-medium text-sm sm:text-base">PIX</span>
               </div>
             </label>
           </div>
         </div>
 
         {/* Informação de Segurança */}
-        <div className="mb-6 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="mb-4 sm:mb-6 p-2.5 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="flex items-start">
-            <svg className="w-5 h-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
-            <p className="text-sm text-blue-700">
+            <p className="text-xs sm:text-sm text-blue-700">
               Seus dados de pagamento são processados de forma segura e criptografada.
             </p>
           </div>
         </div>
 
         {/* Botões */}
-        <div className="flex space-x-3">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <button
             onClick={handleClose}
-            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg sm:rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
             disabled={isProcessing}
           >
             Cancelar
@@ -180,7 +180,7 @@ const PaymentModal = ({ isOpen, onClose, classData, onConfirm }) => {
           <button
             onClick={handlePayment}
             disabled={isProcessing}
-            className="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            className="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg sm:rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm sm:text-base"
           >
             {isProcessing ? (
               <>

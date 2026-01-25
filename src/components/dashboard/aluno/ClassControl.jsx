@@ -240,49 +240,39 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
   }, []);
 
   const confirmCancel = async (classId, rescheduleData) => {
-    try {
-      // Chamar API para cancelar a aula no banco
-      await studentsAPI.cancelClass(classId);
-      
-      // Atualizar estado local após sucesso da API
-      const updatedClasses = classes.map(c => 
-        c.id === classId ? { ...c, status: 'cancelada' } : c
-      );
-      updateClasses(updatedClasses);
-      
-      setShowCancelModal(false);
-      setSelectedClass(null);
-      
-      console.log('✅ Aula cancelada com sucesso:', classId);
-    } catch (error) {
-      console.error('❌ Erro ao cancelar aula:', error);
-      alert('Erro ao cancelar aula. Por favor, tente novamente.');
-    }
+    // Chamar API para cancelar a aula no banco
+    await studentsAPI.cancelClass(classId);
+    
+    // Atualizar estado local após sucesso da API
+    const updatedClasses = classes.map(c => 
+      c.id === classId ? { ...c, status: 'cancelada' } : c
+    );
+    updateClasses(updatedClasses);
+    
+    setShowCancelModal(false);
+    setSelectedClass(null);
+    
+    console.log('✅ Aula cancelada com sucesso:', classId);
   };
 
   const confirmReschedule = async (classId, newData) => {
-    try {
-      // Chamar API para reagendar a aula no banco
-      await studentsAPI.rescheduleClass(classId, newData);
-      
-      // Atualizar estado local após sucesso da API
-      const updatedClasses = classes.map(c => 
-        c.id === classId ? { 
-          ...c, 
-          date: newData.date,
-          time: newData.time
-        } : c
-      );
-      updateClasses(updatedClasses);
-      
-      setShowRescheduleModal(false);
-      setSelectedClass(null);
-      
-      console.log('✅ Aula reagendada com sucesso:', classId);
-    } catch (error) {
-      console.error('❌ Erro ao reagendar aula:', error);
-      alert('Erro ao reagendar aula. Por favor, tente novamente.');
-    }
+    // Chamar API para reagendar a aula no banco
+    await studentsAPI.rescheduleClass(classId, newData);
+    
+    // Atualizar estado local após sucesso da API
+    const updatedClasses = classes.map(c => 
+      c.id === classId ? { 
+        ...c, 
+        date: newData.date,
+        time: newData.time
+      } : c
+    );
+    updateClasses(updatedClasses);
+    
+    setShowRescheduleModal(false);
+    setSelectedClass(null);
+    
+    console.log('✅ Aula reagendada com sucesso:', classId);
   };
 
   // eslint-disable-next-line no-unused-vars
@@ -444,76 +434,74 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
   return (
     <div className="space-y-6">
       {/* Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-2 overflow-x-auto scrollbar-hide">
-        <button
-          onClick={() => setActiveTab('agendadas')}
-          className={`pb-3 sm:pb-4 px-2 sm:px-4 font-semibold transition-colors whitespace-nowrap text-sm sm:text-base ${
-            activeTab === 'agendadas'
-              ? 'text-primary border-b-2 border-primary'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          <span className="hidden sm:inline">Agendadas</span>
-          <span className="sm:hidden">Agend.</span> ({agendadas.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('pendentes_aceite')}
-          className={`pb-3 sm:pb-4 px-2 sm:px-4 font-semibold transition-colors whitespace-nowrap text-sm sm:text-base ${
-            activeTab === 'pendentes_aceite'
-              ? 'text-primary border-b-2 border-primary'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          <span className="hidden sm:inline">Pendentes de Aceite</span>
-          <span className="sm:hidden">Aceite</span> ({pendentesAceite.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('pendentes_pagamento')}
-          className={`pb-3 sm:pb-4 px-2 sm:px-4 font-semibold transition-colors whitespace-nowrap text-sm sm:text-base ${
-            activeTab === 'pendentes_pagamento'
-              ? 'text-primary border-b-2 border-primary'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          <span className="hidden sm:inline">Pendentes de Pagamento</span>
-          <span className="sm:hidden">Pagamento</span> ({pendentesPagamento.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('pendentes_avaliacao')}
-          className={`pb-3 sm:pb-4 px-2 sm:px-4 font-semibold transition-colors whitespace-nowrap text-sm sm:text-base ${
-            activeTab === 'pendentes_avaliacao'
-              ? 'text-primary border-b-2 border-primary'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          <span className="hidden sm:inline">Pendentes de Avaliação</span>
-          <span className="sm:hidden">Avaliação</span> ({pendentesAvaliacao.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('historico')}
-          className={`pb-3 sm:pb-4 px-2 sm:px-4 font-semibold transition-colors whitespace-nowrap text-sm sm:text-base ${
-            activeTab === 'historico'
-              ? 'text-primary border-b-2 border-primary'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          Histórico ({historico.length})
-        </button>
+      <div className="mb-4 sm:mb-6 border-b border-gray-200 pb-3">
+        <div className="flex flex-wrap gap-1.5">
+          <button
+            onClick={() => setActiveTab('agendadas')}
+            className={`px-3 py-2 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+              activeTab === 'agendadas'
+                ? 'bg-primary text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            Agendadas ({agendadas.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('pendentes_aceite')}
+            className={`px-3 py-2 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+              activeTab === 'pendentes_aceite'
+                ? 'bg-primary text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            Aceite ({pendentesAceite.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('pendentes_pagamento')}
+            className={`px-3 py-2 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+              activeTab === 'pendentes_pagamento'
+                ? 'bg-primary text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            Pagamento ({pendentesPagamento.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('pendentes_avaliacao')}
+            className={`px-3 py-2 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+              activeTab === 'pendentes_avaliacao'
+                ? 'bg-primary text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            Avaliação ({pendentesAvaliacao.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('historico')}
+            className={`px-3 py-2 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+              activeTab === 'historico'
+                ? 'bg-primary text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            Histórico ({historico.length})
+          </button>
+        </div>
       </div>
 
       {/* Classes List */}
-      <div className="grid gap-6">
+      <div className="grid gap-4 sm:gap-5 md:gap-6">
         {loading && (
-          <div className="text-center py-12 bg-gray-50 rounded-xl">
-            <p className="text-gray-600 text-lg">Carregando aulas...</p>
+          <div className="text-center py-8 sm:py-10 md:py-12 bg-gray-50 rounded-lg sm:rounded-xl">
+            <p className="text-gray-600 text-base sm:text-lg">Carregando aulas...</p>
           </div>
         )}
         {!loading && filteredClasses.length === 0 && (
-          <div className="text-center py-12 bg-gray-50 rounded-xl">
-            <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="text-center py-8 sm:py-10 md:py-12 bg-gray-50 rounded-lg sm:rounded-xl">
+            <svg className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto text-gray-400 mb-3 sm:mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <p className="text-gray-600 text-lg">
+            <p className="text-gray-600 text-base sm:text-lg">
               {activeTab === 'historico' 
                 ? 'Nenhuma aula no histórico' 
                 : activeTab === 'pendentes_aceite'

@@ -314,25 +314,25 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
       {/* Modal de Aviso de Cancelamento Automático */}
       {showWarningModal && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4"
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-2 sm:p-4"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
               handleCancelWarning();
             }
           }}
         >
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-4 sm:p-6 mx-4 sm:mx-0" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-start gap-3 sm:gap-4 mb-4">
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-md w-full p-3 sm:p-4 md:p-6 mx-2 sm:mx-4 sm:mx-0 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start gap-2 sm:gap-3 md:gap-4 mb-3 sm:mb-4">
               <div className="flex-shrink-0">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                 </div>
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">Aviso Importante</h3>
-                <p className="text-sm sm:text-base text-gray-700 mb-3 sm:mb-4">
+                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-1.5 sm:mb-2">Aviso Importante</h3>
+                <p className="text-xs sm:text-sm md:text-base text-gray-700 mb-2 sm:mb-3 md:mb-4">
                   A aula será <strong className="text-yellow-600">cancelada automaticamente</strong> se não for aceita pelo instrutor ou paga até <strong className="text-yellow-600">24 horas antes</strong> do horário marcado (ou do último horário selecionado, caso tenha múltiplas opções).
                 </p>
                 <p className="text-xs sm:text-sm text-gray-600">
@@ -340,13 +340,13 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
                 </p>
               </div>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200" onClick={(e) => e.stopPropagation()}>
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-gray-200" onClick={(e) => e.stopPropagation()}>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleCancelWarning();
                 }}
-                className="w-full sm:flex-1 px-4 sm:px-6 py-2.5 sm:py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors text-sm sm:text-base"
+                className="w-full sm:flex-1 px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg sm:rounded-xl hover:bg-gray-50 transition-colors text-xs sm:text-sm md:text-base"
               >
                 Voltar
               </button>
@@ -356,7 +356,7 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
                   handleConfirmWithWarning();
                 }}
                 disabled={isSubmitting}
-                className="w-full sm:flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-primary hover:bg-blue-600 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="w-full sm:flex-1 px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 bg-primary hover:bg-blue-600 text-white font-semibold rounded-lg sm:rounded-xl transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {isSubmitting ? 'Confirmando...' : 'Entendi, Confirmar Agendamento'}
               </button>
@@ -371,17 +371,17 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
         title="Agendar Aula"
         hideFooter={true}
       >
-      <div className="space-y-4 sm:space-y-6">
+      <div className="space-y-3 sm:space-y-4 md:space-y-6">
         {/* Informações do Instrutor */}
-        <div className="bg-gray-50 rounded-xl p-4 sm:p-6 border border-gray-200">
-          <div className="flex items-start gap-3 sm:gap-4">
+        <div className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 border border-gray-200">
+          <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
             <img
               src={instructor.photo}
               alt={instructor.name}
-              className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover flex-shrink-0"
+              className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full object-cover flex-shrink-0"
             />
             <div className="flex-1 min-w-0">
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1 truncate">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-1 truncate">
                 {instructor.name}
               </h3>
               <p className="text-xs sm:text-sm text-gray-600 mb-1">

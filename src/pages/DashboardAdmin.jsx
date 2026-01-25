@@ -206,53 +206,55 @@ const DashboardAdmin = () => {
       <DashboardNavbar activeSection={activeSection} onSectionChange={() => {}} />
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
             Dashboard Admin
           </h1>
 
           {/* Filtros de período */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {[
-              { id: 'all', label: 'Acumulado' },
-              { id: '7d', label: 'Últimos 7 dias' },
-              { id: '30d', label: 'Últimos 30 dias' },
-              { id: 'month', label: 'Mês atual' },
+              { id: 'all', label: 'Acumulado', shortLabel: 'Acumulado' },
+              { id: '7d', label: 'Últimos 7 dias', shortLabel: '7 dias' },
+              { id: '30d', label: 'Últimos 30 dias', shortLabel: '30 dias' },
+              { id: 'month', label: 'Mês atual', shortLabel: 'Mês' },
             ].map((option) => (
               <button
                 key={option.id}
                 type="button"
                 onClick={() => handlePeriodChange(option.id)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium border ${
+                className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium border ${
                   period === option.id
                     ? 'bg-primary text-white border-primary'
                     : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                {option.label}
+                <span className="hidden sm:inline">{option.label}</span>
+                <span className="sm:hidden">{option.shortLabel}</span>
               </button>
             ))}
           </div>
         </div>
 
         {/* Abas */}
-        <div className="mb-6 border-b border-gray-200">
-          <nav className="flex space-x-8" aria-label="Tabs">
+        <div className="mb-4 sm:mb-6 border-b border-gray-200 overflow-x-auto">
+          <nav className="flex space-x-4 sm:space-x-6 md:space-x-8 -mx-2 px-2 sm:mx-0 sm:px-0" aria-label="Tabs">
             {[
-              { id: 'indicators', label: 'Indicadores' },
-              { id: 'events', label: 'Rastreamento de Eventos' },
-              { id: 'classes', label: 'Gerenciamento de Aulas' },
+              { id: 'indicators', label: 'Indicadores', shortLabel: 'Indicadores' },
+              { id: 'events', label: 'Rastreamento de Eventos', shortLabel: 'Eventos' },
+              { id: 'classes', label: 'Gerenciamento de Aulas', shortLabel: 'Aulas' },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'border-primary text-primary'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                {tab.label}
+                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="sm:hidden">{tab.shortLabel}</span>
               </button>
             ))}
           </nav>

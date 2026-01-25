@@ -51,84 +51,90 @@ const ClassCardEnhanced = ({
     : null;
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
+    <div className="bg-white rounded-lg sm:rounded-xl shadow-md p-4 sm:p-5 md:p-6 hover:shadow-lg transition-shadow">
       {/* Header com Instrutor e Status */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center space-x-4">
-          {classData.instructorPhoto ? (
-            <img
-              src={classData.instructorPhoto}
-              alt={classData.instructorName}
-              className="w-14 h-14 rounded-full object-cover"
-              onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.nextSibling.style.display = 'flex';
-              }}
-            />
-          ) : null}
-          <div className={`w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center ${classData.instructorPhoto ? 'hidden' : ''}`}>
-            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-          </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <h3 className="font-semibold text-lg text-gray-900">{classData.instructorName}</h3>
-              {/* Ícone de favoritar - aparece apenas no histórico (aulas concluídas) */}
-              {classData.status === 'concluida' && onFavoriteInstructor && (
-                <button
-                  onClick={() => onFavoriteInstructor(classData)}
-                  className={`transition-colors p-1 ${
-                    isFavorite 
-                      ? 'text-red-500 hover:text-red-600' 
-                      : 'text-gray-400 hover:text-red-500'
-                  }`}
-                  title={isFavorite ? "Instrutor favorito" : "Favoritar instrutor"}
-                  aria-label={isFavorite ? "Instrutor favorito" : "Favoritar instrutor"}
-                >
-                  {isFavorite ? (
-                    <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                  ) : (
-                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                  )}
-                </button>
-              )}
+      <div className="mb-3 sm:mb-4">
+        {/* Nome do Instrutor e Status - Layout vertical em mobile */}
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
+          <div className="flex items-start space-x-2 sm:space-x-3 flex-1 min-w-0">
+            {classData.instructorPhoto ? (
+              <img
+                src={classData.instructorPhoto}
+                alt={classData.instructorName}
+                className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full object-cover flex-shrink-0"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+            ) : null}
+            <div className={`w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 ${classData.instructorPhoto ? 'hidden' : ''}`}>
+              <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
             </div>
-            <div className="flex flex-wrap gap-1 mt-1">
-              {normalizeClassTypes(classData.type).map((type, index) => (
-                <span
-                  key={index}
-                  className={`px-2 py-0.5 rounded-full text-xs font-semibold ${getClassTypeBadgeColor(type)}`}
-                >
-                  {getClassTypeLabel(type)}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-2 mb-1">
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
+                  <h3 className="font-semibold text-base sm:text-lg text-gray-900 break-words">{classData.instructorName}</h3>
+                  {/* Ícone de favoritar - aparece apenas no histórico (aulas concluídas) */}
+                  {classData.status === 'concluida' && onFavoriteInstructor && (
+                    <button
+                      onClick={() => onFavoriteInstructor(classData)}
+                      className={`transition-colors p-1 flex-shrink-0 ${
+                        isFavorite 
+                          ? 'text-red-500 hover:text-red-600' 
+                          : 'text-gray-400 hover:text-red-500'
+                      }`}
+                      title={isFavorite ? "Instrutor favorito" : "Favoritar instrutor"}
+                      aria-label={isFavorite ? "Instrutor favorito" : "Favoritar instrutor"}
+                    >
+                      {isFavorite ? (
+                        <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                      ) : (
+                        <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                      )}
+                    </button>
+                  )}
+                </div>
+                {/* Status badge - aparece ao lado do nome em mobile, acima em desktop */}
+                <span className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold flex-shrink-0 self-start ${getStatusColor(classData.status)}`}>
+                  {getStatusLabel(classData.status)}
                 </span>
-              ))}
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {normalizeClassTypes(classData.type).map((type, index) => (
+                  <span
+                    key={index}
+                    className={`px-2 py-0.5 rounded-full text-xs font-semibold ${getClassTypeBadgeColor(type)}`}
+                  >
+                    {getClassTypeLabel(type)}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         </div>
-        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(classData.status)}`}>
-          {getStatusLabel(classData.status)}
-        </span>
       </div>
 
       {/* Informações da Aula */}
-      <div className="space-y-3 mb-4">
+      <div className="space-y-2 sm:space-y-3 mb-3 sm:mb-4">
         {/* Data e Hora */}
-        <div className="flex items-center text-gray-700">
-          <svg className="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="flex items-start sm:items-center text-gray-700">
+          <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-gray-500 flex-shrink-0 mt-0.5 sm:mt-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
           {classData.status === 'pendente_aceite' && classData.availableOptions ? (
-            <div className="flex-1">
-              <span className="font-medium">Opções de horários selecionadas:</span>
+            <div className="flex-1 min-w-0">
+              <span className="font-medium text-sm sm:text-base">Opções de horários selecionadas:</span>
               <div className="mt-2 space-y-2">
                 {classData.availableOptions.map((option, idx) => (
                   <div key={idx} className="bg-yellow-50 border border-yellow-200 rounded-lg p-2">
-                    <div className="font-semibold text-sm text-gray-800">
+                    <div className="font-semibold text-xs sm:text-sm text-gray-800">
                       {formatDate(option.date)}
                     </div>
                     <div className="flex flex-wrap gap-1 mt-1">
@@ -146,30 +152,30 @@ const ClassCardEnhanced = ({
               </p>
             </div>
           ) : (
-            <>
-              <span className="font-medium">{formatDateTime(classData.date, classData.time)}</span>
-              <span className="ml-2 text-gray-500">({classData.duration}min)</span>
-            </>
+            <div className="flex-1 min-w-0">
+              <span className="font-medium text-sm sm:text-base break-words">{formatDateTime(classData.date, classData.time)}</span>
+              <span className="ml-2 text-gray-500 text-sm">({classData.duration}min)</span>
+            </div>
           )}
         </div>
 
         {/* Localização Detalhada */}
         <div className="flex items-start text-gray-700">
-          <svg className="w-5 h-5 mr-2 text-gray-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-gray-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             {locationParts ? (
               <div>
-                <p className="font-medium">{locationParts.address}</p>
-                <p className="text-sm text-gray-600">
+                <p className="font-medium text-sm sm:text-base break-words">{locationParts.address}</p>
+                <p className="text-xs sm:text-sm text-gray-600 break-words">
                   {locationParts.neighborhood && `${locationParts.neighborhood}, `}
                   {locationParts.city} - {locationParts.state}
                 </p>
               </div>
             ) : (
-              <p>{location}</p>
+              <p className="text-sm sm:text-base break-words">{location}</p>
             )}
           </div>
         </div>
@@ -177,7 +183,7 @@ const ClassCardEnhanced = ({
         {/* Badge de Pickup Type */}
         {classData.pickupType && (
           <div className="flex items-center">
-            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getPickupBadgeColor(classData.pickupType)}`}>
+            <span className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold ${getPickupBadgeColor(classData.pickupType)}`}>
               {getPickupTypeLabel(classData.pickupType)}
             </span>
           </div>
@@ -185,16 +191,16 @@ const ClassCardEnhanced = ({
 
         {/* Carro */}
         <div className="flex items-center text-gray-700">
-          <svg className="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
           </svg>
-          <span className="text-sm font-medium">{classData.car || 'Não informado'}</span>
+          <span className="text-xs sm:text-sm font-medium break-words">{classData.car || 'Não informado'}</span>
         </div>
 
         {/* Valor */}
-        <div className="flex items-center justify-between pt-2 border-t border-gray-200">
-          <span className="text-sm text-gray-600">Valor da aula:</span>
-          <span className="text-xl font-bold text-primary">R$ {classData.price.toFixed(2).replace('.', ',')}</span>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0 pt-2 border-t border-gray-200">
+          <span className="text-xs sm:text-sm text-gray-600">Valor da aula:</span>
+          <span className="text-lg sm:text-xl font-bold text-primary">R$ {classData.price.toFixed(2).replace('.', ',')}</span>
         </div>
       </div>
 

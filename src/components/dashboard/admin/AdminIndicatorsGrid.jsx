@@ -16,16 +16,16 @@ const formatCurrency = (value) => {
 const IndicatorCard = ({ label, value, highlight = false, isCurrency = false, loading }) => {
   return (
     <div
-      className={`rounded-2xl border bg-white p-4 sm:p-5 shadow-sm ${
+      className={`rounded-xl sm:rounded-2xl border bg-white p-3 sm:p-4 md:p-5 shadow-sm ${
         highlight ? 'border-primary/30' : 'border-gray-200'
       }`}
     >
-      <p className="text-sm font-medium text-gray-500">{label}</p>
-      <div className="mt-2 flex items-baseline gap-2">
+      <p className="text-xs sm:text-sm font-medium text-gray-500">{label}</p>
+      <div className="mt-1.5 sm:mt-2 flex items-baseline gap-2">
         {loading ? (
-          <div className="h-7 w-24 animate-pulse rounded-md bg-gray-200" />
+          <div className="h-6 sm:h-7 w-20 sm:w-24 animate-pulse rounded-md bg-gray-200" />
         ) : (
-          <p className={`text-2xl font-bold ${highlight ? 'text-primary' : 'text-gray-900'}`}>
+          <p className={`text-xl sm:text-2xl font-bold ${highlight ? 'text-primary' : 'text-gray-900'}`}>
             {isCurrency ? formatCurrency(value || 0) : value ?? '-'}
           </p>
         )}
@@ -45,8 +45,8 @@ const AdminIndicatorsGrid = ({ indicators, loading }) => {
 
   return (
     <section aria-label="Indicadores gerais">
-      <h2 className="mb-4 text-lg font-semibold text-gray-900">Indicadores gerais</h2>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <h2 className="mb-3 sm:mb-4 text-base sm:text-lg font-semibold text-gray-900">Indicadores gerais</h2>
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <IndicatorCard
           label="Qtd. de Alunos"
           value={totalStudents}

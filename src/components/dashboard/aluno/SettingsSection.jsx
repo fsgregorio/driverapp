@@ -8,27 +8,29 @@ const SettingsSection = () => {
   return (
     <div className="space-y-6">
       {/* Tabs */}
-      <div className="flex space-x-4 border-b border-gray-200">
-        <button
-          onClick={() => setActiveTab('profile')}
-          className={`pb-4 px-4 font-semibold transition-colors ${
-            activeTab === 'profile'
-              ? 'text-primary border-b-2 border-primary'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          Perfil
-        </button>
-        <button
-          onClick={() => setActiveTab('account')}
-          className={`pb-4 px-4 font-semibold transition-colors ${
-            activeTab === 'account'
-              ? 'text-primary border-b-2 border-primary'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          Conta
-        </button>
+      <div className="mb-4 sm:mb-6 border-b border-gray-200 pb-3">
+        <div className="flex flex-wrap gap-1.5">
+          <button
+            onClick={() => setActiveTab('profile')}
+            className={`px-3 py-2 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+              activeTab === 'profile'
+                ? 'bg-primary text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            Perfil
+          </button>
+          <button
+            onClick={() => setActiveTab('account')}
+            className={`px-3 py-2 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+              activeTab === 'account'
+                ? 'bg-primary text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            Conta
+          </button>
+        </div>
       </div>
 
       {/* Content */}

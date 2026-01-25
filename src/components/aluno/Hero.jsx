@@ -30,18 +30,18 @@ const HeroAluno = () => {
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Text Content */}
           <div className="text-center md:text-left">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-secondary mb-6 animate-fadeIn">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-secondary mb-4 sm:mb-5 md:mb-6 animate-fadeIn px-2 sm:px-0">
               Tire sua carteira de motorista com instrutores profissionais
             </h1>
             
-            <p className="text-xl md:text-2xl text-gray-600 mb-10 max-w-2xl mx-auto md:mx-0 animate-fadeIn delay-200">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 mb-6 sm:mb-8 md:mb-10 max-w-2xl mx-auto md:mx-0 animate-fadeIn delay-200 px-2 sm:px-0">
               Conectamos você aos melhores instrutores certificados para suas aulas práticas. Aprenda a dirigir com segurança, flexibilidade e sem burocracia.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start animate-fadeIn delay-400">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center md:justify-start animate-fadeIn delay-400 px-2 sm:px-0">
               <button
                 onClick={handleCTAClick}
-                className="bg-primary hover:bg-blue-600 text-white font-semibold py-4 px-8 rounded-xl text-lg md:text-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                className="bg-primary hover:bg-blue-600 text-white font-semibold py-3 sm:py-3.5 md:py-4 px-6 sm:px-7 md:px-8 rounded-lg sm:rounded-xl text-base sm:text-lg md:text-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
               >
                 Começar Agora
               </button>
