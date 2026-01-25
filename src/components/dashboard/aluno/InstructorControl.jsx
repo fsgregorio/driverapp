@@ -35,12 +35,12 @@ const InstructorControl = ({ onScheduleClass, initialTab = 'search' }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-2 overflow-x-auto">
+      <div className="flex flex-row gap-2 sm:gap-4 border-b border-gray-200 pb-2 overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
         <button
           onClick={() => setActiveTab('search')}
-          className={`pb-4 px-4 font-semibold transition-colors whitespace-nowrap ${
+          className={`pb-3 sm:pb-4 px-3 sm:px-4 md:px-6 text-sm sm:text-base font-semibold transition-colors whitespace-nowrap flex-shrink-0 ${
             activeTab === 'search'
               ? 'text-primary border-b-2 border-primary'
               : 'text-gray-500 hover:text-gray-700'
@@ -50,7 +50,7 @@ const InstructorControl = ({ onScheduleClass, initialTab = 'search' }) => {
         </button>
         <button
           onClick={() => setActiveTab('favorites')}
-          className={`pb-4 px-4 font-semibold transition-colors whitespace-nowrap ${
+          className={`pb-3 sm:pb-4 px-3 sm:px-4 md:px-6 text-sm sm:text-base font-semibold transition-colors whitespace-nowrap flex-shrink-0 ${
             activeTab === 'favorites'
               ? 'text-primary border-b-2 border-primary'
               : 'text-gray-500 hover:text-gray-700'

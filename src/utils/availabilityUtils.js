@@ -139,3 +139,57 @@ export const hasAvailableTimes = (instructor, date, scheduledClasses = []) => {
   const availableTimes = getAvailableTimes(instructor, date, scheduledClasses);
   return availableTimes.length > 0;
 };
+
+/**
+ * Calcula o total de horas disponíveis por semana
+ * @param {object} availability - Objeto de disponibilidade do instrutor
+ * @returns {number} Total de horas disponíveis por semana
+ */
+export const calculateWeeklyHours = (availability) => {
+  if (!availability || !availability.weeklySchedule) {
+    return 0;
+  }
+
+  let totalHours = 0;
+  const weeklySchedule = availability.weeklySchedule;
+
+  // Iterar sobre cada dia da semana (0 = domingo, 6 = sábado)
+  for (let day = 0; day <= 6; day++) {
+    const daySchedule = weeklySchedule[day.toString()];
+    if (daySchedule && daySchedule.start && daySchedule.end) {
+      const [startHour, startMin] = daySchedule.start.split(':').map(Number);
+      const [endHour, endMin] = daySchedule.end.split(':').map(Number);
+      
+      const startMinutes = startHour * 60 + startMin;
+      const endMinutes = endHour * 60 + endMin;
+      
+      const hours = (endMinutes - startMinutes) / 60;
+      totalHours += hours;
+    }
+  }
+
+  return totalHours;
+};
+
+/**
+ * Valida se a disponibilidade semanal é maior que 24 horas
+ * @param {object} availability - Objeto de disponibilidade do instrutor
+ * @returns {object} { isValid: boolean, totalHours: number, error: string }
+ */
+export const validateWeeklyAvailability = (availability) => {
+  const totalHours = calculateWeeklyHours(availability);
+  
+  if (totalHours <= 24) {
+    return {
+      isValid: false,
+      totalHours,
+      error: `A disponibilidade semanal deve ser maior que 24 horas. Atualmente você tem ${totalHours.toFixed(1)} horas disponíveis.`
+    };
+  }
+
+  return {
+    isValid: true,
+    totalHours,
+    error: null
+  };
+};

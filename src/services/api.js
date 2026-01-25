@@ -1099,6 +1099,47 @@ export const instructorsAPI = {
     // TODO: Implement withdrawal system (would need a withdrawals table)
     throw new Error('Not implemented yet');
   },
+
+  updateAvailability: async (availability) => {
+    try {
+      const client = await getActiveSupabaseClient('instructor');
+      const { data: { user } } = await client.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      // Importar função de validação
+      const { validateWeeklyAvailability } = await import('../utils/availabilityUtils');
+      
+      // Validar disponibilidade
+      const validation = validateWeeklyAvailability(availability);
+      if (!validation.isValid) {
+        throw new Error(validation.error);
+      }
+
+      console.log('🔄 Atualizando disponibilidade do instrutor:', user.id);
+      console.log('✅ Validação passou:', validation.totalHours, 'horas semanais');
+
+      const { data, error } = await client
+        .from('instructors')
+        .update({ 
+          availability: availability,
+          updated_at: new Date().toISOString() 
+        })
+        .eq('id', user.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Erro ao atualizar disponibilidade:', error);
+        throw error;
+      }
+
+      console.log('✅ Disponibilidade atualizada com sucesso');
+      return data;
+    } catch (error) {
+      console.error('Error updating availability:', error);
+      throw error;
+    }
+  },
 };
 
 // Admin API
