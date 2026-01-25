@@ -14,7 +14,7 @@ import {
   getHistoryClasses 
 } from '../../../utils/classUtils';
 
-const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', classes: propClasses, onClassesChange }) => {
+const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', classes: propClasses, onClassesChange, onNavigateToSection }) => {
   const [classes, setClasses] = useState(propClasses || []);
   const [loading, setLoading] = useState(!propClasses);
   const [activeTab, setActiveTab] = useState(initialTab); // agendadas, pendentes_aceite, pendentes_pagamento, pendentes_avaliacao, historico
@@ -57,6 +57,7 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
 
   // Sincronizar activeTab quando initialTab mudar
   useEffect(() => {
+    console.log('🔄 ClassControl: initialTab mudou para', initialTab);
     setActiveTab(initialTab);
   }, [initialTab]);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
@@ -322,19 +323,47 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
       // Chamar API para avaliar a aula
       await studentsAPI.evaluateClass(classId, rating, review);
       
-      // Atualizar a aula localmente - mudar status para concluída e adicionar avaliação
-      const updatedClasses = classes.map(c => 
-        c.id === classId ? { 
-          ...c, 
-          status: 'concluida',
-          rating: rating,
-          review: review || null
-        } : c
-      );
-      updateClasses(updatedClasses);
+      // Recarregar as aulas do banco para garantir que os dados estão sincronizados
+      // Isso garante que rating e review sejam carregados corretamente
+      try {
+        const reloadedClasses = await studentsAPI.getClasses();
+        updateClasses(reloadedClasses);
+        console.log('✅ Aulas recarregadas após avaliação');
+      } catch (reloadError) {
+        console.error('Erro ao recarregar aulas:', reloadError);
+        // Se falhar ao recarregar, atualizar localmente como fallback
+        const updatedClasses = classes.map(c => 
+          c.id === classId ? { 
+            ...c, 
+            status: 'concluida',
+            rating: parseInt(rating), // Garantir que seja número inteiro
+            review: review && review.trim() !== '' ? review.trim() : null
+          } : c
+        );
+        updateClasses(updatedClasses);
+      }
       
+      // Redirecionar para a seção de aulas e aba de histórico ANTES de fechar o modal
+      // Atualizar a aba local imediatamente
+      setActiveTab('historico');
+      console.log('🔄 Redirecionando para histórico após avaliação');
+      
+      if (onNavigateToSection) {
+        console.log('📍 Chamando onNavigateToSection para classes/historico');
+        onNavigateToSection('classes', 'historico');
+      }
+      
+      // Aguardar um pouco antes de fechar o modal para garantir que o redirecionamento seja processado
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Fechar o modal após o redirecionamento
       setShowEvaluationModal(false);
       setSelectedClass(null);
+      
+      // Fazer scroll para o topo para garantir que o usuário veja a mudança
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 300);
       
       // Mostrar mensagem de sucesso
       // Você pode adicionar um toast/notificação aqui se tiver

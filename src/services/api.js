@@ -586,6 +586,53 @@ export const studentsAPI = {
     }
   },
 
+  getInstructorReviews: async (instructorId) => {
+    try {
+      const client = await getActiveSupabaseClient('student');
+      
+      // Buscar todas as aulas concluídas deste instrutor que têm avaliações
+      const { data: classes, error } = await client
+        .from('classes')
+        .select('id, rating, review, date, student_id, status')
+        .eq('instructor_id', instructorId)
+        .eq('status', 'concluida')
+        .not('rating', 'is', null)
+        .order('date', { ascending: false })
+        .limit(50); // Limitar a 50 avaliações mais recentes
+
+      if (error) throw error;
+
+      // Buscar informações dos alunos que fizeram as avaliações
+      const studentIds = [...new Set(classes.map(c => c.student_id))];
+      const { data: profiles } = await client
+        .from('profiles')
+        .select('id, name, photo_url')
+        .in('id', studentIds);
+
+      const profileMap = {};
+      profiles?.forEach(p => {
+        profileMap[p.id] = p;
+      });
+
+      // Transformar os dados para incluir informações do aluno
+      const reviews = classes
+        .filter(c => c.rating != null && c.rating > 0) // Apenas avaliações válidas
+        .map(c => ({
+          id: c.id,
+          rating: parseInt(c.rating),
+          review: c.review && c.review.trim() !== '' ? c.review.trim() : null,
+          date: c.date,
+          studentName: profileMap[c.student_id]?.name || 'Aluno',
+          studentPhoto: profileMap[c.student_id]?.photo_url || null
+        }));
+
+      return reviews;
+    } catch (error) {
+      console.error('Error getting instructor reviews:', error);
+      throw error;
+    }
+  },
+
   getInstructors: async (filters = {}) => {
     try {
       console.log('🔍 Buscando instrutores com filtros:', filters);

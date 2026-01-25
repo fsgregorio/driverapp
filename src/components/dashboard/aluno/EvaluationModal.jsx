@@ -41,12 +41,15 @@ const EvaluationModal = ({ isOpen, onClose, classData, onConfirm }) => {
     try {
       if (onConfirm) {
         await onConfirm(classData.id, rating, comment);
+        // O callback (confirmEvaluation) já fecha o modal e faz o redirecionamento
+        // Não precisamos fechar aqui para evitar conflitos
+      } else {
+        // Se não houver callback, fechar normalmente
+        handleClose();
       }
-      handleClose();
     } catch (error) {
       console.error('Erro ao avaliar aula:', error);
       alert('Erro ao enviar avaliação. Tente novamente.');
-    } finally {
       setIsSubmitting(false);
     }
   };

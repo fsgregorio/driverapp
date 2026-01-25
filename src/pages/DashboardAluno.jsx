@@ -252,6 +252,16 @@ const DashboardAluno = () => {
               initialTab={initialTab}
               classes={classes}
               onClassesChange={setClasses}
+              onNavigateToSection={(section, tab) => {
+                // Sempre atualizar a seção, mesmo que já estejamos nela
+                if (activeSection !== section) {
+                  handleSectionChange(section);
+                }
+                // Sempre atualizar a aba se fornecida
+                if (tab) {
+                  setInitialTab(tab);
+                }
+              }}
             />
           </div>
         )}

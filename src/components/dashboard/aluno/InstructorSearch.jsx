@@ -1,11 +1,14 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { studentsAPI } from '../../../services/api';
 import { sortByRelevance } from '../../../utils/sortUtils';
+import InstructorReviewsModal from './InstructorReviewsModal';
 
 const InstructorSearch = ({ onScheduleClass }) => {
   const [instructors, setInstructors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [favoriteInstructorIds, setFavoriteInstructorIds] = useState([]);
+  const [showReviewsModal, setShowReviewsModal] = useState(false);
+  const [selectedInstructor, setSelectedInstructor] = useState(null);
 
   // Load instructors from API
   useEffect(() => {
@@ -575,31 +578,47 @@ const InstructorSearch = ({ onScheduleClass }) => {
               </div>
 
               {/* Rating */}
-              <div className="flex items-center mb-3">
-                <span className="text-sm text-gray-600 mr-2">
-                  {(() => {
-                    const totalClasses = instructor.totalClasses || 0;
-                    // Log para debug apenas no primeiro render de cada instrutor
-                    if (process.env.NODE_ENV === 'development') {
-                      console.log(`🎨 Renderizando ${instructor.name}: totalClasses = ${totalClasses}`);
-                    }
-                    return `${totalClasses} aulas dadas`;
-                  })()}
-                </span>
-                <div className="flex text-yellow-400">
-                  {[...Array(5)].map((_, i) => (
-                    <svg
-                      key={i}
-                      className={`w-4 h-4 ${i < Math.floor(instructor.rating) ? 'fill-current' : 'text-gray-300'}`}
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                    </svg>
-                  ))}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs sm:text-sm text-gray-600 whitespace-nowrap">
+                    {(() => {
+                      const totalClasses = instructor.totalClasses || 0;
+                      // Log para debug apenas no primeiro render de cada instrutor
+                      if (process.env.NODE_ENV === 'development') {
+                        console.log(`🎨 Renderizando ${instructor.name}: totalClasses = ${totalClasses}`);
+                      }
+                      return `${totalClasses} aulas dadas`;
+                    })()}
+                  </span>
+                  <div className="flex text-yellow-400">
+                    {[...Array(5)].map((_, i) => (
+                      <svg
+                        key={i}
+                        className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(instructor.rating) ? 'fill-current' : 'text-gray-300'}`}
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                      </svg>
+                    ))}
+                  </div>
+                  <span className="text-xs sm:text-sm text-gray-600 whitespace-nowrap">
+                    {instructor.rating} ({instructor.totalReviews} avaliações)
+                  </span>
                 </div>
-                <span className="ml-2 text-sm text-gray-600">
-                  {instructor.rating} ({instructor.totalReviews} avaliações)
-                </span>
+                {instructor.totalReviews > 0 && (
+                  <button
+                    onClick={() => {
+                      setSelectedInstructor(instructor);
+                      setShowReviewsModal(true);
+                    }}
+                    className="text-primary hover:text-blue-600 text-xs sm:text-sm font-medium transition-colors flex items-center self-start sm:self-auto"
+                  >
+                    Ver comentários
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                )}
               </div>
 
               {/* Badges de Serviços e Veículos */}
@@ -677,6 +696,16 @@ const InstructorSearch = ({ onScheduleClass }) => {
           ))}
         </div>
       )}
+
+      {/* Modal de Avaliações */}
+      <InstructorReviewsModal
+        isOpen={showReviewsModal}
+        onClose={() => {
+          setShowReviewsModal(false);
+          setSelectedInstructor(null);
+        }}
+        instructor={selectedInstructor}
+      />
     </div>
   );
 };
