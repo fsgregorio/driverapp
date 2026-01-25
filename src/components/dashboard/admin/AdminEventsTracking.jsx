@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { adminAPI } from '../../../services/api';
 
 const AdminEventsTracking = ({ period }) => {
@@ -11,11 +11,7 @@ const AdminEventsTracking = ({ period }) => {
   const [filterUserType, setFilterUserType] = useState('');
   const eventsPerPage = 50;
 
-  useEffect(() => {
-    loadEvents();
-  }, [period, page, filterEventName, filterUserType]);
-
-  const loadEvents = async () => {
+  const loadEvents = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -34,7 +30,11 @@ const AdminEventsTracking = ({ period }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [period, page, filterEventName, filterUserType]);
+
+  useEffect(() => {
+    loadEvents();
+  }, [loadEvents]);
 
   const formatDate = (dateString) => {
     if (!dateString) return '-';

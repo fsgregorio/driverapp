@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { adminAPI } from '../../../services/api';
-import { getClassTypeLabel, normalizeClassTypes } from '../../../utils/classUtils';
 
 const AdminClassesManagement = ({ period }) => {
   const [classes, setClasses] = useState([]);
@@ -25,11 +24,7 @@ const AdminClassesManagement = ({ period }) => {
     { value: 'cancelada', label: 'Cancelada' },
   ];
 
-  useEffect(() => {
-    loadClasses();
-  }, [period, page, filterStatus, sortColumn, sortDirection]);
-
-  const loadClasses = async () => {
+  const loadClasses = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -99,7 +94,11 @@ const AdminClassesManagement = ({ period }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [period, page, filterStatus, sortColumn, sortDirection]);
+
+  useEffect(() => {
+    loadClasses();
+  }, [loadClasses]);
 
   const handleStatusChange = async (classId, newStatusValue) => {
     try {

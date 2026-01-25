@@ -1380,7 +1380,6 @@ export const adminAPI = {
 
       // Ordenar por padrão por updated_at/created_at (statusDate) em ordem descendente
       // A ordenação detalhada será feita no frontend para maior flexibilidade
-      const ascending = sortOrder === 'asc';
       
       // Ordenação base para garantir ordem consistente na paginação
       // Por padrão, ordenar por updated_at desc, depois created_at desc

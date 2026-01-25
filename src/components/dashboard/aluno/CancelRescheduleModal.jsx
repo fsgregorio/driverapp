@@ -14,12 +14,10 @@ const CancelRescheduleModal = ({
     date: '',
     time: ''
   });
-  const [isBefore24h, setIsBefore24h] = useState(false);
 
   useEffect(() => {
     if (isOpen && classData) {
       const before24h = isBefore24Hours(classData.date, classData.time);
-      setIsBefore24h(before24h);
       
       // Aviso de reembolso apenas para aulas pagas (agendadas/confirmadas) canceladas/reagendadas com menos de 24h
       // Não mostrar para pendentes de aceite ou pagamento (não foram pagas)

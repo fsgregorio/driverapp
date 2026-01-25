@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
-import { isValidPhoto, getPhotoUrl } from '../../../utils/photoUtils';
+import { getPhotoUrl } from '../../../utils/photoUtils';
 
 const DashboardNavbar = ({ activeSection, onSectionChange, onScheduleNewClass }) => {
   const navigate = useNavigate();
-  const { user, logout, userType, isAuthenticatedAs } = useAuth();
+  const { user, logout, userType } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   // Verificar se o usuário ATIVO é admin, não apenas se há sessão admin
   const isAdmin = userType === 'admin';

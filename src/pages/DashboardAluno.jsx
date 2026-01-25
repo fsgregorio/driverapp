@@ -13,7 +13,7 @@ import SEO from '../components/SEO';
 
 const DashboardAluno = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, userType, loading, isAuthenticatedAs, setActiveUser } = useAuth();
+  const { loading, isAuthenticatedAs, setActiveUser } = useAuth();
   const [activeSection, setActiveSection] = useState('home');
   const [classes, setClasses] = useState([]);
   const [initialTab, setInitialTab] = useState('agendadas');

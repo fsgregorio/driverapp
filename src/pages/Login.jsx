@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LoginForm from '../components/auth/LoginForm';
@@ -9,7 +9,7 @@ import Footer from '../components/Footer';
 const Login = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { isAuthenticated, userType, loading, isProfileComplete, user } = useAuth();
+  const { loading, isProfileComplete, user } = useAuth();
   const type = searchParams.get('type') || 'student';
   const [showCompleteProfile, setShowCompleteProfile] = useState(false);
 

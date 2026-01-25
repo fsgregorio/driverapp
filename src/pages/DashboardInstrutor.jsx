@@ -9,7 +9,7 @@ import SEO from '../components/SEO';
 
 const DashboardInstrutor = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, userType, loading, isAuthenticatedAs, setActiveUser } = useAuth();
+  const { isAuthenticated, loading, isAuthenticatedAs, setActiveUser } = useAuth();
   const [activeSection, setActiveSection] = useState('indicators');
 
   // Ativar sessão de instrutor se existir
