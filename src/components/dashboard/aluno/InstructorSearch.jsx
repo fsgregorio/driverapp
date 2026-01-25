@@ -511,15 +511,29 @@ const InstructorSearch = ({ onScheduleClass }) => {
               {/* Botão de Favoritar */}
               <button
                 onClick={(e) => handleToggleFavorite(instructor.id, e)}
-                className="absolute top-2 sm:top-4 right-2 sm:right-4 text-gray-400 hover:text-red-500 transition-colors z-10"
+                className={`absolute top-2 sm:top-4 right-2 sm:right-4 transition-colors z-10 ${
+                  isFavorite(instructor.id) 
+                    ? 'text-red-500 hover:text-red-600' 
+                    : 'text-gray-400 hover:text-red-500'
+                }`}
                 title={isFavorite(instructor.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
               >
-                <svg 
-                  className={`w-5 h-5 sm:w-6 sm:h-6 ${isFavorite(instructor.id) ? 'fill-current text-red-500' : ''}`}
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
-                </svg>
+                {isFavorite(instructor.id) ? (
+                  <svg 
+                    className="w-5 h-5 sm:w-6 sm:h-6 fill-current"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+                  </svg>
+                ) : (
+                  <svg 
+                    className="w-5 h-5 sm:w-6 sm:h-6 fill-none stroke-current"
+                    strokeWidth="2"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+                  </svg>
+                )}
               </button>
               
               {/* Badge Premium - Temporariamente desativado */}
