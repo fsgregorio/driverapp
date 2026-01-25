@@ -164,10 +164,10 @@ const PaymentComingSoonModal = ({ isOpen, onClose }) => {
                   </div>
                   
                   {/* Código do Cupom */}
-                  <div className="bg-white border-2 border-dashed border-primary rounded-lg p-4 mb-4">
+                  <div className="bg-white border-2 border-dashed border-primary rounded-lg p-3 sm:p-4 mb-4">
                     <p className="text-xs text-gray-500 mb-2 font-medium">SEU CUPOM EXCLUSIVO</p>
-                    <div className="flex items-center justify-center gap-3">
-                      <code className="text-2xl font-bold text-primary tracking-wider">
+                    <div className="flex items-center justify-center gap-2 sm:gap-3">
+                      <code className="text-[11px] sm:text-base md:text-lg lg:text-2xl font-bold text-primary tracking-tighter sm:tracking-normal md:tracking-wider text-center">
                         USUARIODIAMANTE
                       </code>
                       <button
