@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { studentsAPI } from '../../../services/api';
 import { formatDate } from '../../../utils/dateUtils';
 
@@ -7,16 +7,7 @@ const InstructorReviewsModal = ({ isOpen, onClose, instructor }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (isOpen && instructor?.id) {
-      loadReviews();
-    } else {
-      setReviews([]);
-      setError(null);
-    }
-  }, [isOpen, instructor?.id]);
-
-  const loadReviews = async () => {
+  const loadReviews = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -28,7 +19,16 @@ const InstructorReviewsModal = ({ isOpen, onClose, instructor }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [instructor?.id]);
+
+  useEffect(() => {
+    if (isOpen && instructor?.id) {
+      loadReviews();
+    } else {
+      setReviews([]);
+      setError(null);
+    }
+  }, [isOpen, instructor?.id, loadReviews]);
 
   if (!isOpen || !instructor) return null;
 

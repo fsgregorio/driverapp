@@ -52,8 +52,12 @@ const DashboardInstrutor = () => {
   useEffect(() => {
     // Criar entrada inicial no histórico se não houver
     const currentHash = window.location.hash.replace('#', '');
-    if (!currentHash || !['classes', 'indicators', 'finances'].includes(currentHash)) {
-      window.history.replaceState({ section: activeSection }, '', `#${activeSection}`);
+    const validSections = ['classes', 'indicators', 'finances'];
+    const initialSection = currentHash && validSections.includes(currentHash) 
+      ? currentHash 
+      : 'indicators';
+    if (!currentHash || !validSections.includes(currentHash)) {
+      window.history.replaceState({ section: initialSection }, '', `#${initialSection}`);
     }
 
     // Listener para o botão voltar do navegador

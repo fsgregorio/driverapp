@@ -166,8 +166,12 @@ const DashboardAluno = () => {
   useEffect(() => {
     // Criar entrada inicial no histórico se não houver
     const currentHash = window.location.hash.replace('#', '');
-    if (!currentHash || !['home', 'classes', 'instructors', 'settings'].includes(currentHash)) {
-      window.history.replaceState({ section: activeSection }, '', `#${activeSection}`);
+    const validSections = ['home', 'classes', 'instructors', 'settings'];
+    const initialSection = currentHash && validSections.includes(currentHash) 
+      ? currentHash 
+      : 'home';
+    if (!currentHash || !validSections.includes(currentHash)) {
+      window.history.replaceState({ section: initialSection }, '', `#${initialSection}`);
     }
 
     // Listener para o botão voltar do navegador
