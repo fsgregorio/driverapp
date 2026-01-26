@@ -42,15 +42,30 @@ const ForgotPassword = () => {
     }
 
     setIsSubmitting(true);
+    setErrors({}); // Limpar erros anteriores
 
     try {
+      console.log('🔄 Solicitando reset de senha para:', email);
       await resetPassword(email);
       
-      // Simulação de sucesso
+      console.log('✅ Reset de senha solicitado com sucesso');
       setIsSuccess(true);
       setEmail('');
     } catch (error) {
-      setErrors({ submit: 'Erro ao enviar e-mail. Tente novamente.' });
+      console.error('❌ Erro ao solicitar reset de senha:', error);
+      
+      // Mensagens de erro mais específicas
+      let errorMessage = 'Erro ao enviar e-mail. Tente novamente.';
+      
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (error.error_description) {
+        errorMessage = error.error_description;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
+      setErrors({ submit: errorMessage });
     } finally {
       setIsSubmitting(false);
     }

@@ -1776,11 +1776,76 @@ export const adminAPI = {
   },
 };
 
+// Suggestions API
+export const suggestionsAPI = {
+  createSuggestion: async (suggestionData) => {
+    try {
+      const { suggestion, source = 'coupon_modal', page, section } = suggestionData;
+      
+      if (!suggestion || !suggestion.trim()) {
+        throw new Error('Sugestão não pode estar vazia');
+      }
+
+      // Tentar obter o usuário atual (pode ser null se não estiver logado)
+      let userId = null;
+      let userType = null;
+      
+      try {
+        const client = await getActiveSupabaseClient();
+        const { data: { user } } = await client.auth.getUser();
+        if (user) {
+          userId = user.id;
+          
+          // Tentar obter o tipo de usuário do perfil
+          const { data: profile } = await client
+            .from('profiles')
+            .select('user_type')
+            .eq('id', user.id)
+            .single();
+          
+          if (profile?.user_type) {
+            userType = profile.user_type;
+          }
+        }
+      } catch (error) {
+        // Se não conseguir obter o usuário, continua sem user_id (sugestão anônima)
+        console.log('Usuário não autenticado, salvando sugestão anônima');
+      }
+
+      // Usar o cliente padrão para inserir (permite inserção anônima)
+      const { data, error } = await supabase
+        .from('suggestions')
+        .insert({
+          user_id: userId,
+          user_type: userType,
+          suggestion: suggestion.trim(),
+          source: source,
+          page: page || null,
+          section: section || null,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Erro ao salvar sugestão:', error);
+        throw error;
+      }
+
+      console.log('✅ Sugestão salva com sucesso:', data.id);
+      return data;
+    } catch (error) {
+      console.error('Error creating suggestion:', error);
+      throw error;
+    }
+  },
+};
+
 const api = {
   auth: authAPI,
   students: studentsAPI,
   instructors: instructorsAPI,
   admin: adminAPI,
+  suggestions: suggestionsAPI,
 };
 
 export default api;

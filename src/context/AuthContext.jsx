@@ -635,13 +635,43 @@ export const AuthProvider = ({ children }) => {
   };
 
   const resetPassword = async (email) => {
-    // Usar cliente padrão para reset de senha
-    const { error } = await supabaseStudent.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
+    try {
+      console.log('📧 Enviando e-mail de recuperação de senha para:', email);
+      
+      // Usar cliente padrão para reset de senha
+      const { data, error } = await supabaseStudent.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+        emailRedirectTo: `${window.location.origin}/reset-password`,
+      });
 
-    if (error) throw error;
-    return { success: true };
+      if (error) {
+        console.error('❌ Erro ao enviar e-mail de recuperação:', error);
+        console.error('   Código:', error.status);
+        console.error('   Mensagem:', error.message);
+        
+        // Mensagens de erro mais específicas
+        if (error.message?.includes('rate limit') || error.message?.includes('too many')) {
+          throw new Error('Muitas tentativas. Por favor, aguarde alguns minutos antes de tentar novamente.');
+        }
+        
+        if (error.message?.includes('email') || error.message?.includes('not found')) {
+          throw new Error('E-mail não encontrado. Verifique se o e-mail está correto.');
+        }
+        
+        if (error.message?.includes('disabled') || error.message?.includes('not enabled')) {
+          throw new Error('Envio de e-mail não está configurado. Entre em contato com o suporte.');
+        }
+        
+        throw error;
+      }
+
+      console.log('✅ E-mail de recuperação enviado com sucesso');
+      console.log('   O usuário receberá um e-mail com instruções para redefinir a senha');
+      return { success: true, data };
+    } catch (error) {
+      console.error('❌ Erro na função resetPassword:', error);
+      throw error;
+    }
   };
 
   // Função helper para verificar se um tipo específico está autenticado
