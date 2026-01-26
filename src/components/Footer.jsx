@@ -4,7 +4,7 @@ import Modal from './Modal';
 import TermosDeUso from './TermosDeUso';
 import PoliticaPrivacidade from './PoliticaPrivacidade';
 
-const Footer = ({ onSwitchProfile }) => {
+const Footer = ({ onSwitchProfile, currentProfile = null }) => {
   const navigate = useNavigate();
   const [showTermos, setShowTermos] = useState(false);
   const [showPolitica, setShowPolitica] = useState(false);
@@ -76,7 +76,7 @@ const Footer = ({ onSwitchProfile }) => {
             <h3 className="font-bold text-base sm:text-lg mb-3 sm:mb-4">Contato</h3>
             <ul className="space-y-1.5 sm:space-y-2 text-gray-400 text-xs sm:text-sm">
               <li>
-                <a href="https://wa.me/5511999999999" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+                <a href="https://wa.me/5583991398806" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
                   WhatsApp
                 </a>
               </li>
@@ -101,12 +101,14 @@ const Footer = ({ onSwitchProfile }) => {
             >
               Login
             </button>
-            <button
-              onClick={onSwitchProfile}
-              className="bg-primary hover:bg-blue-600 text-white font-semibold py-2 sm:py-2.5 px-4 sm:px-6 rounded-lg transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm md:text-base w-full sm:w-auto"
-            >
-              Trocar Perfil
-            </button>
+            {!currentProfile && onSwitchProfile && (
+              <button
+                onClick={onSwitchProfile}
+                className="bg-primary hover:bg-blue-600 text-white font-semibold py-2 sm:py-2.5 px-4 sm:px-6 rounded-lg transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm md:text-base w-full sm:w-auto"
+              >
+                Trocar Perfil
+              </button>
+            )}
           </div>
         </div>
       </div>

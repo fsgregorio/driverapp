@@ -299,20 +299,20 @@ const InstructorSearch = ({ onScheduleClass }) => {
   return (
     <div className="space-y-6">
       {/* Filtros */}
-      <div className="bg-white rounded-lg border border-gray-200 p-5">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-semibold text-gray-800">Filtros</h2>
+      <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-5">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-4 sm:mb-5">
+          <h2 className="text-base sm:text-lg font-semibold text-gray-800">Filtros</h2>
           <button
             onClick={clearFilters}
-            className="text-sm text-gray-500 hover:text-primary font-medium transition-colors"
+            className="text-xs sm:text-sm text-gray-500 hover:text-primary font-medium transition-colors px-2 py-1 sm:px-0 sm:py-0"
           >
             Limpar
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {/* Nome */}
-          <div>
+          <div className="sm:col-span-2 lg:col-span-1">
             <label className="block text-xs font-medium text-gray-600 mb-1.5">
               Nome
             </label>
@@ -417,11 +417,11 @@ const InstructorSearch = ({ onScheduleClass }) => {
         </div>
 
         {/* Faixa de Preço - Slider */}
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <label className="block text-xs font-medium text-gray-600 mb-3">
+        <div className="mt-4 sm:mt-5 pt-4 border-t border-gray-200">
+          <label className="block text-xs font-medium text-gray-600 mb-2 sm:mb-3">
             Faixa de Preço
           </label>
-          <div className="px-2">
+          <div className="px-1 sm:px-2">
             <input
               type="range"
               min="0"
@@ -447,14 +447,14 @@ const InstructorSearch = ({ onScheduleClass }) => {
                 }
                 handleFilterChange('priceRange', range);
               }}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+              className="w-full h-2 sm:h-2.5 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
               style={{
                 background: `linear-gradient(to right, #2463EB 0%, #2463EB ${(sliderValue / 200) * 100}%, #E5E7EB ${(sliderValue / 200) * 100}%, #E5E7EB 100%)`
               }}
             />
-            <div className="flex justify-between mt-2 text-xs text-gray-500">
-              <span>R$ 0</span>
-              <span className="font-medium text-primary">
+            <div className="flex justify-between mt-2 text-[10px] sm:text-xs text-gray-500">
+              <span className="whitespace-nowrap">R$ 0</span>
+              <span className="font-medium text-primary text-center px-1 sm:px-2">
                 {sliderValue === 200 ? 'Todas' : 
                  sliderValue <= 100 ? `Até R$ ${sliderValue}` :
                  sliderValue <= 120 ? `R$ 100 - R$ ${sliderValue}` :
@@ -462,7 +462,7 @@ const InstructorSearch = ({ onScheduleClass }) => {
                  sliderValue <= 180 ? `R$ 150 - R$ ${sliderValue}` :
                  `Acima de R$ ${sliderValue}`}
               </span>
-              <span>R$ 200+</span>
+              <span className="whitespace-nowrap">R$ 200+</span>
             </div>
           </div>
         </div>

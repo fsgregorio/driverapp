@@ -83,23 +83,54 @@ input[type="range"].slider {
 input[type="range"].slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: #2463EB;
   cursor: pointer;
   border: 2px solid white;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: transform 0.1s ease;
+}
+
+input[type="range"].slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+input[type="range"].slider::-webkit-slider-thumb:active {
+  transform: scale(1.15);
 }
 
 input[type="range"].slider::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: #2463EB;
   cursor: pointer;
   border: 2px solid white;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: transform 0.1s ease;
+}
+
+input[type="range"].slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
+}
+
+input[type="range"].slider::-moz-range-thumb:active {
+  transform: scale(1.15);
+}
+
+/* Responsive slider thumb for touch devices */
+@media (max-width: 640px) {
+  input[type="range"].slider::-webkit-slider-thumb {
+    width: 24px;
+    height: 24px;
+  }
+  
+  input[type="range"].slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+  }
 }
 
 /* Dropdown options styling */
@@ -142,4 +173,10 @@ select option:hover {
   overflow-wrap: normal;
   word-wrap: normal;
   hyphens: none;
+}
+
+/* Touch optimization for mobile */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }

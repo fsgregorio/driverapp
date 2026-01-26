@@ -176,12 +176,14 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
               >
                 Login
               </button>
-              <button
-                onClick={handleSwitchProfileClick}
-                className="bg-primary hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300"
-              >
-                Trocar Perfil
-              </button>
+              {!currentProfile && (
+                <button
+                  onClick={handleSwitchProfileClick}
+                  className="bg-primary hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300"
+                >
+                  Trocar Perfil
+                </button>
+              )}
             </div>
           </div>
 
@@ -320,15 +322,17 @@ const Navbar = ({ onSwitchProfile, currentProfile, scrollToSection: externalScro
               >
                 Login
               </button>
-              <button
-                onClick={() => {
-                  handleSwitchProfileClick();
-                  setIsMenuOpen(false);
-                }}
-                className="block w-full bg-primary hover:bg-blue-600 text-white font-semibold py-2 sm:py-2.5 px-4 rounded-lg transition-all duration-300 text-center text-sm sm:text-base"
-              >
-                Trocar Perfil
-              </button>
+              {!currentProfile && (
+                <button
+                  onClick={() => {
+                    handleSwitchProfileClick();
+                    setIsMenuOpen(false);
+                  }}
+                  className="block w-full bg-primary hover:bg-blue-600 text-white font-semibold py-2 sm:py-2.5 px-4 rounded-lg transition-all duration-300 text-center text-sm sm:text-base"
+                >
+                  Trocar Perfil
+                </button>
+              )}
             </div>
           </div>
         )}

@@ -187,7 +187,7 @@ const LandingInstrutor = () => {
       <Precos />
       <CTAFinal />
       <FAQ />
-      <Footer onSwitchProfile={handleSwitchProfile} />
+      <Footer onSwitchProfile={handleSwitchProfile} currentProfile="instructor" />
     </div>
   );
 };

@@ -183,7 +183,7 @@ const LandingAluno = () => {
       <Precos />
       <CTAFinal />
       <FAQ />
-      <Footer onSwitchProfile={handleSwitchProfile} />
+      <Footer onSwitchProfile={handleSwitchProfile} currentProfile="student" />
     </div>
   );
 };

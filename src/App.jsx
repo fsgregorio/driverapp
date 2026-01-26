@@ -12,6 +12,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import DashboardAluno from './pages/DashboardAluno';
 import DashboardInstrutor from './pages/DashboardInstrutor';
 import DashboardAdmin from './pages/DashboardAdmin';
+import WhatsAppFloatButton from './components/WhatsAppFloatButton';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
               <Route path="/dashboard/admin" element={<DashboardAdmin />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+            <WhatsAppFloatButton />
           </div>
         </Router>
       </AuthProvider>

@@ -272,7 +272,7 @@ const Waitlist = () => {
         </section>
       </main>
 
-      <Footer onSwitchProfile={handleSwitchProfile} />
+      <Footer onSwitchProfile={handleSwitchProfile} currentProfile={null} />
     </div>
   );
 };
