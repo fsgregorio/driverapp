@@ -7,6 +7,7 @@ import AdminIndicatorsGrid from '../components/dashboard/admin/AdminIndicatorsGr
 import AdminFunnel from '../components/dashboard/admin/AdminFunnel';
 import AdminEventsTracking from '../components/dashboard/admin/AdminEventsTracking';
 import AdminClassesManagement from '../components/dashboard/admin/AdminClassesManagement';
+import AdminSuggestions from '../components/dashboard/admin/AdminSuggestions';
 
 const ADMIN_LOGIN = 'admin';
 const ADMIN_PASSWORD = '123456';
@@ -243,6 +244,7 @@ const DashboardAdmin = () => {
               { id: 'indicators', label: 'Indicadores', shortLabel: 'Indicadores' },
               { id: 'events', label: 'Rastreamento de Eventos', shortLabel: 'Eventos' },
               { id: 'classes', label: 'Gerenciamento de Aulas', shortLabel: 'Aulas' },
+              { id: 'suggestions', label: 'Sugestões', shortLabel: 'Sugestões' },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -282,6 +284,10 @@ const DashboardAdmin = () => {
 
         {activeTab === 'classes' && (
           <AdminClassesManagement period={period} />
+        )}
+
+        {activeTab === 'suggestions' && (
+          <AdminSuggestions period={period} />
         )}
       </main>
     </div>

@@ -7,6 +7,7 @@ const steps = [
   { key: 'scheduledClass', label: 'Agendou Aula' },
   { key: 'initiatedPayment', label: 'Iniciou Pagamento' },
   { key: 'requestedCoupon', label: 'Requisitou Cupom' },
+  { key: 'sentComment', label: 'Enviou Comentário' },
 ];
 
 const AdminFunnel = ({ metrics, loading }) => {

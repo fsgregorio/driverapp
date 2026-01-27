@@ -296,7 +296,7 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
                 </div>
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-1.5 sm:mb-2">Aviso Importante</h3>
+                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-1.5 sm:mb-2">Aviso</h3>
                 <p className="text-xs sm:text-sm md:text-base text-gray-700 mb-2 sm:mb-3 md:mb-4">
                   A aula será <strong className="text-yellow-600">cancelada automaticamente</strong> se não for aceita pelo instrutor ou paga até o <strong className="text-yellow-600">dia anterior</strong> à aula.
                 </p>
@@ -635,7 +635,7 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div className="flex-1 min-w-0">
-              <h4 className="font-semibold text-sm sm:text-base text-blue-900 mb-1">Dica Importante</h4>
+              <h4 className="font-semibold text-sm sm:text-base text-blue-900 mb-1">Dica</h4>
               <p className="text-xs sm:text-sm text-blue-800">
                 <strong>Quanto maior a antecedência</strong> de marcação da aula, <strong>maiores as chances</strong> da mesma ser aceita pelo instrutor.
               </p>
@@ -650,7 +650,7 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
             <div className="flex-1 min-w-0">
-              <h4 className="font-semibold text-sm sm:text-base text-yellow-900 mb-1">Aviso Importante</h4>
+              <h4 className="font-semibold text-sm sm:text-base text-yellow-900 mb-1">Aviso</h4>
               <p className="text-xs sm:text-sm text-yellow-800">
                 A aula será <strong>cancelada automaticamente</strong> se não for aceita pelo instrutor ou paga até o <strong>dia anterior</strong> à aula.
               </p>
@@ -686,46 +686,6 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
             </div>
           );
         })()}
-
-        {/* Valor Total da Aula (antes dos botões) */}
-        <div className="bg-gradient-to-r from-primary/10 to-blue-50 border-2 border-primary/20 rounded-xl p-4 sm:p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm sm:text-base font-semibold text-gray-900 mb-1">Valor Total da Aula</p>
-              <div className="text-xs sm:text-sm text-gray-600">
-                {vehicleType === 'own' && instructor.priceOwnVehicle ? (
-                  <>
-                    <span>Veículo próprio: R$ {instructor.priceOwnVehicle.toFixed(2).replace('.', ',')}</span>
-                    {homeService && instructor.homeServicePrice && instructor.homeServicePrice > 0 && (
-                      <span className="ml-2">+ Busca em casa: R$ {instructor.homeServicePrice.toFixed(2).replace('.', ',')}</span>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <span>Veículo do instrutor: R$ {instructor.pricePerClass.toFixed(2).replace('.', ',')}</span>
-                    {homeService && instructor.homeServicePrice && instructor.homeServicePrice > 0 && (
-                      <span className="ml-2">+ Busca em casa: R$ {instructor.homeServicePrice.toFixed(2).replace('.', ',')}</span>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-2xl sm:text-3xl font-bold text-primary">
-                R$ {(() => {
-                  const basePrice = vehicleType === 'own' && instructor.priceOwnVehicle 
-                    ? instructor.priceOwnVehicle 
-                    : instructor.pricePerClass || 0;
-                  const homeServicePrice = homeService && instructor.homeServicePrice 
-                    ? instructor.homeServicePrice 
-                    : 0;
-                  return (basePrice + homeServicePrice).toFixed(2).replace('.', ',');
-                })()}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">por aula</p>
-            </div>
-          </div>
-        </div>
 
         {/* Botões de Ação */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4" onClick={(e) => e.stopPropagation()}>

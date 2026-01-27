@@ -70,28 +70,60 @@ const PaymentComingSoonModal = ({ isOpen, onClose }) => {
 
     try {
       // Salvar sugestão no banco de dados
-      await suggestionsAPI.createSuggestion({
+      const savedSuggestion = await suggestionsAPI.createSuggestion({
         suggestion: suggestion.trim(),
         source: 'coupon_modal',
         page: 'dashboard_aluno',
         section: 'payment_coming_soon_modal',
       });
 
-      // Tracking do evento de sugestão
-      trackEvent(trackingEvents.COUPON_REQUESTED, {
+      // Tracking do evento de sugestão (apenas após sucesso)
+      trackEvent(trackingEvents.SUGGESTION_SENT, {
         user_type: 'student',
         page: 'dashboard_aluno',
         section: 'payment_coming_soon_modal',
-        source: 'coupon_suggestion',
-        suggestion: suggestion.trim(),
+        source: 'coupon_modal',
+        suggestion_length: suggestion.trim().length,
+        suggestion_id: savedSuggestion?.id || null,
       });
+      
+      // Tracking do evento de comentário (para o funil)
+      if (suggestion && suggestion.trim() !== '') {
+        await trackEvent(trackingEvents.CLASS_COMMENT_SENT, {
+          user_type: 'student',
+          page: 'dashboard_aluno',
+          section: 'payment_coming_soon_modal',
+          source: 'coupon_modal',
+          suggestion_length: suggestion.trim().length,
+          suggestion_id: savedSuggestion?.id || null,
+          has_comment: true,
+        });
+      }
       
       setSuggestionSent(true);
       setSuggestion('');
-      setTimeout(() => setSuggestionSent(false), 3000);
+      
+      // Fechar o modal após 1 segundo (tempo suficiente para mostrar a mensagem de sucesso)
+      setTimeout(() => {
+        handleClose();
+      }, 1000);
     } catch (error) {
       console.error('Erro ao enviar sugestão:', error);
-      setSubmitError('Erro ao enviar sugestão. Por favor, tente novamente.');
+      
+      // Mensagem de erro mais específica
+      let errorMessage = 'Erro ao enviar sugestão. Por favor, tente novamente.';
+      
+      if (error?.message) {
+        if (error.message.includes('Sugestão não pode estar vazia')) {
+          errorMessage = 'Por favor, digite uma sugestão antes de enviar.';
+        } else if (error.message.includes('permission') || error.message.includes('RLS')) {
+          errorMessage = 'Erro de permissão. Por favor, verifique se você está logado.';
+        } else if (error.message.includes('network') || error.message.includes('fetch')) {
+          errorMessage = 'Erro de conexão. Verifique sua internet e tente novamente.';
+        }
+      }
+      
+      setSubmitError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

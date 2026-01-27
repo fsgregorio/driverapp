@@ -1410,6 +1410,7 @@ export const adminAPI = {
         scheduledClass: byEvent('dashboard_aluno_schedule_confirm_click') ?? 0,
         initiatedPayment: byEvent('payment_initiated') ?? 0,
         requestedCoupon: byEvent('coupon_requested') ?? 0,
+        sentComment: byEvent('class_comment_sent') ?? 0,
       };
     } catch (error) {
       console.error('Error fetching admin funnel metrics:', error);
@@ -1501,12 +1502,14 @@ export const adminAPI = {
 
       // Filtrar por lista específica de eventos (prioridade sobre eventName)
       if (eventNames && Array.isArray(eventNames) && eventNames.length > 0) {
+        console.log('🔍 [getEvents] Filtrando por eventNames:', eventNames);
         eventsQuery = eventsQuery.in('event_name', eventNames);
       } else if (eventName) {
         eventsQuery = eventsQuery.ilike('event_name', `%${eventName}%`);
       }
 
       if (userType) {
+        console.log('🔍 [getEvents] Filtrando por userType:', userType);
         eventsQuery = eventsQuery.eq('user_type', userType);
       }
 
@@ -1524,6 +1527,14 @@ export const adminAPI = {
         console.error('❌ Erro ao buscar eventos:', error);
         throw error;
       }
+
+      console.log('📊 [getEvents] Eventos encontrados:', {
+        total: count,
+        eventos: events?.length || 0,
+        eventNames: eventNames,
+        userType: userType || 'todos',
+        eventosEncontrados: events?.map(e => ({ name: e.event_name, user_type: e.user_type })) || []
+      });
 
       return {
         events: events || [],
@@ -1852,6 +1863,210 @@ export const adminAPI = {
       throw error;
     }
   },
+
+  /**
+   * Busca sugestões enviadas pelos usuários com paginação e filtros
+   * @param {Object} options - Opções de busca
+   * @param {string} options.period - Período: 'all' | '7d' | '30d' | 'month'
+   * @param {number} options.page - Página atual
+   * @param {number} options.limit - Limite de resultados por página
+   * @param {string} options.source - Filtrar por origem (ex: 'coupon_modal')
+   * @param {string} options.userType - Filtrar por tipo de usuário
+   * @returns {Promise<Object>} { suggestions: Array, total: number }
+   */
+  getSuggestions: async ({ period = 'all', page = 1, limit = 50, source, userType } = {}) => {
+    try {
+      const client = await getActiveSupabaseClient('admin');
+      const { data: { user } } = await client.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const now = new Date();
+      let startTimestamp = null;
+
+      if (period === '7d') {
+        startTimestamp = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      } else if (period === '30d') {
+        startTimestamp = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      } else if (period === 'month') {
+        startTimestamp = new Date(now.getFullYear(), now.getMonth(), 1);
+      }
+
+      // Query base
+      let suggestionsQuery = client
+        .from('suggestions')
+        .select('*', { count: 'exact' });
+
+      // Aplicar filtros
+      if (startTimestamp) {
+        suggestionsQuery = suggestionsQuery.gte('created_at', startTimestamp.toISOString());
+      }
+
+      if (source) {
+        suggestionsQuery = suggestionsQuery.eq('source', source);
+      }
+
+      if (userType) {
+        suggestionsQuery = suggestionsQuery.eq('user_type', userType);
+      }
+
+      // Ordenar por data de criação descendente (mais recentes primeiro)
+      suggestionsQuery = suggestionsQuery.order('created_at', { ascending: false });
+
+      // Paginação
+      const from = (page - 1) * limit;
+      const to = from + limit - 1;
+      suggestionsQuery = suggestionsQuery.range(from, to);
+
+      const { data: suggestions, error, count } = await suggestionsQuery;
+
+      if (error) {
+        console.error('❌ Erro ao buscar sugestões:', error);
+        throw error;
+      }
+
+      // Buscar informações dos usuários que enviaram as sugestões
+      const userIds = [...new Set((suggestions || []).map(s => s.user_id).filter(Boolean))];
+      let profilesMap = {};
+      let emailMap = {};
+
+      console.log('📊 [getSuggestions] IDs de usuários encontrados nas sugestões:', userIds);
+      console.log('📊 [getSuggestions] Total de sugestões:', suggestions?.length || 0);
+      if (suggestions && suggestions.length > 0) {
+        console.log('📊 [getSuggestions] Primeiras sugestões:', suggestions.slice(0, 3).map(s => ({
+          id: s.id,
+          user_id: s.user_id,
+          user_type: s.user_type,
+          suggestion_preview: s.suggestion?.substring(0, 50)
+        })));
+      }
+
+      if (userIds.length > 0) {
+        // Buscar perfis dos usuários
+        const { data: profiles, error: profilesError } = await client
+          .from('profiles')
+          .select('id, name, email, user_type')
+          .in('id', userIds);
+
+        if (profilesError) {
+          console.error('❌ Erro ao buscar perfis:', profilesError);
+        } else if (profiles) {
+          console.log('📊 [getSuggestions] Perfis encontrados:', profiles.map(p => ({
+            id: p.id,
+            name: p.name,
+            email: p.email ? '***' : null,
+            user_type: p.user_type
+          })));
+          
+          profiles.forEach(p => {
+            // Garantir que o ID seja uma string para comparação consistente
+            const profileId = String(p.id);
+            profilesMap[profileId] = p;
+            profilesMap[p.id] = p; // Também mapear com o ID original
+            
+            // Se o email estiver na tabela profiles, usar ele
+            if (p.email) {
+              emailMap[profileId] = p.email;
+              emailMap[p.id] = p.email; // Também mapear com o ID original
+            }
+          });
+        }
+
+        // Buscar emails que não estão na tabela profiles usando a função RPC
+        const missingEmailIds = userIds.filter(id => {
+          const idStr = String(id);
+          return !emailMap[id] && !emailMap[idStr];
+        });
+        
+        if (missingEmailIds.length > 0) {
+          console.log(`📧 Buscando emails de ${missingEmailIds.length} usuários que não têm email no perfil...`);
+          console.log('📧 IDs faltando email:', missingEmailIds);
+          
+          try {
+            const { data: emails, error: emailsError } = await client
+              .rpc('get_user_emails', { user_ids: missingEmailIds });
+            
+            if (emailsError) {
+              console.warn('⚠️ Erro ao buscar emails via função:', emailsError);
+              console.warn('   Dica: Execute o script create_user_emails_view.sql no Supabase');
+            } else if (emails) {
+              console.log('📧 Emails retornados pela função RPC:', emails.map(e => ({
+                id: e.id,
+                email: e.email ? '***' : null
+              })));
+              
+              emails.forEach(e => {
+                if (e && e.id) {
+                  const emailId = String(e.id);
+                  emailMap[emailId] = e.email;
+                  emailMap[e.id] = e.email; // Também mapear com o ID original
+                }
+              });
+              console.log(`✅ Emails encontrados via função: ${emails.length}`);
+            }
+          } catch (emailError) {
+            console.warn('⚠️ Não foi possível buscar emails:', emailError);
+          }
+        }
+      }
+      
+      console.log(`📧 Total de emails no map: ${Object.keys(emailMap).length}`);
+
+      // Enriquecer sugestões com informações do usuário
+      const enrichedSuggestions = (suggestions || []).map(s => {
+        if (!s.user_id) {
+          return {
+            ...s,
+            userName: 'Anônimo',
+            userEmail: null,
+            user_type: null,
+          };
+        }
+        
+        // Tentar buscar o perfil usando diferentes formatos de ID
+        const userIdStr = String(s.user_id);
+        const profile = profilesMap[s.user_id] || profilesMap[userIdStr] || null;
+        
+        // Buscar email usando diferentes formatos de ID
+        const userEmail = emailMap[s.user_id] || emailMap[userIdStr] || null;
+        
+        // Usar user_type do perfil se disponível, senão usar o da sugestão
+        const finalUserType = profile?.user_type || s.user_type || null;
+        
+        console.log(`📊 Enriquecendo sugestão ${s.id}:`, {
+          user_id: s.user_id,
+          user_id_str: userIdStr,
+          profile_found: !!profile,
+          profile_name: profile?.name,
+          profile_user_type: profile?.user_type,
+          suggestion_user_type: s.user_type,
+          final_user_type: finalUserType,
+          email_found: !!userEmail,
+        });
+        
+        return {
+          ...s,
+          userName: profile?.name || 'Usuário anônimo',
+          userEmail: userEmail,
+          user_type: finalUserType, // Sobrescrever com o user_type do perfil
+        };
+      });
+
+      console.log('📊 [getSuggestions] Sugestões encontradas:', {
+        total: count,
+        sugestoes: enrichedSuggestions.length,
+        source: source || 'todos',
+        userType: userType || 'todos',
+      });
+
+      return {
+        suggestions: enrichedSuggestions,
+        total: count || 0,
+      };
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+      throw error;
+    }
+  },
 };
 
 // Suggestions API
@@ -1867,22 +2082,30 @@ export const suggestionsAPI = {
       // Tentar obter o usuário atual (pode ser null se não estiver logado)
       let userId = null;
       let userType = null;
+      let clientToUse = supabase; // Cliente padrão para inserção anônima
       
       try {
         const client = await getActiveSupabaseClient();
-        const { data: { user } } = await client.auth.getUser();
-        if (user) {
+        const { data: { user }, error: userError } = await client.auth.getUser();
+        
+        if (!userError && user) {
           userId = user.id;
+          clientToUse = client; // Usar o cliente autenticado
           
           // Tentar obter o tipo de usuário do perfil
-          const { data: profile } = await client
-            .from('profiles')
-            .select('user_type')
-            .eq('id', user.id)
-            .single();
-          
-          if (profile?.user_type) {
-            userType = profile.user_type;
+          try {
+            const { data: profile } = await client
+              .from('profiles')
+              .select('user_type')
+              .eq('id', user.id)
+              .single();
+            
+            if (profile?.user_type) {
+              userType = profile.user_type;
+            }
+          } catch (profileError) {
+            // Se não conseguir obter o perfil, continua sem user_type
+            console.log('Não foi possível obter o tipo de usuário do perfil');
           }
         }
       } catch (error) {
@@ -1890,8 +2113,8 @@ export const suggestionsAPI = {
         console.log('Usuário não autenticado, salvando sugestão anônima');
       }
 
-      // Usar o cliente padrão para inserir (permite inserção anônima)
-      const { data, error } = await supabase
+      // Inserir sugestão usando o cliente apropriado
+      const { data, error } = await clientToUse
         .from('suggestions')
         .insert({
           user_id: userId,
@@ -1906,6 +2129,29 @@ export const suggestionsAPI = {
 
       if (error) {
         console.error('Erro ao salvar sugestão:', error);
+        // Se falhar com cliente autenticado, tentar com cliente anônimo
+        if (clientToUse !== supabase && userId) {
+          console.log('Tentando salvar com cliente anônimo...');
+          const { data: retryData, error: retryError } = await supabase
+            .from('suggestions')
+            .insert({
+              user_id: null, // Tentar sem user_id para evitar problemas de RLS
+              user_type: userType,
+              suggestion: suggestion.trim(),
+              source: source,
+              page: page || null,
+              section: section || null,
+            })
+            .select()
+            .single();
+          
+          if (retryError) {
+            throw retryError;
+          }
+          
+          console.log('✅ Sugestão salva com sucesso (modo anônimo):', retryData.id);
+          return retryData;
+        }
         throw error;
       }
 

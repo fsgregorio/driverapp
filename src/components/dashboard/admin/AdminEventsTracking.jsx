@@ -9,6 +9,7 @@ const FUNNEL_EVENTS = [
   'dashboard_aluno_schedule_confirm_click',
   'payment_initiated',
   'coupon_requested',
+  'class_comment_sent',
 ];
 
 const AdminEventsTracking = ({ period }) => {
@@ -89,6 +90,8 @@ const AdminEventsTracking = ({ period }) => {
     if (eventName.includes('dashboard')) return 'bg-purple-100 text-purple-800';
     if (eventName.includes('auth')) return 'bg-green-100 text-green-800';
     if (eventName.includes('payment')) return 'bg-yellow-100 text-yellow-800';
+    if (eventName.includes('comment')) return 'bg-pink-100 text-pink-800';
+    if (eventName.includes('coupon')) return 'bg-orange-100 text-orange-800';
     return 'bg-gray-100 text-gray-800';
   };
 

@@ -67,6 +67,15 @@ export const trackEvent = async (eventName, properties = {}) => {
   // Extract page from properties or use current location
   const page = properties.page || (typeof window !== 'undefined' ? window.location.pathname : null);
 
+  // Determine which Supabase client to use based on user_type
+  // Use the appropriate client to ensure RLS policies allow the insert
+  let clientToUse = supabase; // Default client
+  if (userType === 'student' && supabaseStudent) {
+    clientToUse = supabaseStudent;
+  } else if (userType === 'instructor' && supabaseInstructor) {
+    clientToUse = supabaseInstructor;
+  }
+
   // Prepare event data
   const eventData = {
     user_id: user?.id || null,
@@ -79,21 +88,45 @@ export const trackEvent = async (eventName, properties = {}) => {
     session_id: getSessionId(),
   };
 
-  // Save to Supabase (non-blocking)
+  // Log completo do evento antes de salvar (apenas em desenvolvimento)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Tracking] Event data to save:', {
+      event_name: eventData.event_name,
+      user_type: eventData.user_type,
+      user_id: eventData.user_id,
+      user_email: eventData.user_email,
+      page: eventData.page,
+      client: userType === 'student' ? 'supabaseStudent' : userType === 'instructor' ? 'supabaseInstructor' : 'supabase',
+    });
+  }
+
+  // Save to Supabase
   if (TRACKING_ENABLED || process.env.NODE_ENV === 'development') {
-    supabase
-      .from('events')
-      .insert([eventData])
-      .then(({ error }) => {
-        if (error && process.env.NODE_ENV === 'development') {
-          console.warn('[Tracking] Error saving event:', error);
-        }
-      })
-      .catch((error) => {
+    try {
+      const { data, error } = await clientToUse
+        .from('events')
+        .insert([eventData])
+        .select();
+      
+      if (error) {
         if (process.env.NODE_ENV === 'development') {
-          console.warn('[Tracking] Error saving event:', error);
+          console.error('[Tracking] Error saving event:', error);
+          console.error('[Tracking] Event data that failed:', eventData);
         }
-      });
+        throw error;
+      }
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[Tracking] Event saved successfully:', eventName);
+        console.log('[Tracking] Saved event data:', data?.[0]);
+      }
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[Tracking] Error saving event:', error);
+        console.error('[Tracking] Event data that failed:', eventData);
+      }
+      // Não lançar erro para não quebrar o fluxo da aplicação
+    }
   }
 };
 
@@ -124,6 +157,7 @@ export const trackingEvents = {
   DASHBOARD_ALUNO_INSTRUCTOR_SEARCH: 'dashboard_aluno_instructor_search',
   DASHBOARD_ALUNO_INSTRUCTOR_VIEW: 'dashboard_aluno_instructor_view',
   DASHBOARD_ALUNO_LOGOUT: 'dashboard_aluno_logout',
+  CLASS_COMMENT_SENT: 'class_comment_sent',
   
   // Pagamento - Eventos críticos para MVP
   PAYMENT_INITIATED: 'payment_initiated',
@@ -132,6 +166,9 @@ export const trackingEvents = {
   
   // Cupom - Evento crítico para MVP
   COUPON_REQUESTED: 'coupon_requested',
+  
+  // Sugestões - Evento crítico para MVP
+  SUGGESTION_SENT: 'suggestion_sent',
   
   // Dashboard - Instrutor
   DASHBOARD_INSTRUTOR_SECTION_CHANGE: 'dashboard_instrutor_section_change',
