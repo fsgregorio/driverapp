@@ -172,7 +172,6 @@ const Calendar = ({
           }
 
           const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-          const dateStr = date.toISOString().split('T')[0];
           const disabled = isDateDisabled(date);
           const selected = isDateSelected(date);
           const isTodayDate = isToday(date);

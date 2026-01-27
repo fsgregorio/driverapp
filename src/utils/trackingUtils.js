@@ -3,7 +3,7 @@
  * Integrado com Supabase para armazenamento persistente
  */
 
-import { supabase, supabaseStudent, supabaseInstructor, supabaseAdmin } from '../services/supabase';
+import { supabase, supabaseStudent, supabaseInstructor } from '../services/supabase';
 
 // Configuração de tracking
 const TRACKING_ENABLED = process.env.NODE_ENV === 'production' || process.env.REACT_APP_ENABLE_TRACKING === 'true';

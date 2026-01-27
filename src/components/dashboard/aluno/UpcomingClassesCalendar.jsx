@@ -170,7 +170,6 @@ const UpcomingClassesCalendar = ({ classes }) => {
               }
 
               const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-              const dateStr = date.toISOString().split('T')[0];
               const disabled = date < today;
               const selected = isDateSelected(date);
               const isTodayDate = isToday(date);
