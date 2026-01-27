@@ -4,13 +4,13 @@ import { getAvailableTimes } from '../../../utils/availabilityUtils';
 import { trackEvent, trackingEvents } from '../../../utils/trackingUtils';
 import { useAuth } from '../../../context/AuthContext';
 import { studentsAPI } from '../../../services/api';
+import { hasMinimum24HoursAdvance } from '../../../utils/dateUtils';
 import ScheduleConfirmationModal from './ScheduleConfirmationModal';
 
 const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
   const { user } = useAuth();
-  const [selectedDates, setSelectedDates] = useState([]);
-  const [selectedTimes, setSelectedTimes] = useState({});
-  const [classTypes, setClassTypes] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedTime, setSelectedTime] = useState(null);
   const [homeService, setHomeService] = useState(false);
   const [vehicleType, setVehicleType] = useState('instructor'); // 'instructor' ou 'own'
   const [showWarningModal, setShowWarningModal] = useState(false);
@@ -18,9 +18,6 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Tipos de aula disponíveis
-  const availableClassTypes = ['Rua', 'Baliza', 'Rodovia', 'Geral'];
-  
   // State para aulas agendadas (para verificar disponibilidade)
   const [allScheduledClasses, setAllScheduledClasses] = useState([]);
   
@@ -43,9 +40,8 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
   // Resetar estado quando o modal fechar ou instrutor mudar
   React.useEffect(() => {
     if (!isOpen) {
-      setSelectedDates([]);
-      setSelectedTimes({});
-      setClassTypes([]);
+      setSelectedDate(null);
+      setSelectedTime(null);
       setHomeService(false);
       setVehicleType('instructor');
       setShowWarningModal(false);
@@ -63,59 +59,44 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
   }, [instructor, vehicleType]);
 
   const handleDateToggle = (date) => {
-    setSelectedDates(prev => {
-      if (prev.includes(date)) {
-        // Remove a data e seus horários
-        const newTimes = { ...selectedTimes };
-        delete newTimes[date];
-        setSelectedTimes(newTimes);
-        return prev.filter(d => d !== date);
-      } else {
-        return [...prev, date];
-      }
-    });
+    if (selectedDate === date) {
+      // Se clicar na mesma data, desmarcar
+      setSelectedDate(null);
+      setSelectedTime(null);
+    } else {
+      // Selecionar nova data e limpar horário anterior
+      setSelectedDate(date);
+      setSelectedTime(null);
+    }
   };
 
   const handleTimeToggle = (date, time) => {
-    setSelectedTimes(prev => {
-      const dateTimes = prev[date] || [];
-      if (dateTimes.includes(time)) {
-        return {
-          ...prev,
-          [date]: dateTimes.filter(t => t !== time)
-        };
-      } else {
-        return {
-          ...prev,
-          [date]: [...dateTimes, time]
-        };
-      }
-    });
-  };
-
-  const handleClassTypeToggle = (type) => {
-    setClassTypes(prev => {
-      if (prev.includes(type)) {
-        return prev.filter(t => t !== type);
-      } else {
-        return [...prev, type];
-      }
-    });
-  };
-
-  const handleConfirm = () => {
-    // Validar se há pelo menos uma data e horário selecionados
-    const hasDatesAndTimes = selectedDates.some(date => 
-      selectedTimes[date] && selectedTimes[date].length > 0
-    );
-
-    if (!hasDatesAndTimes) {
-      alert('Por favor, selecione pelo menos um dia e horário.');
+    // Validar que não é possível agendar no mesmo dia
+    if (!hasMinimumAdvanceTime(date, time)) {
+      const dateObj = new Date(date);
+      const formattedDate = dateObj.toLocaleDateString('pt-BR', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short'
+      });
+      alert(`Não é possível agendar aulas no mesmo dia.\n\nO horário selecionado (${formattedDate} às ${time}) é para hoje.\n\nPor favor, selecione uma data a partir de amanhã.`);
       return;
     }
 
-    if (classTypes.length === 0) {
-      alert('Por favor, selecione pelo menos um tipo de aula.');
+    if (selectedDate === date && selectedTime === time) {
+      // Se clicar no mesmo horário, desmarcar
+      setSelectedTime(null);
+    } else {
+      // Selecionar novo horário (garantindo que a data está selecionada)
+      setSelectedDate(date);
+      setSelectedTime(time);
+    }
+  };
+
+  const handleConfirm = () => {
+    // Validar se há uma data e horário selecionados
+    if (!selectedDate || !selectedTime) {
+      alert('Por favor, selecione um dia e horário.');
       return;
     }
 
@@ -132,29 +113,15 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
       return;
     }
 
-    // Validar antecedência mínima de 24 horas para todos os horários selecionados
-    const invalidTimes = [];
-    selectedDates.forEach(date => {
-      const times = selectedTimes[date] || [];
-      times.forEach(time => {
-        if (!hasMinimumAdvanceTime(date, time)) {
-          invalidTimes.push({ date, time });
-        }
+    // Validar que não é possível agendar no mesmo dia
+    if (!hasMinimumAdvanceTime(selectedDate, selectedTime)) {
+      const dateObj = new Date(selectedDate);
+      const formattedDate = dateObj.toLocaleDateString('pt-BR', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short'
       });
-    });
-
-    if (invalidTimes.length > 0) {
-      const invalidTimesText = invalidTimes.map(({ date, time }) => {
-        const dateObj = new Date(date);
-        const formattedDate = dateObj.toLocaleDateString('pt-BR', {
-          weekday: 'short',
-          day: 'numeric',
-          month: 'short'
-        });
-        return `${formattedDate} às ${time}`;
-      }).join(', ');
-      
-      alert(`Não é possível agendar aulas com menos de 24 horas de antecedência.\n\nOs seguintes horários não atendem a este requisito:\n${invalidTimesText}\n\nPor favor, selecione horários com pelo menos 24 horas de antecedência.`);
+      alert(`Não é possível agendar aulas no mesmo dia.\n\nO horário selecionado (${formattedDate} às ${selectedTime}) é para hoje.\n\nPor favor, selecione uma data a partir de amanhã.`);
       return;
     }
 
@@ -162,11 +129,10 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
     const scheduleData = {
       instructorId: instructor.id,
       instructor: instructor,
-      dates: selectedDates.map(date => ({
-        date,
-        times: selectedTimes[date] || []
-      })).filter(item => item.times.length > 0),
-      classTypes,
+      dates: [{
+        date: selectedDate,
+        times: [selectedTime]
+      }],
       homeService,
       vehicleType
     };
@@ -178,9 +144,8 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
       section: 'schedule_modal',
       instructor_id: instructor.id,
       instructor_name: instructor.name,
-      dates_count: selectedDates.length,
-      total_times: Object.values(selectedTimes).flat().length,
-      class_types: classTypes,
+      dates_count: 1,
+      total_times: 1,
       home_service: homeService,
       vehicle_type: vehicleType,
     });
@@ -213,7 +178,6 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
         const classData = {
           instructorId: pendingScheduleData.instructorId,
           dates: pendingScheduleData.dates,
-          classTypes: pendingScheduleData.classTypes,
           homeService: pendingScheduleData.homeService,
           vehicleType: pendingScheduleData.vehicleType,
           price: totalPrice,
@@ -257,17 +221,14 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
     setPendingScheduleData(null);
   };
 
-  // Verificar se um horário tem pelo menos 24h de antecedência
+  // Verificar se não é possível agendar no mesmo dia
+  // Usa função utilitária para consistência
   const hasMinimumAdvanceTime = (date, time) => {
-    const now = new Date();
-    const classDateTime = new Date(`${date}T${time}`);
-    const timeDifference = classDateTime.getTime() - now.getTime();
-    const hoursUntilClass = timeDifference / (1000 * 60 * 60);
-    return hoursUntilClass >= 24;
+    return hasMinimum24HoursAdvance(date, time);
   };
 
   // Gerar próximos 14 dias para seleção
-  // Nota: A validação de 24h será feita nos horários disponíveis, não nas datas
+  // Nota: A validação será feita nos horários disponíveis, não nas datas
   const generateDateOptions = () => {
     const dates = [];
     const today = new Date();
@@ -280,11 +241,11 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
     return dates;
   };
 
-  // Obter horários disponíveis para uma data específica (filtrando por antecedência mínima de 24h)
+  // Obter horários disponíveis para uma data específica (filtrando para não permitir mesmo dia)
   const getAvailableTimesForDate = (date) => {
     if (!instructor) return [];
     const allAvailableTimes = getAvailableTimes(instructor, date, allScheduledClasses);
-    // Filtrar apenas horários com pelo menos 24h de antecedência
+    // Filtrar para não permitir agendamento no mesmo dia
     return allAvailableTimes.filter(time => hasMinimumAdvanceTime(date, time));
   };
 
@@ -333,7 +294,7 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
               <div className="flex-1 min-w-0">
                 <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-1.5 sm:mb-2">Aviso Importante</h3>
                 <p className="text-xs sm:text-sm md:text-base text-gray-700 mb-2 sm:mb-3 md:mb-4">
-                  A aula será <strong className="text-yellow-600">cancelada automaticamente</strong> se não for aceita pelo instrutor ou paga até <strong className="text-yellow-600">24 horas antes</strong> do horário marcado (ou do último horário selecionado, caso tenha múltiplas opções).
+                  A aula será <strong className="text-yellow-600">cancelada automaticamente</strong> se não for aceita pelo instrutor ou paga até o <strong className="text-yellow-600">dia anterior</strong> à aula.
                 </p>
                 <p className="text-xs sm:text-sm text-gray-600">
                   Certifique-se de que o instrutor aceitará a aula ou que você pagará dentro do prazo para evitar o cancelamento automático.
@@ -406,19 +367,6 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
                     PREMIUM
                   </span>
                 )}
-                {instructor.classTypes && instructor.classTypes.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2">
-                    {instructor.classTypes.map((type, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2 sm:px-3 py-1 bg-accent text-primary text-xs font-semibold rounded-lg"
-                      >
-                        {type}
-                      </span>
-                    ))}
-                  </div>
-                )}
-                
                 {/* Badges de Veículo e Busca em Casa */}
                 <div className="flex flex-wrap gap-2 mt-2">
                   {/* Badge Veículo do Instrutor */}
@@ -589,44 +537,21 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
           </label>
         </div>
 
-        {/* Seleção de Tipo de Aula */}
+        {/* Seleção de Data e Horário */}
         <div>
           <label className="block text-base sm:text-lg font-semibold text-gray-900 mb-3">
-            Tipo de Aula *
+            Selecione Dia e Horário *
           </label>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-            {availableClassTypes.map(type => (
-              <button
-                key={type}
-                onClick={() => handleClassTypeToggle(type)}
-                className={`px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border-2 font-medium transition-all text-sm sm:text-base ${
-                  classTypes.includes(type)
-                    ? 'border-primary bg-primary text-white'
-                    : 'border-gray-200 bg-white text-gray-700 hover:border-primary hover:bg-accent'
-                }`}
-              >
-                {type}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Seleção de Datas e Horários */}
-        <div>
-          <label className="block text-base sm:text-lg font-semibold text-gray-900 mb-3">
-            Selecione Dias e Horários *
-          </label>
-          <p className="text-xs sm:text-sm text-gray-600 mb-4">
-            Você pode selecionar múltiplos dias e horários. O instrutor escolherá os que tiver disponibilidade.
+                <p className="text-xs sm:text-sm text-gray-600 mb-4">
+            Selecione um dia e horário para sua aula.
             <br className="hidden sm:block" />
-            <span className="font-semibold text-primary">Importante:</span> Apenas horários com <strong>mínimo de 24 horas de antecedência</strong> estão disponíveis para agendamento.
+            <span className="font-semibold text-primary">Importante:</span> Não é possível agendar aulas <strong>no mesmo dia</strong>. Selecione uma data a partir de amanhã.
           </p>
 
           <div className="space-y-3 sm:space-y-4 max-h-96 overflow-y-auto pr-1 sm:pr-2">
             {dateOptions.map(date => {
-              const isSelected = selectedDates.includes(date);
-              const timesForDate = selectedTimes[date] || [];
-              // Verificar se há horários disponíveis com 24h de antecedência
+              const isSelected = selectedDate === date;
+              // Verificar se há horários disponíveis (não permitindo mesmo dia)
               const availableTimesWith24h = getAvailableTimesForDate(date);
               const hasAvailability = availableTimesWith24h.length > 0;
 
@@ -685,14 +610,14 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
                   {isSelected && (() => {
                     const availableTimesForDate = getAvailableTimesForDate(date);
                     const allTimesForDate = instructor ? getAvailableTimes(instructor, date, allScheduledClasses) : [];
-                    const hasTimesButNot24h = allTimesForDate.length > 0 && availableTimesForDate.length === 0;
+                    const hasTimesButNotSameDay = allTimesForDate.length > 0 && availableTimesForDate.length === 0;
                     
                     if (availableTimesForDate.length === 0) {
                       return (
                         <div className="mt-2 sm:mt-3 pl-6 sm:pl-8">
                           <p className="text-xs sm:text-sm text-gray-500 italic">
-                            {hasTimesButNot24h 
-                              ? 'Nenhum horário disponível com antecedência mínima de 24 horas para esta data'
+                            {hasTimesButNotSameDay 
+                              ? 'Não é possível agendar aulas no mesmo dia. Selecione uma data a partir de amanhã.'
                               : 'Nenhum horário disponível para esta data'}
                           </p>
                         </div>
@@ -702,13 +627,13 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
                     return (
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-2 sm:mt-3 pl-6 sm:pl-8">
                         {availableTimesForDate.map(time => {
-                          const isTimeSelected = timesForDate.includes(time);
+                          const isTimeSelectedForThisDate = selectedDate === date && selectedTime === time;
                           return (
                             <button
                               key={time}
                               onClick={() => handleTimeToggle(date, time)}
                               className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
-                                isTimeSelected
+                                isTimeSelectedForThisDate
                                   ? 'bg-primary text-white'
                                   : 'bg-white text-gray-700 border border-gray-200 hover:border-primary hover:bg-accent'
                               }`}
@@ -726,6 +651,20 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
           </div>
         </div>
 
+        {/* Alerta sobre Antecedência */}
+        <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-3 sm:p-4">
+          <div className="flex items-start gap-2 sm:gap-3">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="flex-1 min-w-0">
+              <h4 className="font-semibold text-sm sm:text-base text-blue-900 mb-1">Dica Importante</h4>
+              <p className="text-xs sm:text-sm text-blue-800">
+                <strong>Quanto maior a antecedência</strong> de marcação da aula, <strong>maiores as chances</strong> da mesma ser aceita pelo instrutor.
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* Aviso de Cancelamento Automático */}
         <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-3 sm:p-4">
@@ -736,14 +675,14 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
             <div className="flex-1 min-w-0">
               <h4 className="font-semibold text-sm sm:text-base text-yellow-900 mb-1">Aviso Importante</h4>
               <p className="text-xs sm:text-sm text-yellow-800">
-                A aula será <strong>cancelada automaticamente</strong> se não for aceita pelo instrutor ou paga até <strong>24 horas antes</strong> do horário marcado (ou do último horário selecionado, caso tenha múltiplas opções).
+                A aula será <strong>cancelada automaticamente</strong> se não for aceita pelo instrutor ou paga até o <strong>dia anterior</strong> à aula.
               </p>
             </div>
           </div>
         </div>
 
         {/* Resumo e Preço Total */}
-        {selectedDates.length > 0 && classTypes.length > 0 && (() => {
+        {selectedDate && selectedTime && (() => {
           const basePrice = vehicleType === 'own' && instructor.priceOwnVehicle 
             ? instructor.priceOwnVehicle 
             : instructor.pricePerClass || 0;
@@ -751,30 +690,21 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
             ? instructor.homeServicePrice 
             : 0;
           const totalPrice = basePrice + homeServicePrice;
-          const totalClasses = Object.values(selectedTimes).flat().length;
-          const totalAmount = totalPrice * totalClasses;
 
           return (
             <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 sm:p-4">
               <h4 className="font-semibold text-sm sm:text-base text-gray-900 mb-2">Resumo do Agendamento:</h4>
               <ul className="text-xs sm:text-sm text-gray-700 space-y-1 mb-3">
-                <li>• {selectedDates.length} dia(s) selecionado(s)</li>
-                <li>• {totalClasses} horário(s) selecionado(s)</li>
-                <li>• Tipo(s): <span className="break-words">{classTypes.join(', ')}</span></li>
+                <li>• Data: {formatDateDisplay(selectedDate)}</li>
+                <li>• Horário: {selectedTime}</li>
                 <li>• Veículo: {vehicleType === 'own' ? 'Meu veículo' : 'Veículo do instrutor'}</li>
                 {homeService && <li>• Busca em casa: Sim {instructor.homeServicePrice && instructor.homeServicePrice > 0 && `(+ R$ ${instructor.homeServicePrice})`}</li>}
               </ul>
               <div className="border-t border-primary/20 pt-3 mt-3">
                 <div className="flex justify-between items-baseline">
-                  <span className="text-sm text-gray-700">Preço por aula:</span>
+                  <span className="text-sm text-gray-700">Valor da aula:</span>
                   <span className="text-lg font-bold text-primary">R$ {totalPrice.toFixed(2)}</span>
                 </div>
-                {totalClasses > 1 && (
-                  <div className="flex justify-between items-baseline mt-2">
-                    <span className="text-sm text-gray-700">Total ({totalClasses} aulas):</span>
-                    <span className="text-xl font-bold text-primary">R$ {totalAmount.toFixed(2)}</span>
-                  </div>
-                )}
               </div>
             </div>
           );

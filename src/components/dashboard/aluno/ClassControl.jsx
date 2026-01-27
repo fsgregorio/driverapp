@@ -73,7 +73,6 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
     instructorId: '',
     date: '',
     time: '',
-    type: ['Baliza'],
     pickupType: 'vai_local'
   });
 
@@ -401,7 +400,6 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
       duration: 60,
       status: 'pendente_aceite',
       price: instructor.pricePerClass,
-      type: scheduleForm.type,
       car: instructor.vehicle,
       location: {
         fullAddress: instructor.location?.fullAddress || 'João Pessoa - PB',
@@ -418,7 +416,7 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
     const updatedClasses = [...classes, newClass];
     updateClasses(updatedClasses);
     setShowScheduleModal(false);
-    setScheduleForm({ instructorId: '', date: '', time: '', type: ['Baliza'], pickupType: 'vai_local' });
+    setScheduleForm({ instructorId: '', date: '', time: '', pickupType: 'vai_local' });
     
     if (onScheduleClass) {
       onScheduleClass(newClass);
@@ -437,16 +435,6 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
       <div className="mb-4 sm:mb-6 border-b border-gray-200 pb-3">
         <div className="flex flex-wrap gap-1.5">
           <button
-            onClick={() => setActiveTab('agendadas')}
-            className={`px-3 py-2 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
-              activeTab === 'agendadas'
-                ? 'bg-primary text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-          >
-            Agendadas ({agendadas.length})
-          </button>
-          <button
             onClick={() => setActiveTab('pendentes_aceite')}
             className={`px-3 py-2 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
               activeTab === 'pendentes_aceite'
@@ -454,7 +442,7 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
-            Aceite ({pendentesAceite.length})
+            Pendente ({pendentesAceite.length})
           </button>
           <button
             onClick={() => setActiveTab('pendentes_pagamento')}
@@ -465,6 +453,16 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
             }`}
           >
             Pagamento ({pendentesPagamento.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('agendadas')}
+            className={`px-3 py-2 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+              activeTab === 'agendadas'
+                ? 'bg-primary text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            Agendadas ({agendadas.length})
           </button>
           <button
             onClick={() => setActiveTab('pendentes_avaliacao')}
@@ -572,40 +570,6 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Tipo de Aula <span className="text-red-500">*</span>
-                </label>
-                <div className="space-y-2">
-                  {['Baliza', 'Rua', 'Rodovia', 'Geral'].map((type) => (
-                    <label key={type} className="flex items-center p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={scheduleForm.type.includes(type)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setScheduleForm({
-                              ...scheduleForm,
-                              type: [...scheduleForm.type, type]
-                            });
-                          } else {
-                            setScheduleForm({
-                              ...scheduleForm,
-                              type: scheduleForm.type.filter(t => t !== type)
-                            });
-                          }
-                        }}
-                        className="mr-3 w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
-                      />
-                      <span className="font-medium text-gray-700">{type}</span>
-                    </label>
-                  ))}
-                </div>
-                {scheduleForm.type.length === 0 && (
-                  <p className="text-sm text-red-500 mt-1">Selecione pelo menos um tipo de aula</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Tipo de Atendimento <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -656,8 +620,7 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
                 </button>
                 <button
                   type="submit"
-                  disabled={scheduleForm.type.length === 0}
-                  className="flex-1 bg-primary hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-xl transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  className="flex-1 bg-primary hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-xl transition-colors"
                 >
                   Agendar
                 </button>

@@ -100,7 +100,6 @@ const InstructorSearch = ({ onScheduleClass }) => {
   }, []);
   const [filters, setFilters] = useState({
     name: '',
-    classType: '',
     state: '',
     city: '',
     neighborhood: '',
@@ -110,9 +109,6 @@ const InstructorSearch = ({ onScheduleClass }) => {
   });
 
   const [sliderValue, setSliderValue] = useState(200);
-
-  // Tipos de aula fixos
-  const classTypes = ['Rua', 'Baliza', 'Rodovia', 'Geral'];
 
   // Extrair valores únicos para os filtros
   const uniqueStates = useMemo(() => {
@@ -166,20 +162,6 @@ const InstructorSearch = ({ onScheduleClass }) => {
         // Filtro por nome
         if (filters.name && !instructor.name.toLowerCase().includes(filters.name.toLowerCase())) {
           return false;
-        }
-
-        // Filtro por tipo de aula
-        if (filters.classType) {
-          if (filters.classType === 'Geral') {
-            // Para "Geral", aceitar qualquer instrutor
-            // Não precisa filtrar
-          } else {
-            // Verificar se o instrutor tem esse tipo de aula
-            const hasClassType = instructor.classTypes?.includes(filters.classType);
-            if (!hasClassType) {
-              return false;
-            }
-          }
         }
 
         // Filtro por estado
@@ -285,7 +267,6 @@ const InstructorSearch = ({ onScheduleClass }) => {
   const clearFilters = () => {
     setFilters({
       name: '',
-      classType: '',
       state: '',
       city: '',
       neighborhood: '',
@@ -323,23 +304,6 @@ const InstructorSearch = ({ onScheduleClass }) => {
               placeholder="Buscar por nome..."
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-colors bg-accent"
             />
-          </div>
-
-          {/* Tipo de Aula */}
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1.5">
-              Tipo de Aula
-            </label>
-            <select
-              value={filters.classType}
-              onChange={(e) => handleFilterChange('classType', e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-colors bg-white text-gray-700 hover:text-primary"
-            >
-              <option value="">Todos</option>
-              {classTypes.map(type => (
-                <option key={type} value={type} className="text-gray-700 hover:text-primary">{type}</option>
-              ))}
-            </select>
           </div>
 
           {/* Estado */}
@@ -573,22 +537,6 @@ const InstructorSearch = ({ onScheduleClass }) => {
                     )}
                   </div>
                 </div>
-              </div>
-
-              {/* Tipos de Aula */}
-              <div className="mb-3">
-                {instructor.classTypes && instructor.classTypes.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {instructor.classTypes.map((type, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2 py-1 bg-accent text-primary text-xs font-semibold rounded-lg"
-                      >
-                        {type}
-                      </span>
-                    ))}
-                  </div>
-                )}
               </div>
 
               {/* Rating */}

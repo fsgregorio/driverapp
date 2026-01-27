@@ -238,8 +238,6 @@ export const getClassTypeLabel = (type) => {
     'Rodovia': 'Rodovia',
     'Geral': 'Geral',
     'Todos': 'Todos os tipos',
-    'Carro Manual': 'Carro Manual',
-    'Carro Automático': 'Carro Automático',
     'Moto': 'Moto'
   };
   return types[type] || type;
@@ -268,8 +266,6 @@ export const getClassTypeBadgeColor = (type) => {
     'Rodovia': 'bg-green-100 text-green-800',
     'Geral': 'bg-gray-100 text-gray-800',
     'Todos': 'bg-indigo-100 text-indigo-800',
-    'Carro Manual': 'bg-orange-100 text-orange-800',
-    'Carro Automático': 'bg-teal-100 text-teal-800',
     'Moto': 'bg-red-100 text-red-800'
   };
   return colors[type] || 'bg-gray-100 text-gray-800';
@@ -341,7 +337,7 @@ export const getLastScheduledDateTime = (classData) => {
 };
 
 /**
- * Verifica se uma aula deve ser cancelada automaticamente (24h antes)
+ * Verifica se uma aula deve ser cancelada automaticamente (dia anterior à aula)
  * @param {object} classData - Dados da aula
  * @returns {boolean} true se deve ser cancelada
  */
@@ -357,15 +353,20 @@ export const shouldAutoCancelClass = (classData) => {
   }
   
   const now = new Date();
-  const timeDifference = lastDateTime.getTime() - now.getTime();
-  const hoursUntilClass = timeDifference / (1000 * 60 * 60);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const classDate = new Date(lastDateTime.getFullYear(), lastDateTime.getMonth(), lastDateTime.getDate());
   
-  // Cancelar se faltam menos de 24 horas
-  return hoursUntilClass < 24 && hoursUntilClass > 0;
+  // Calcular diferença em dias
+  const diffTime = classDate.getTime() - today.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  
+  // Cancelar se estamos no dia anterior à aula (aula é amanhã, diffDays = 1)
+  // Ou se a aula é hoje (diffDays = 0) - por segurança, mesmo que não devesse acontecer
+  return diffDays <= 1 && diffDays >= 0;
 };
 
 /**
- * Cancela automaticamente aulas que não foram aceitas/pagas até 24h antes
+ * Cancela automaticamente aulas que não foram aceitas/pagas até o dia anterior à aula
  * @param {Array} classes - Lista de aulas
  * @returns {Array} Lista de aulas atualizada (com cancelamentos aplicados)
  */

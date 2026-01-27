@@ -168,10 +168,12 @@ const ClassCardEnhanced = ({
           <div className="flex-1 min-w-0">
             {locationParts ? (
               <div>
-                <p className="font-medium text-sm sm:text-base break-words">{locationParts.address}</p>
+                <p className="font-medium text-sm sm:text-base break-words">{locationParts.address || ''}</p>
                 <p className="text-xs sm:text-sm text-gray-600 break-words">
-                  {locationParts.neighborhood && `${locationParts.neighborhood}, `}
-                  {locationParts.city} - {locationParts.state}
+                  {locationParts.neighborhood && typeof locationParts.neighborhood === 'string' ? `${locationParts.neighborhood}, ` : ''}
+                  {typeof locationParts.city === 'string' ? locationParts.city : ''}
+                  {typeof locationParts.city === 'string' && typeof locationParts.state === 'string' ? ' - ' : ''}
+                  {typeof locationParts.state === 'string' ? locationParts.state : ''}
                 </p>
               </div>
             ) : (

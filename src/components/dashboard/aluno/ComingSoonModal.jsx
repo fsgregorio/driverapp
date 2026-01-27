@@ -26,9 +26,6 @@ const ComingSoonModal = ({ isOpen, onClose, scheduleData, instructor }) => {
   };
 
   const scheduleInfo = formatScheduleInfo();
-  const classTypes = Array.isArray(scheduleData?.classTypes) 
-    ? scheduleData.classTypes.join(', ') 
-    : scheduleData?.classTypes || '';
 
   return (
     <Modal
@@ -85,13 +82,6 @@ const ComingSoonModal = ({ isOpen, onClose, scheduleData, instructor }) => {
                       <div key={index} className="text-gray-900">{info}</div>
                     ))}
                   </div>
-                </div>
-              )}
-              
-              {classTypes && (
-                <div className="flex items-start gap-2">
-                  <span className="text-gray-600 min-w-[100px]">Tipo de aula:</span>
-                  <span className="text-gray-900">{classTypes}</span>
                 </div>
               )}
               

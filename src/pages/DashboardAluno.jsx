@@ -97,7 +97,7 @@ const DashboardAluno = () => {
   // Removido: não mostrar modal automaticamente no dashboard
   // O modal só deve aparecer após login com Google na primeira vez
 
-  // Verificar e cancelar automaticamente aulas que não foram aceitas/pagas até 24h antes
+  // Verificar e cancelar automaticamente aulas que não foram aceitas/pagas até o dia anterior à aula
   useEffect(() => {
     if (!isAuthenticatedAs('student') || loading) return;
 
@@ -115,7 +115,7 @@ const DashboardAluno = () => {
           // Mostrar notificação se houver aulas canceladas
           const canceledCount = updatedClasses.filter(c => c.autoCanceled && !prevClasses.find(p => p.id === c.id && p.autoCanceled)).length;
           if (canceledCount > 0) {
-            console.log(`${canceledCount} aula(s) cancelada(s) automaticamente por não terem sido aceitas/pagas até 24h antes do horário marcado.`);
+            console.log(`${canceledCount} aula(s) cancelada(s) automaticamente por não terem sido aceitas/pagas até o dia anterior à aula.`);
             // Aqui você pode adicionar uma notificação visual se desejar
           }
         }

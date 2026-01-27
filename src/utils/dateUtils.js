@@ -77,3 +77,26 @@ export const isValidScheduleDate = (date) => {
   tomorrow.setHours(0, 0, 0, 0);
   return selectedDate >= tomorrow;
 };
+
+/**
+ * Verifica se um horário não é no mesmo dia (permite agendamento a partir de amanhã)
+ * @param {string} date - Data da aula (formato YYYY-MM-DD)
+ * @param {string} time - Hora da aula (formato HH:MM) - não usado, mas mantido para compatibilidade
+ * @returns {boolean} true se não for no mesmo dia (pode agendar)
+ */
+export const hasMinimum24HoursAdvance = (date, time) => {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
+  // Criar data da aula (apenas data, sem hora)
+  const classDate = new Date(date);
+  const classDateOnly = new Date(classDate.getFullYear(), classDate.getMonth(), classDate.getDate());
+  
+  // Verificar se a data é válida
+  if (isNaN(classDateOnly.getTime())) {
+    return false;
+  }
+  
+  // Não permitir agendamento no mesmo dia - deve ser a partir de amanhã
+  return classDateOnly > today;
+};

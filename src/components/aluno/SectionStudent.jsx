@@ -31,7 +31,7 @@ const SectionStudent = () => {
                 1. Escolha um Instrutor Certificado
               </h4>
               <p className="text-gray-600 text-center">
-                Compare preços, avaliações e tipos de carro. Todos os instrutores são verificados e seguem as diretrizes do Detran local.
+                Compare preços e avaliações. Todos os instrutores são verificados e seguem as diretrizes do Detran local.
               </p>
             </div>
 
@@ -141,7 +141,7 @@ const SectionStudent = () => {
               </div>
               <div>
                 <h4 className="font-bold text-lg text-secondary mb-2">Liberdade de Escolha</h4>
-                <p className="text-gray-600">Escolha o instrutor, o horário e o tipo de carro que preferir.</p>
+                <p className="text-gray-600">Escolha o instrutor e o horário que preferir.</p>
               </div>
             </div>
           </div>

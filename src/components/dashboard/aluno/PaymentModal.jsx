@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { getClassTypeLabel, normalizeClassTypes, getClassTypeBadgeColor } from '../../../utils/classUtils';
 import { trackEvent, trackingEvents } from '../../../utils/trackingUtils';
 
 const PaymentModal = ({ isOpen, onClose, classData, onConfirm }) => {
@@ -67,19 +66,6 @@ const PaymentModal = ({ isOpen, onClose, classData, onConfirm }) => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
               <span className="text-sm sm:text-base text-gray-600">Data e Hora:</span>
               <span className="font-semibold text-sm sm:text-base">{classData?.date} às {classData?.time}</span>
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-              <span className="text-sm sm:text-base text-gray-600">Tipo de Aula:</span>
-              <div className="flex flex-wrap gap-1 justify-start sm:justify-end">
-                {normalizeClassTypes(classData?.type).map((type, index) => (
-                  <span
-                    key={index}
-                    className={`px-2 py-0.5 rounded-full text-xs font-semibold ${getClassTypeBadgeColor(type)}`}
-                  >
-                    {getClassTypeLabel(type)}
-                  </span>
-                ))}
-              </div>
             </div>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
               <span className="text-sm sm:text-base text-gray-600">Carro:</span>

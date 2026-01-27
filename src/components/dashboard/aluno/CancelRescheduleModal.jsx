@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { isBefore24Hours } from '../../../utils/dateUtils';
-import { getClassTypeLabel, normalizeClassTypes, getClassTypeBadgeColor } from '../../../utils/classUtils';
+import { isBefore24Hours, hasMinimum24HoursAdvance } from '../../../utils/dateUtils';
+import { getClassTypeLabel, normalizeClassTypes, getClassTypeBadgeColor, formatLocation } from '../../../utils/classUtils';
 
 const CancelRescheduleModal = ({ 
   isOpen, 
@@ -69,6 +69,18 @@ const CancelRescheduleModal = ({
       // Reschedule
       if (!rescheduleForm.date || !rescheduleForm.time) {
         setError('Por favor, preencha a data e o horário.');
+        return;
+      }
+      
+      // Validar que não é possível agendar no mesmo dia
+      if (!hasMinimum24HoursAdvance(rescheduleForm.date, rescheduleForm.time)) {
+        const dateObj = new Date(rescheduleForm.date);
+        const formattedDate = dateObj.toLocaleDateString('pt-BR', {
+          weekday: 'short',
+          day: 'numeric',
+          month: 'short'
+        });
+        setError(`Não é possível reagendar aulas no mesmo dia.\n\nO horário selecionado (${formattedDate} às ${rescheduleForm.time}) é para hoje.\n\nPor favor, selecione uma data a partir de amanhã.`);
         return;
       }
       
@@ -153,7 +165,7 @@ const CancelRescheduleModal = ({
               <svg className="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               </svg>
-              <span>{classData?.location?.fullAddress || classData?.location}</span>
+              <span>{formatLocation(classData?.location)}</span>
             </div>
             <div className="flex items-center flex-wrap gap-2 text-gray-700">
               <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
