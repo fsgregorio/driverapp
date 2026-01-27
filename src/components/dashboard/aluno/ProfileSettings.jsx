@@ -13,12 +13,27 @@ const ProfileSettings = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
+  const formatPhone = (value) => {
+    // Remove tudo que não é número
+    const numbers = value.replace(/\D/g, '');
+    // Limita a 11 dígitos
+    const limited = numbers.slice(0, 11);
+    // Formata: (XX) XXXXX-XXXX ou (XX) XXXX-XXXX
+    if (limited.length <= 10) {
+      return limited.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3').replace(/-$/, '');
+    } else {
+      return limited.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3').replace(/-$/, '');
+    }
+  };
+
   useEffect(() => {
     if (user) {
+      // Formatar telefone ao carregar se existir
+      const formattedPhone = user.phone ? formatPhone(user.phone) : '';
       setFormData({
         name: user.name || '',
         email: user.email || '',
-        phone: user.phone || '',
+        phone: formattedPhone,
         photo: user.photo || null // Usar null em vez de string vazia para evitar renderizar imagem vazia
       });
     }
@@ -26,10 +41,17 @@ const ProfileSettings = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    if (name === 'phone') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: formatPhone(value)
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handlePhotoChange = (e) => {

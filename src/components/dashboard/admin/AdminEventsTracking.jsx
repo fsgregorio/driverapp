@@ -1,6 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { adminAPI } from '../../../services/api';
 
+// Eventos do funil que devem aparecer na aba de rastreamento
+const FUNNEL_EVENTS = [
+  'landing_aluno_cta_hero',
+  'auth_register_success',
+  'auth_complete_profile_success',
+  'dashboard_aluno_schedule_confirm_click',
+  'payment_initiated',
+  'coupon_requested',
+];
+
 const AdminEventsTracking = ({ period }) => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,11 +25,30 @@ const AdminEventsTracking = ({ period }) => {
     try {
       setLoading(true);
       setError(null);
+      
+      // Sempre filtrar apenas eventos do funil
+      // Se houver filtro de nome de evento, aplicar dentro dos eventos do funil
+      let eventNames = FUNNEL_EVENTS;
+      if (filterEventName) {
+        // Filtrar eventos do funil que correspondem ao filtro
+        eventNames = FUNNEL_EVENTS.filter(event => 
+          event.toLowerCase().includes(filterEventName.toLowerCase())
+        );
+      }
+      
+      // Se não houver eventos do funil após o filtro, retornar vazio
+      if (eventNames.length === 0) {
+        setEvents([]);
+        setTotalCount(0);
+        setLoading(false);
+        return;
+      }
+      
       const result = await adminAPI.getEvents({
         period,
         page,
         limit: eventsPerPage,
-        eventName: filterEventName || undefined,
+        eventNames: eventNames,
         userType: filterUserType || undefined,
       });
       setEvents(result.events || []);
@@ -68,7 +97,10 @@ const AdminEventsTracking = ({ period }) => {
   return (
     <section aria-label="Rastreamento de eventos">
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h2 className="text-lg font-semibold text-gray-900">Rastreamento de Eventos</h2>
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900">Rastreamento de Eventos</h2>
+          <p className="text-xs text-gray-500 mt-1">Mostrando apenas eventos do funil de conversão</p>
+        </div>
         <div className="flex flex-wrap gap-2">
           <input
             type="text"

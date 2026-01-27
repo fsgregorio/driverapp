@@ -142,8 +142,8 @@ export const studentsAPI = {
         .from('classes')
         .select('*')
         .eq('student_id', user.id)
-        .order('date', { ascending: true })
-        .order('time', { ascending: true });
+        .order('date', { ascending: false })
+        .order('time', { ascending: false });
 
       if (error) {
         console.error('❌ Erro ao buscar aulas:', error);
@@ -486,6 +486,59 @@ export const studentsAPI = {
       }
       // Caso contrário, criar um erro com mensagem amigável
       throw new Error(error.message || 'Erro ao cancelar aula. Por favor, tente novamente.');
+    }
+  },
+
+  updateClassStatus: async (classId, newStatus) => {
+    try {
+      const client = await getActiveSupabaseClient('student');
+      const { data: { user } } = await client.auth.getUser();
+      if (!user) throw new Error('Usuário não autenticado');
+
+      console.log('🔄 Atualizando status da aula:', classId, 'para', newStatus);
+
+      const { data, error } = await client
+        .from('classes')
+        .update({ 
+          status: newStatus, 
+          updated_at: new Date().toISOString() 
+        })
+        .eq('id', classId)
+        .eq('student_id', user.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Erro ao atualizar status da aula no banco:', error);
+        
+        // Verificar se a aula não foi encontrada ou não pertence ao aluno
+        if (error.code === 'PGRST116' || !data) {
+          throw new Error('Aula não encontrada ou você não tem permissão para atualizá-la.');
+        }
+        
+        // Verificar erros de permissão RLS
+        if (error.code === '42501' || error.message?.includes('permission')) {
+          throw new Error('Você não tem permissão para atualizar esta aula.');
+        }
+        
+        // Erro genérico
+        throw new Error(error.message || 'Erro ao atualizar status da aula. Por favor, tente novamente.');
+      }
+
+      if (!data) {
+        throw new Error('Aula não encontrada.');
+      }
+
+      console.log('✅ Status da aula atualizado no banco:', { id: data.id, status: data.status });
+      return transformClass(data);
+    } catch (error) {
+      console.error('Error updating class status:', error);
+      // Se já é um Error com mensagem amigável, apenas relançar
+      if (error instanceof Error && error.message) {
+        throw error;
+      }
+      // Caso contrário, criar um erro com mensagem amigável
+      throw new Error(error.message || 'Erro ao atualizar status da aula. Por favor, tente novamente.');
     }
   },
 
@@ -972,8 +1025,8 @@ export const instructorsAPI = {
         .from('classes')
         .select('*')
         .eq('instructor_id', user.id)
-        .order('date', { ascending: true })
-        .order('time', { ascending: true });
+        .order('date', { ascending: false })
+        .order('time', { ascending: false });
 
       if (error) throw error;
 
@@ -1254,27 +1307,30 @@ export const adminAPI = {
 
       (classes || []).forEach((c) => {
         // Alunos ativos: agendou/confirmou/concluiu pelo menos uma aula
-        if (['agendada', 'confirmada', 'concluida'].includes(c.status) && c.student_id) {
+        if (c && c.status && ['agendada', 'confirmada', 'concluida'].includes(c.status) && c.student_id) {
           activeStudentsSet.add(c.student_id);
         }
 
         // Instrutores ativos: aceitou/concluiu pelo menos uma aula
-        if (['confirmada', 'concluida'].includes(c.status) && c.instructor_id) {
+        if (c && c.status && ['confirmada', 'concluida'].includes(c.status) && c.instructor_id) {
           activeInstructorsSet.add(c.instructor_id);
         }
 
-        // Valor total pago
-        if (c.payment_status === 'pago') {
-          totalPaid += parseFloat(c.price || 0);
+        // Valor total pago - considerar apenas pagamentos confirmados
+        if (c && c.payment_status === 'pago' && c.price) {
+          const priceValue = parseFloat(c.price);
+          if (!isNaN(priceValue) && priceValue > 0) {
+            totalPaid += priceValue;
+          }
         }
       });
 
       return {
-        totalStudents: totalStudents || 0,
-        activeStudents: activeStudentsSet.size,
-        totalInstructors: totalInstructors || 0,
-        activeInstructors: activeInstructorsSet.size,
-        totalPaid,
+        totalStudents: totalStudents ?? 0,
+        activeStudents: activeStudentsSet.size ?? 0,
+        totalInstructors: totalInstructors ?? 0,
+        activeInstructors: activeInstructorsSet.size ?? 0,
+        totalPaid: totalPaid ?? 0,
       };
     } catch (error) {
       console.error('Error fetching admin indicators:', error);
@@ -1303,39 +1359,57 @@ export const adminAPI = {
         startTimestamp = new Date(now.getFullYear(), now.getMonth(), 1);
       }
 
-      let eventsQuery = client
+      // Buscar todos os eventos (incluindo os sem user_type para landing_aluno_cta_hero)
+      let allEventsQuery = client
         .from('events')
-        .select('user_id, event_name, user_type, timestamp')
-        .eq('user_type', 'student');
+        .select('user_id, event_name, user_type, timestamp, session_id');
 
       if (startTimestamp) {
-        eventsQuery = eventsQuery.gte('timestamp', startTimestamp.toISOString());
+        allEventsQuery = allEventsQuery.gte('timestamp', startTimestamp.toISOString());
       }
 
-      const { data: events, error: eventsError } = await eventsQuery;
+      const { data: allEvents, error: allEventsError } = await allEventsQuery;
 
-      if (eventsError) {
-        console.error('❌ Erro ao buscar eventos para funil de admin:', eventsError);
-        throw eventsError;
+      if (allEventsError) {
+        console.error('❌ Erro ao buscar eventos para funil de admin:', allEventsError);
+        throw allEventsError;
       }
 
-      const byEvent = (name) => {
+      // Filtrar eventos de estudantes (exceto landing_aluno_cta_hero que pode não ter user_type)
+      const studentEvents = (allEvents || []).filter((e) => {
+        // landing_aluno_cta_hero pode não ter user_type, então aceitar todos
+        if (e.event_name === 'landing_aluno_cta_hero') {
+          return true;
+        }
+        // Outros eventos devem ter user_type = 'student'
+        return e.user_type === 'student';
+      });
+
+      const byEvent = (name, useSessionId = false) => {
         const set = new Set();
-        (events || []).forEach((e) => {
-          if (e.event_name === name && e.user_id) {
-            set.add(e.user_id);
+        (studentEvents || []).forEach((e) => {
+          if (e && e.event_name === name) {
+            // Para landing_aluno_cta_hero, usar session_id se user_id não existir
+            if (useSessionId && !e.user_id && e.session_id) {
+              set.add(e.session_id);
+            } else if (e.user_id) {
+              set.add(e.user_id);
+            } else if (useSessionId && e.session_id) {
+              // Fallback para session_id se não houver user_id
+              set.add(e.session_id);
+            }
           }
         });
-        return set.size;
+        return set.size ?? 0;
       };
 
       return {
-        clickedStartNow: byEvent('landing_aluno_cta_hero'),
-        createdAccount: byEvent('auth_register_success'),
-        clickedSchedule: byEvent('dashboard_aluno_schedule_new_class'),
-        scheduledClass: byEvent('dashboard_aluno_class_scheduled'),
-        clickedPay: byEvent('payment_initiated'),
-        clickedCoupon: byEvent('coupon_requested'),
+        clickedStartNow: byEvent('landing_aluno_cta_hero', true) ?? 0, // Usar session_id para eventos sem user_id
+        createdAccount: byEvent('auth_register_success') ?? 0,
+        completedProfile: byEvent('auth_complete_profile_success') ?? 0,
+        scheduledClass: byEvent('dashboard_aluno_schedule_confirm_click') ?? 0,
+        initiatedPayment: byEvent('payment_initiated') ?? 0,
+        requestedCoupon: byEvent('coupon_requested') ?? 0,
       };
     } catch (error) {
       console.error('Error fetching admin funnel metrics:', error);
@@ -1395,9 +1469,10 @@ export const adminAPI = {
    * @param {number} options.limit - Limite de resultados por página
    * @param {string} options.eventName - Filtrar por nome do evento
    * @param {string} options.userType - Filtrar por tipo de usuário
+   * @param {Array<string>} options.eventNames - Filtrar por lista específica de nomes de eventos
    * @returns {Promise<Object>} { events: Array, total: number }
    */
-  getEvents: async ({ period = 'all', page = 1, limit = 50, eventName, userType } = {}) => {
+  getEvents: async ({ period = 'all', page = 1, limit = 50, eventName, userType, eventNames } = {}) => {
     try {
       const client = await getActiveSupabaseClient('admin');
       const { data: { user } } = await client.auth.getUser();
@@ -1424,7 +1499,10 @@ export const adminAPI = {
         eventsQuery = eventsQuery.gte('timestamp', startTimestamp.toISOString());
       }
 
-      if (eventName) {
+      // Filtrar por lista específica de eventos (prioridade sobre eventName)
+      if (eventNames && Array.isArray(eventNames) && eventNames.length > 0) {
+        eventsQuery = eventsQuery.in('event_name', eventNames);
+      } else if (eventName) {
         eventsQuery = eventsQuery.ilike('event_name', `%${eventName}%`);
       }
 

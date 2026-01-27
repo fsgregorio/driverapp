@@ -17,9 +17,8 @@ const AdminClassesManagement = ({ period }) => {
   const statusOptions = [
     { value: 'pendente_aceite', label: 'Pendente de Aceite' },
     { value: 'pendente_pagamento', label: 'Pendente de Pagamento' },
-    { value: 'confirmada', label: 'Confirmada' },
     { value: 'agendada', label: 'Agendada' },
-    { value: 'em_andamento', label: 'Em Andamento' },
+    { value: 'pendente_avaliacao', label: 'Pendente de Avaliação' },
     { value: 'concluida', label: 'Concluída' },
     { value: 'cancelada', label: 'Cancelada' },
   ];
@@ -189,9 +188,8 @@ const AdminClassesManagement = ({ period }) => {
     const colors = {
       'pendente_aceite': 'bg-yellow-100 text-yellow-800',
       'pendente_pagamento': 'bg-orange-100 text-orange-800',
-      'confirmada': 'bg-blue-100 text-blue-800',
       'agendada': 'bg-blue-100 text-blue-800',
-      'em_andamento': 'bg-purple-100 text-purple-800',
+      'pendente_avaliacao': 'bg-purple-100 text-purple-800',
       'concluida': 'bg-green-100 text-green-800',
       'cancelada': 'bg-red-100 text-red-800',
     };

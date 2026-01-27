@@ -97,26 +97,71 @@ const DashboardAluno = () => {
   // Removido: não mostrar modal automaticamente no dashboard
   // O modal só deve aparecer após login com Google na primeira vez
 
-  // Verificar e cancelar automaticamente aulas que não foram aceitas/pagas até o dia anterior à aula
+  // Verificar e processar automaticamente aulas que passaram da data e horário atual
   useEffect(() => {
     if (!isAuthenticatedAs('student') || loading) return;
 
-    // Função para verificar e cancelar aulas
-    const checkAndCancelExpiredClasses = () => {
+    // Função para verificar e processar aulas expiradas
+    const checkAndProcessExpiredClasses = async () => {
       setClasses(prevClasses => {
         const updatedClasses = autoCancelExpiredClasses(prevClasses);
+        
         // Verificar se houve mudanças
         const hasChanges = updatedClasses.some((updatedClass, index) => {
           const prevClass = prevClasses[index];
-          return updatedClass.status !== prevClass.status || updatedClass.autoCanceled;
+          return updatedClass.status !== prevClass.status || updatedClass.autoCanceled || updatedClass.autoUpdated;
         });
         
         if (hasChanges) {
-          // Mostrar notificação se houver aulas canceladas
-          const canceledCount = updatedClasses.filter(c => c.autoCanceled && !prevClasses.find(p => p.id === c.id && p.autoCanceled)).length;
-          if (canceledCount > 0) {
-            console.log(`${canceledCount} aula(s) cancelada(s) automaticamente por não terem sido aceitas/pagas até o dia anterior à aula.`);
-            // Aqui você pode adicionar uma notificação visual se desejar
+          // Identificar aulas que foram canceladas automaticamente
+          const newlyCanceledClasses = updatedClasses.filter(c => 
+            c.autoCanceled && 
+            !prevClasses.find(p => p.id === c.id && p.autoCanceled)
+          );
+          
+          // Identificar aulas que foram movidas para pendente_avaliacao
+          const newlyPendingEvaluationClasses = updatedClasses.filter(c => 
+            c.autoUpdated && 
+            c.status === 'pendente_avaliacao' &&
+            !prevClasses.find(p => p.id === c.id && p.status === 'pendente_avaliacao' && p.autoUpdated)
+          );
+          
+          if (newlyCanceledClasses.length > 0) {
+            console.log(`${newlyCanceledClasses.length} aula(s) cancelada(s) automaticamente por terem passado da data e horário atual.`);
+            
+            // Atualizar no backend cada aula cancelada (assíncrono, não bloqueia)
+            newlyCanceledClasses.forEach(async (canceledClass) => {
+              try {
+                await studentsAPI.cancelClass(canceledClass.id);
+                console.log(`✅ Aula ${canceledClass.id} cancelada automaticamente no backend`);
+                
+                // Recarregar as aulas após cancelamento bem-sucedido
+                const reloadedClasses = await studentsAPI.getClasses();
+                setClasses(reloadedClasses);
+              } catch (error) {
+                console.error(`❌ Erro ao cancelar aula ${canceledClass.id} no backend:`, error);
+                // Continuar mesmo se houver erro em uma aula
+              }
+            });
+          }
+          
+          if (newlyPendingEvaluationClasses.length > 0) {
+            console.log(`${newlyPendingEvaluationClasses.length} aula(s) movida(s) para aguardando avaliação por terem passado da data e horário atual.`);
+            
+            // Atualizar no backend cada aula movida para pendente_avaliacao (assíncrono, não bloqueia)
+            newlyPendingEvaluationClasses.forEach(async (pendingClass) => {
+              try {
+                await studentsAPI.updateClassStatus(pendingClass.id, 'pendente_avaliacao');
+                console.log(`✅ Aula ${pendingClass.id} movida para pendente_avaliacao automaticamente no backend`);
+                
+                // Recarregar as aulas após atualização bem-sucedida
+                const reloadedClasses = await studentsAPI.getClasses();
+                setClasses(reloadedClasses);
+              } catch (error) {
+                console.error(`❌ Erro ao atualizar aula ${pendingClass.id} no backend:`, error);
+                // Continuar mesmo se houver erro em uma aula
+              }
+            });
           }
         }
         
@@ -125,10 +170,10 @@ const DashboardAluno = () => {
     };
 
     // Verificar imediatamente ao montar
-    checkAndCancelExpiredClasses();
+    checkAndProcessExpiredClasses();
 
     // Verificar a cada 30 minutos
-    const interval = setInterval(checkAndCancelExpiredClasses, 30 * 60 * 1000);
+    const interval = setInterval(checkAndProcessExpiredClasses, 30 * 60 * 1000);
 
     return () => clearInterval(interval);
   }, [isAuthenticatedAs, loading]);

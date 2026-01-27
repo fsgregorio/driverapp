@@ -6,6 +6,7 @@ import { useAuth } from '../../../context/AuthContext';
 import { studentsAPI } from '../../../services/api';
 import { hasMinimum24HoursAdvance } from '../../../utils/dateUtils';
 import ScheduleConfirmationModal from './ScheduleConfirmationModal';
+import Calendar from './Calendar';
 
 const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
   const { user } = useAuth();
@@ -58,9 +59,9 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
     }
   }, [instructor, vehicleType]);
 
-  const handleDateToggle = (date) => {
-    if (selectedDate === date) {
-      // Se clicar na mesma data, desmarcar
+  const handleDateSelect = (date) => {
+    // Se date for null, desmarcar
+    if (date === null) {
       setSelectedDate(null);
       setSelectedTime(null);
     } else {
@@ -227,18 +228,23 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
     return hasMinimum24HoursAdvance(date, time);
   };
 
-  // Gerar próximos 14 dias para seleção
-  // Nota: A validação será feita nos horários disponíveis, não nas datas
-  const generateDateOptions = () => {
-    const dates = [];
+  // Obter data mínima (amanhã) e máxima (60 dias à frente)
+  const getMinDate = () => {
     const today = new Date();
-    // Começar a partir de amanhã (dia +1)
-    for (let i = 1; i <= 14; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      dates.push(date.toISOString().split('T')[0]);
-    }
-    return dates;
+    today.setDate(today.getDate() + 1);
+    return today.toISOString().split('T')[0];
+  };
+
+  const getMaxDate = () => {
+    const today = new Date();
+    today.setDate(today.getDate() + 60);
+    return today.toISOString().split('T')[0];
+  };
+
+  // Verificar se uma data tem disponibilidade
+  const checkDateAvailability = (date) => {
+    const availableTimes = getAvailableTimesForDate(date);
+    return availableTimes.length > 0;
   };
 
   // Obter horários disponíveis para uma data específica (filtrando para não permitir mesmo dia)
@@ -265,8 +271,6 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
       month: 'short'
     });
   };
-
-  const dateOptions = generateDateOptions();
 
   if (!instructor) return null;
 
@@ -542,80 +546,44 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
           <label className="block text-base sm:text-lg font-semibold text-gray-900 mb-3">
             Selecione Dia e Horário *
           </label>
-                <p className="text-xs sm:text-sm text-gray-600 mb-4">
+          <p className="text-xs sm:text-sm text-gray-600 mb-4">
             Selecione um dia e horário para sua aula.
             <br className="hidden sm:block" />
             <span className="font-semibold text-primary">Importante:</span> Não é possível agendar aulas <strong>no mesmo dia</strong>. Selecione uma data a partir de amanhã.
           </p>
 
-          <div className="space-y-3 sm:space-y-4 max-h-96 overflow-y-auto pr-1 sm:pr-2">
-            {dateOptions.map(date => {
-              const isSelected = selectedDate === date;
-              // Verificar se há horários disponíveis (não permitindo mesmo dia)
-              const availableTimesWith24h = getAvailableTimesForDate(date);
-              const hasAvailability = availableTimesWith24h.length > 0;
+          {/* Layout: Calendário à esquerda, Horários à direita */}
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
+            {/* Calendário */}
+            <div className="flex-shrink-0 w-full lg:w-80">
+              <Calendar
+                selectedDate={selectedDate}
+                onDateSelect={handleDateSelect}
+                minDate={getMinDate()}
+                maxDate={getMaxDate()}
+                getDateAvailability={checkDateAvailability}
+              />
+            </div>
 
-              return (
-                <div
-                  key={date}
-                  className={`border-2 rounded-xl p-3 sm:p-4 transition-all ${
-                    isSelected
-                      ? 'border-primary bg-accent'
-                      : hasAvailability
-                      ? 'border-gray-200 bg-white hover:border-gray-300'
-                      : 'border-gray-100 bg-gray-50 opacity-60'
-                  }`}
-                >
-                  {/* Data */}
-                  <button
-                    onClick={() => handleDateToggle(date)}
-                    className="w-full flex items-center justify-between mb-2 sm:mb-3"
-                  >
-                    <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                      <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                        isSelected
-                          ? 'border-primary bg-primary'
-                          : 'border-gray-300'
-                      }`}>
-                        {isSelected && (
-                          <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </div>
-                      <span className={`text-sm sm:text-lg font-semibold truncate ${
-                        isSelected ? 'text-primary' : hasAvailability ? 'text-gray-700' : 'text-gray-400'
-                      }`}>
-                        {formatDateDisplay(date)}
-                        {!hasAvailability && (
-                          <span className="ml-1 sm:ml-2 text-xs font-normal text-gray-400">
-                            (Sem disponibilidade)
-                          </span>
-                        )}
-                      </span>
-                    </div>
-                    <svg
-                      className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform flex-shrink-0 ml-2 ${
-                        isSelected ? 'rotate-180 text-primary' : 'text-gray-400'
-                      }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-
-                  {/* Horários */}
-                  {isSelected && (() => {
-                    const availableTimesForDate = getAvailableTimesForDate(date);
-                    const allTimesForDate = instructor ? getAvailableTimes(instructor, date, allScheduledClasses) : [];
+            {/* Lista de Horários */}
+            <div className="flex-1 min-w-0">
+              {selectedDate ? (
+                <div>
+                  <h4 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
+                    Horários disponíveis para {formatDateDisplay(selectedDate)}
+                  </h4>
+                  {(() => {
+                    const availableTimesForDate = getAvailableTimesForDate(selectedDate);
+                    const allTimesForDate = instructor ? getAvailableTimes(instructor, selectedDate, allScheduledClasses) : [];
                     const hasTimesButNotSameDay = allTimesForDate.length > 0 && availableTimesForDate.length === 0;
                     
                     if (availableTimesForDate.length === 0) {
                       return (
-                        <div className="mt-2 sm:mt-3 pl-6 sm:pl-8">
-                          <p className="text-xs sm:text-sm text-gray-500 italic">
+                        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-6 text-center">
+                          <svg className="w-10 h-10 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <p className="text-sm text-gray-600">
                             {hasTimesButNotSameDay 
                               ? 'Não é possível agendar aulas no mesmo dia. Selecione uma data a partir de amanhã.'
                               : 'Nenhum horário disponível para esta data'}
@@ -625,17 +593,17 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
                     }
                     
                     return (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-2 sm:mt-3 pl-6 sm:pl-8">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
                         {availableTimesForDate.map(time => {
-                          const isTimeSelectedForThisDate = selectedDate === date && selectedTime === time;
+                          const isTimeSelected = selectedTime === time;
                           return (
                             <button
                               key={time}
-                              onClick={() => handleTimeToggle(date, time)}
-                              className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
-                                isTimeSelectedForThisDate
-                                  ? 'bg-primary text-white'
-                                  : 'bg-white text-gray-700 border border-gray-200 hover:border-primary hover:bg-accent'
+                              onClick={() => handleTimeToggle(selectedDate, time)}
+                              className={`px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-all ${
+                                isTimeSelected
+                                  ? 'bg-primary text-white shadow-md transform scale-105'
+                                  : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-primary hover:bg-accent'
                               }`}
                             >
                               {time}
@@ -646,8 +614,17 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
                     );
                   })()}
                 </div>
-              );
-            })}
+              ) : (
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 sm:p-8 lg:p-12 text-center">
+                  <svg className="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-gray-400 mb-3 sm:mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <p className="text-sm sm:text-base text-gray-600">
+                    Selecione uma data no calendário para ver os horários disponíveis
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

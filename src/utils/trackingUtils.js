@@ -3,7 +3,7 @@
  * Integrado com Supabase para armazenamento persistente
  */
 
-import { supabase } from '../services/supabase';
+import { supabase, supabaseStudent, supabaseInstructor, supabaseAdmin } from '../services/supabase';
 
 // Configuração de tracking
 const TRACKING_ENABLED = process.env.NODE_ENV === 'production' || process.env.REACT_APP_ENABLE_TRACKING === 'true';
@@ -19,6 +19,35 @@ const getSessionId = () => {
 };
 
 /**
+ * Obtém o usuário atual de qualquer cliente Supabase autenticado
+ * Exclui admin, pois eventos são gerados apenas por ações de usuários (alunos/instrutores)
+ */
+const getCurrentUser = async () => {
+  // Tentar obter usuário apenas dos clientes de usuários (não admin)
+  // Eventos são gerados por ações de alunos/instrutores, não de admin
+  const clients = [
+    { client: supabaseStudent, type: 'student' },
+    { client: supabaseInstructor, type: 'instructor' },
+    { client: supabase, type: 'default' }
+    // Não incluir supabaseAdmin, pois admin não gera eventos de tracking de usuários
+  ];
+
+  for (const { client } of clients) {
+    try {
+      const { data: { user }, error } = await client.auth.getUser();
+      if (!error && user) {
+        return user;
+      }
+    } catch (err) {
+      // Continuar tentando outros clientes
+      continue;
+    }
+  }
+  
+  return null;
+};
+
+/**
  * Registra um evento de tracking
  * @param {string} eventName - Nome do evento (ex: 'button_click', 'page_view')
  * @param {Object} properties - Propriedades adicionais do evento
@@ -29,8 +58,8 @@ export const trackEvent = async (eventName, properties = {}) => {
     console.log('[Tracking]', eventName, properties);
   }
 
-  // Get current user if available
-  const { data: { user } } = await supabase.auth.getUser();
+  // Get current user if available (tenta todos os clientes)
+  const user = await getCurrentUser();
   
   // Extract user type from properties or determine from context
   const userType = properties.user_type || (user ? null : null); // Will be set by components
@@ -41,6 +70,7 @@ export const trackEvent = async (eventName, properties = {}) => {
   // Prepare event data
   const eventData = {
     user_id: user?.id || null,
+    user_email: user?.email || null,
     event_name: eventName,
     properties: properties,
     timestamp: new Date().toISOString(),

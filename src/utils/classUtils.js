@@ -179,7 +179,7 @@ export const getUpcomingClasses = (classes, days = 7) => {
     .sort((a, b) => {
       const dateA = new Date(`${a.date}T${a.time}`);
       const dateB = new Date(`${b.date}T${b.time}`);
-      return dateA - dateB;
+      return dateB - dateA; // Ordem decrescente: datas mais recentes primeiro
     });
 };
 
@@ -337,41 +337,61 @@ export const getLastScheduledDateTime = (classData) => {
 };
 
 /**
- * Verifica se uma aula deve ser cancelada automaticamente (dia anterior à aula)
+ * Verifica se uma aula passou da data e horário atual
  * @param {object} classData - Dados da aula
- * @returns {boolean} true se deve ser cancelada
+ * @returns {boolean} true se a aula já passou
  */
-export const shouldAutoCancelClass = (classData) => {
-  // Apenas aulas pendentes de aceite ou pagamento podem ser canceladas automaticamente
-  if (classData.status !== 'pendente_aceite' && classData.status !== 'pendente_pagamento') {
-    return false;
-  }
-  
+export const hasClassExpired = (classData) => {
   const lastDateTime = getLastScheduledDateTime(classData);
   if (!lastDateTime) {
     return false;
   }
   
   const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const classDate = new Date(lastDateTime.getFullYear(), lastDateTime.getMonth(), lastDateTime.getDate());
-  
-  // Calcular diferença em dias
-  const diffTime = classDate.getTime() - today.getTime();
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  
-  // Cancelar se estamos no dia anterior à aula (aula é amanhã, diffDays = 1)
-  // Ou se a aula é hoje (diffDays = 0) - por segurança, mesmo que não devesse acontecer
-  return diffDays <= 1 && diffDays >= 0;
+  // Verificar se a data e horário da aula já passaram
+  return lastDateTime < now;
 };
 
 /**
- * Cancela automaticamente aulas que não foram aceitas/pagas até o dia anterior à aula
+ * Verifica se uma aula deve ser cancelada automaticamente
+ * Cancela apenas aulas pendentes de aceite ou pagamento que passaram
+ * @param {object} classData - Dados da aula
+ * @returns {boolean} true se deve ser cancelada
+ */
+export const shouldAutoCancelClass = (classData) => {
+  // Apenas aulas pendentes de aceite ou pagamento podem ser canceladas automaticamente
+  const cancelableStatuses = ['pendente_aceite', 'pendente_pagamento'];
+  if (!cancelableStatuses.includes(classData.status)) {
+    return false;
+  }
+  
+  return hasClassExpired(classData);
+};
+
+/**
+ * Verifica se uma aula agendada deve mudar para aguardando avaliação
+ * @param {object} classData - Dados da aula
+ * @returns {boolean} true se deve mudar para pendente_avaliacao
+ */
+export const shouldMoveToPendingEvaluation = (classData) => {
+  // Apenas aulas agendadas podem mudar para pendente_avaliacao
+  if (classData.status !== 'agendada' && classData.status !== 'confirmada') {
+    return false;
+  }
+  
+  return hasClassExpired(classData);
+};
+
+/**
+ * Processa automaticamente aulas que passaram da data e horário atual
+ * - Cancela aulas pendentes de aceite/pagamento
+ * - Muda aulas agendadas para pendente_avaliacao
  * @param {Array} classes - Lista de aulas
- * @returns {Array} Lista de aulas atualizada (com cancelamentos aplicados)
+ * @returns {Array} Lista de aulas atualizada
  */
 export const autoCancelExpiredClasses = (classes) => {
   return classes.map(classData => {
+    // Verificar se deve cancelar (pendente_aceite ou pendente_pagamento)
     if (shouldAutoCancelClass(classData)) {
       return {
         ...classData,
@@ -381,6 +401,17 @@ export const autoCancelExpiredClasses = (classes) => {
         canceledAt: new Date().toISOString()
       };
     }
+    
+    // Verificar se deve mudar para pendente_avaliacao (agendada/confirmada)
+    if (shouldMoveToPendingEvaluation(classData)) {
+      return {
+        ...classData,
+        status: 'pendente_avaliacao',
+        autoUpdated: true,
+        updatedAt: new Date().toISOString()
+      };
+    }
+    
     return classData;
   });
 };

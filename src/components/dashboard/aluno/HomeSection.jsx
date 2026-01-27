@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import PendingClassesCard from './PendingClassesCard';
 import IndicatorsListCard from './IndicatorsListCard';
+import UpcomingClassesCalendar from './UpcomingClassesCalendar';
 import { 
   getAgendadasClasses,
   getPendingAcceptanceClasses, 
@@ -145,6 +146,12 @@ const HomeSection = ({ classes, onNavigateToSection }) => {
             }
           />
         </div>
+      </div>
+
+      {/* Calendário de Próximas Aulas */}
+      <div>
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">Calendário de Aulas</h2>
+        <UpcomingClassesCalendar classes={classes} />
       </div>
 
       {/* Indicadores */}
