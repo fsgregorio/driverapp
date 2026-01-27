@@ -109,6 +109,7 @@ const InstructorSearch = ({ onScheduleClass }) => {
   });
 
   const [sliderValue, setSliderValue] = useState(200);
+  const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
 
   // Extrair valores únicos para os filtros
   const uniqueStates = useMemo(() => {
@@ -280,18 +281,40 @@ const InstructorSearch = ({ onScheduleClass }) => {
   return (
     <div className="space-y-6">
       {/* Filtros */}
-      <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-5">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-4 sm:mb-5">
+      <div className="bg-white rounded-lg border border-gray-200 p-2 sm:p-3 relative">
+        <div className="flex items-center gap-2 mb-2 sm:mb-3">
           <h2 className="text-base sm:text-lg font-semibold text-gray-800">Filtros</h2>
           <button
-            onClick={clearFilters}
-            className="text-xs sm:text-sm text-gray-500 hover:text-primary font-medium transition-colors px-2 py-1 sm:px-0 sm:py-0"
+            onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
+            className="text-primary hover:text-blue-600 transition-colors"
+            aria-label={isFiltersExpanded ? "Recolher filtros" : "Expandir filtros"}
           >
-            Limpar
+            <svg
+              className={`w-5 h-5 transition-transform ${isFiltersExpanded ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
           </button>
         </div>
+        <button
+          onClick={clearFilters}
+          className="absolute top-2 sm:top-3 right-2 sm:right-3 text-xs sm:text-sm text-gray-500 hover:text-red-500 font-medium transition-colors flex items-center gap-1.5"
+        >
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          Limpar
+        </button>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 ${isFiltersExpanded ? '' : 'hidden'}`}>
           {/* Nome */}
           <div className="sm:col-span-2 lg:col-span-1">
             <label className="block text-xs font-medium text-gray-600 mb-1.5">
@@ -381,8 +404,8 @@ const InstructorSearch = ({ onScheduleClass }) => {
         </div>
 
         {/* Faixa de Preço - Slider */}
-        <div className="mt-4 sm:mt-5 pt-4 border-t border-gray-200">
-          <label className="block text-xs font-medium text-gray-600 mb-2 sm:mb-3">
+        <div className={`mt-3 pt-3 border-t border-gray-200 ${isFiltersExpanded ? '' : 'hidden'}`}>
+          <label className="block text-xs font-medium text-gray-600 mb-2">
             Faixa de Preço
           </label>
           <div className="px-1 sm:px-2">

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { trackEvent, trackingEvents } from '../../../utils/trackingUtils';
-import { suggestionsAPI } from '../../../services/api';
+import { suggestionsAPI, studentsAPI } from '../../../services/api';
 
-const PaymentComingSoonModal = ({ isOpen, onClose }) => {
+const PaymentComingSoonModal = ({ isOpen, onClose, classId, onComplete }) => {
   const [showCoupon, setShowCoupon] = useState(false);
   const [copied, setCopied] = useState(false);
   const [suggestion, setSuggestion] = useState('');
@@ -34,7 +34,22 @@ const PaymentComingSoonModal = ({ isOpen, onClose }) => {
     }
   }, [isOpen]);
 
-  const handleClose = () => {
+  const handleClose = async (shouldComplete = false) => {
+    // Se houver uma aula associada e devemos completar, atualizar status e redirecionar
+    if (shouldComplete && classId && onComplete) {
+      try {
+        // Atualizar status da aula para concluída
+        await studentsAPI.updateClassStatus(classId, 'concluida');
+        console.log('✅ Aula atualizada para concluída:', classId);
+        
+        // Chamar callback para redirecionar e atualizar estado
+        onComplete();
+      } catch (error) {
+        console.error('Erro ao atualizar status da aula:', error);
+        // Continuar com o fechamento mesmo se houver erro
+      }
+    }
+    
     onClose();
   };
 
@@ -103,9 +118,24 @@ const PaymentComingSoonModal = ({ isOpen, onClose }) => {
       setSuggestionSent(true);
       setSuggestion('');
       
+      // Se houver uma aula associada, atualizar status e redirecionar
+      if (classId && onComplete) {
+        try {
+          // Atualizar status da aula para concluída
+          await studentsAPI.updateClassStatus(classId, 'concluida');
+          console.log('✅ Aula atualizada para concluída:', classId);
+          
+          // Chamar callback para redirecionar e atualizar estado
+          onComplete();
+        } catch (error) {
+          console.error('Erro ao atualizar status da aula:', error);
+          // Continuar com o fechamento mesmo se houver erro
+        }
+      }
+      
       // Fechar o modal após 1 segundo (tempo suficiente para mostrar a mensagem de sucesso)
       setTimeout(() => {
-        handleClose();
+        handleClose(false); // Não completar novamente, já foi feito acima
       }, 1000);
     } catch (error) {
       console.error('Erro ao enviar sugestão:', error);
@@ -131,7 +161,7 @@ const PaymentComingSoonModal = ({ isOpen, onClose }) => {
 
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {
-      handleClose();
+      handleClose(true); // Completar aula ao fechar pelo backdrop
     }
   };
 
@@ -148,7 +178,7 @@ const PaymentComingSoonModal = ({ isOpen, onClose }) => {
       >
         {/* Botão de fechar - posição absoluta */}
         <button
-          onClick={handleClose}
+          onClick={() => handleClose(true)}
           className="absolute top-2 right-2 sm:top-4 sm:right-4 text-gray-500 hover:text-gray-700 transition-colors p-1.5 sm:p-2 hover:bg-gray-100 rounded-full z-10"
           aria-label="Fechar"
         >
@@ -325,7 +355,7 @@ const PaymentComingSoonModal = ({ isOpen, onClose }) => {
                       )}
                     </button>
                     <button
-                      onClick={handleClose}
+                      onClick={() => handleClose(true)}
                       className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 sm:py-2 px-4 sm:px-6 rounded-lg sm:rounded-xl transition-colors text-xs sm:text-sm md:text-base"
                     >
                       Fechar
@@ -338,7 +368,7 @@ const PaymentComingSoonModal = ({ isOpen, onClose }) => {
             {/* Botão de Fechar (quando não está mostrando o cupom) */}
             {!showCoupon && (
               <button
-                onClick={handleClose}
+                onClick={() => handleClose(true)}
                 className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2.5 sm:py-2.5 md:py-3 px-4 sm:px-6 rounded-lg sm:rounded-xl transition-colors mt-2 text-xs sm:text-sm md:text-base"
               >
                 Fechar

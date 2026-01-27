@@ -657,9 +657,26 @@ const ClassControl = ({ instructors, onScheduleClass, initialTab = 'agendadas', 
       {/* Modal de Pagamento - Em Breve */}
       <PaymentComingSoonModal
         isOpen={showPaymentModal}
-        onClose={() => {
+        onClose={async () => {
           setShowPaymentModal(false);
           setSelectedClass(null);
+        }}
+        classId={selectedClass?.id}
+        onComplete={async () => {
+          // Recarregar as aulas do banco para garantir que os dados estão sincronizados
+          try {
+            const reloadedClasses = await studentsAPI.getClasses();
+            updateClasses(reloadedClasses);
+            console.log('✅ Aulas recarregadas após conclusão');
+          } catch (reloadError) {
+            console.error('Erro ao recarregar aulas:', reloadError);
+          }
+          
+          // Redirecionar para a seção home
+          if (onNavigateToSection) {
+            console.log('📍 Redirecionando para home após conclusão da aula');
+            onNavigateToSection('home');
+          }
         }}
       />
 

@@ -300,9 +300,6 @@ const ScheduleClassModal = ({ isOpen, onClose, instructor, onConfirm }) => {
                 <p className="text-xs sm:text-sm md:text-base text-gray-700 mb-2 sm:mb-3 md:mb-4">
                   A aula será <strong className="text-yellow-600">cancelada automaticamente</strong> se não for aceita pelo instrutor ou paga até o <strong className="text-yellow-600">dia anterior</strong> à aula.
                 </p>
-                <p className="text-xs sm:text-sm text-gray-600">
-                  Certifique-se de que o instrutor aceitará a aula ou que você pagará dentro do prazo para evitar o cancelamento automático.
-                </p>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-gray-200" onClick={(e) => e.stopPropagation()}>

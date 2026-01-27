@@ -93,8 +93,18 @@ const HomeSection = ({ classes, onNavigateToSection }) => {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Bem-vindo de volta!</h1>
-        <p className="text-sm sm:text-base text-gray-600">Acompanhe suas aulas e indicadores</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Bem vindo!</h1>
+        <p className="text-sm sm:text-base text-gray-600 mb-4">Acompanhe suas aulas e indicadores</p>
+        <button
+          onClick={() => {
+            if (onNavigateToSection) {
+              onNavigateToSection('instructors');
+            }
+          }}
+          className="px-4 py-2 bg-primary hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors text-sm sm:text-base"
+        >
+          + Agendar nova aula
+        </button>
       </div>
 
       {/* Cards Principais */}
